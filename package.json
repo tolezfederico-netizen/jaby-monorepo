@@ -1,8 +1,17 @@
 {
   "private": true,
-  "workspaces": ["client", "admin", "shared"],
+  "engines": {
+    "node": ">=18.0.0 <21.0.0"
+  },
+  "workspaces": [
+    "shared",
+    "client",
+    "admin"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace=client & npm run dev --workspace=admin",
-    "build": "npm run build --workspace=client && npm run build --workspace=admin"
+    "build": "npm run build --workspace=client && npm run build --workspace=admin",
+    "build:client": "npm run build --workspace=client",
+    "build:admin": "npm run build --workspace=admin"
   }
 }
