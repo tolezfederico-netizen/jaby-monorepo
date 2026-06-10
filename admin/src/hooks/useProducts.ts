@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { z } from 'zod'
-import { ProductSchema, ProductCreateSchema, ProductUpdateSchema } from '@shared/schemas/product'
-import type { ProductCreateType, ProductUpdateType } from '@shared/types/index'
+import { ProductSchema, ProductCreateSchema, ProductUpdateSchema } from '@jaby/shared'
+import type { ProductCreateType, ProductUpdateType } from '@jaby/shared'
 
 async function fetchAllProducts() {
   const { data, error } = await supabase

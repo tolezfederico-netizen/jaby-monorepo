@@ -4,7 +4,7 @@ import { useAppStatus } from '../hooks/useAppStatus'
 import { useCart } from '../context/CartContext'
 import { useCreateOrder } from '../hooks/useCreateOrder'
 import Footer from '../components/Footer'
-import type { OrderModalityType } from '@shared/types/index'
+import type { OrderModalityType } from '@jaby/shared'
 import styles from './CheckoutPage.module.css'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

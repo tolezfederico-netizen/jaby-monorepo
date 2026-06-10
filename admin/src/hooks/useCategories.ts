@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { CategorySchema, CategoryCreateSchema, CategoryUpdateSchema } from '@shared/schemas/category'
-import type { CategoryCreateType, CategoryUpdateType, CategoryType } from '@shared/types/index'
+import { CategorySchema, CategoryCreateSchema, CategoryUpdateSchema } from '@jaby/shared'
+import type { CategoryCreateType, CategoryUpdateType, CategoryType } from '@jaby/shared'
 
 async function fetchAllCategories() {
   const { data, error } = await supabase

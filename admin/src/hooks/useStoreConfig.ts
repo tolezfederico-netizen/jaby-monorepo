@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { StoreConfigSchema } from '@shared/schemas/config'
+import { StoreConfigSchema } from '@jaby/shared'
 
 async function fetchStoreConfig() {
   const { data, error } = await supabase

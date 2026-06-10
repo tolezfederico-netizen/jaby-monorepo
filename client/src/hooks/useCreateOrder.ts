@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { OrderCreateSchema } from '@shared/schemas/order'
-import type { OrderCreateType } from '@shared/types/index'
+import { OrderCreateSchema } from '@jaby/shared'
+import type { OrderCreateType } from '@jaby/shared'
 
 interface CreateOrderResult {
   order_id: string

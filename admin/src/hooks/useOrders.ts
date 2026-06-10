@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { z } from 'zod'
-import { OrderSchema, OrderStatusSchema } from '@shared/schemas/order'
-import type { OrderStatusType } from '@shared/types/index'
+import { OrderSchema, OrderStatusSchema } from '@jaby/shared'
+import type { OrderStatusType } from '@jaby/shared'
 
 const OrderWithItemsSchema = OrderSchema.extend({
   customer_phone: z.string().nullable().optional(),

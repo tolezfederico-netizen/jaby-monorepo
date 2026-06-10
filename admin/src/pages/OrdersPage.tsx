@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useOrders, useUpdateOrderStatus, useDeleteOrder } from '../hooks/useOrders'
 import type { OrderWithItemsType } from '../hooks/useOrders'
-import type { OrderStatusType } from '@shared/types/index'
+import type { OrderStatusType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
 import styles from './OrdersPage.module.css'
 

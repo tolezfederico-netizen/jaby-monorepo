@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { z } from 'zod'
-import { ProductSchema } from '@shared/schemas/product'
+import { ProductSchema } from '@jaby/shared'
 
 const CategorySchema = z.object({
   id: z.string().uuid(),

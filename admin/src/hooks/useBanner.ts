@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { BannerSchema, BannerUpdateSchema } from '@shared/schemas/banner'
-import type { BannerUpdateType } from '@shared/types/index'
+import { BannerSchema, BannerUpdateSchema } from '@jaby/shared'
+import type { BannerUpdateType } from '@jaby/shared'
 
 async function fetchBanner() {
   const { data, error } = await supabase

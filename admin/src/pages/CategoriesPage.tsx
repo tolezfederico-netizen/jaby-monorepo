@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '../hooks/useCategories'
-import type { CategoryType } from '@shared/types/index'
+import type { CategoryType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
 import styles from './CategoriesPage.module.css'
 

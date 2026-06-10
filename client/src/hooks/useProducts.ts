@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { z } from "zod";
-import { ProductSchema } from '@shared/schemas/product'
+import { ProductSchema } from '@jaby/shared'
 
 interface UseProductsOptions {
   categoryId?: string;

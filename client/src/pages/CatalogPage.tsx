@@ -6,7 +6,7 @@ import { useCategories } from '../hooks/useCategories'
 import { useBanner } from '../hooks/useBanner'
 import { useCart } from '../context/CartContext'
 import Footer from '../components/Footer'
-import type { ProductType } from '@shared/types/index'
+import type { ProductType } from '@jaby/shared'
 import styles from './CatalogPage.module.css'
 
 // ─── Banner ───────────────────────────────────────────────────────────────────

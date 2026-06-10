@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, type ReactNode } from 'react'
-import type { ProductType } from '@shared/types/index'
+import type { ProductType } from '@jaby/shared'
 
 interface CartItem {
   product: ProductType

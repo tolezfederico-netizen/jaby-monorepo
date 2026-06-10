@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { BannerSchema } from '@shared/schemas/banner'
+import { BannerSchema } from '@jaby/shared'
 
 async function fetchBanner() {
   const { data, error } = await supabase

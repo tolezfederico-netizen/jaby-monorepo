@@ -7,7 +7,7 @@ import {
   useUploadProductImage,
 } from '../hooks/useProducts'
 import { useCategories } from '../hooks/useCategories'
-import type { ProductType } from '@shared/types/index'
+import type { ProductType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
 import styles from './ProductsPage.module.css'
 
