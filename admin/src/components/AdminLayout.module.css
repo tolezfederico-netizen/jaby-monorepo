@@ -1,0 +1,177 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: linear-gradient(180deg, #1a1025 0%, #2d1b4e 100%);
+  border-right: 1px solid rgba(155, 79, 200, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brandName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.brandLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(185, 140, 220, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 0.75rem;
+  flex: 1;
+}
+
+.navItem {
+  display: block;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navItem:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.navItemActive {
+  background-color: rgba(155, 79, 200, 0.3);
+  color: #ffffff;
+  font-weight: 600;
+  border-left: 3px solid #9B4FC8;
+  padding-left: calc(0.875rem - 3px);
+}
+
+/* Footer */
+.footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOutButton {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.signOutButton:hover {
+  color: #ffffff;
+  border-color: rgba(155, 79, 200, 0.6);
+  background-color: rgba(155, 79, 200, 0.15);
+}
+
+/* Main content */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Hamburger — solo mobile */
+.hamburger {
+  display: none;
+}
+
+/* Overlay — solo mobile */
+.overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0.875rem;
+    left: 1rem;
+    z-index: 200;
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.25rem;
+    background-color: #1a1025;
+    color: #ffffff;
+    border: 1px solid rgba(155, 79, 200, 0.4);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    z-index: 299;
+  }
+
+  .main {
+    padding: 1rem;
+    padding-top: 3.5rem;
+  }
+}

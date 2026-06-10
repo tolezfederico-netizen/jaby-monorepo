@@ -1,0 +1,347 @@
+.page {
+  display: flex;
+  gap: 0;
+  min-height: calc(100vh - 4rem);
+  align-items: flex-start;
+  padding-right: clamp(300px, 28vw, 400px);
+}
+
+.listColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-right: 1.5rem;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.createButton {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  font-family: inherit;
+}
+
+.createButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.loadingText,
+.emptyText {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+/* List */
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  transition: border-color 0.1s ease, background-color 0.1s ease;
+}
+
+.itemSelected {
+  border-left-color: #9B4FC8;
+  border-color: rgba(155, 79, 200, 0.35);
+  background-color: rgba(155, 79, 200, 0.03);
+}
+
+.itemMain {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.itemName {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.1s ease;
+  font-family: inherit;
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.actionBtnEdit:hover:not(:disabled) {
+  color: var(--color-primary);
+  border-color: rgba(155, 79, 200, 0.5);
+  background-color: rgba(155, 79, 200, 0.08);
+}
+
+.actionBtnDelete:hover:not(:disabled) {
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+  background-color: var(--color-error-bg);
+}
+
+/* Panel */
+.panel {
+  width: clamp(300px, 28vw, 400px);
+  min-width: clamp(300px, 28vw, 400px);
+  background-color: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  border-radius: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: -4px 0 16px rgba(155, 79, 200, 0.07);
+}
+
+.panelEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  min-height: 300px;
+}
+
+.panelEmptyIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.panelEmptyTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.panelEmptyDesc {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.panelTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.closeButton {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.closeButton:hover {
+  color: var(--color-text-primary);
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formError {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  font-family: inherit;
+}
+
+.cancelButton:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+.saveButton {
+  flex: 2;
+  padding: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-button-text);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  font-family: inherit;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.saveButton:disabled,
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.panelOverlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding-right: 0;
+    min-height: unset;
+  }
+
+  .listColumn {
+    padding-right: 0;
+    width: 100%;
+  }
+
+  .list {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    position: fixed;
+    top: unset;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    max-height: 85vh;
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    border-radius: 1rem 1rem 0 0;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 400;
+  }
+
+  .panelVisible {
+    transform: translateY(0);
+  }
+
+  .panelOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 399;
+  }
+}
