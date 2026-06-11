@@ -187,7 +187,7 @@ function StoreInfoBanner() {
             <span className={styles.storeInfoIcon}>💬</span>
             <div className={styles.storeInfoText}>
               <a
-                href="https://wa.me/1122545788"
+                href="https://wa.me/541122545788"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.storeInfoWhatsapp}
@@ -294,7 +294,7 @@ function CatalogPage() {
           </div>
           <div className={styles.storeHeaderActions}>
             <a
-              href="https://wa.me/1122545788"
+              href="https://wa.me/541122545788"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.headerBtn}

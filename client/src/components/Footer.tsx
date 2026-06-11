@@ -14,7 +14,7 @@ function Footer() {
         </div>
         <div className={styles.footerAction}>
           <a
-            href="https://wa.me/1122545788"
+            href="https://wa.me/541122545788"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.whatsappLink}

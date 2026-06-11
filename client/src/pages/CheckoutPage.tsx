@@ -232,7 +232,7 @@ function CheckoutPage() {
         showPrices
       )
 
-      const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
+      const waUrl = `https://wa.me/54${whatsappNumber}?text=${encodeURIComponent(message)}`
 
       clearCart()
       navigate('/')
