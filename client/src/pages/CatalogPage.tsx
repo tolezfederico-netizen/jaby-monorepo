@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStatus } from '../hooks/useAppStatus'
 import { useProducts, useFeaturedProducts } from '../hooks/useProducts'
@@ -224,6 +224,13 @@ function StoreInfoBanner() {
   )
 }
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function formatHour(time: string | null | undefined): string {
+  if (!time) return ''
+  return time.slice(0, 5)
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function CatalogPage() {
@@ -234,6 +241,13 @@ function CatalogPage() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const categoryScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (categoryScrollRef.current) {
+      categoryScrollRef.current.scrollBy({ left: direction === 'right' ? 150 : -150, behavior: 'smooth' })
+    }
+  }
 
   const { data: products, isLoading: productsLoading } = useProducts({
     categoryId: selectedCategory ?? undefined,
@@ -267,12 +281,12 @@ function CatalogPage() {
                 {isDeliveryAvailable ? (
                   <span className={styles.statusOpen}>
                     <span className={styles.statusDot} />
-                    Delivery abierto · cierra a las {config?.delivery_hours_close} hs
+                    Delivery abierto · cierra a las {formatHour(config?.delivery_hours_close)} hs
                   </span>
                 ) : (
                   <span className={styles.statusClosed}>
                     <span className={styles.statusDot} />
-                    Delivery cerrado · abre a las {config?.delivery_hours_open} hs
+                    Delivery cerrado · abre a las {formatHour(config?.delivery_hours_open)} hs
                   </span>
                 )}
               </div>
@@ -344,22 +358,38 @@ function CatalogPage() {
             placeholder="Buscar producto..."
             className={styles.searchInput}
           />
-          <div className={styles.categoryFilters}>
+          <div className={styles.categoryFiltersWrapper}>
             <button
-              className={`${styles.categoryBtn} ${selectedCategory === null ? styles.categoryBtnActive : ''}`}
-              onClick={() => setSelectedCategory(null)}
+              className={styles.categoryScrollBtn}
+              onClick={() => scrollCategories('left')}
+              aria-label="Scroll izquierda"
             >
-              Todos
+              ‹
             </button>
-            {categories?.map((cat) => (
+            <div className={styles.categoryFilters} ref={categoryScrollRef}>
               <button
-                key={cat.id}
-                className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.categoryBtnActive : ''}`}
-                onClick={() => setSelectedCategory(cat.id)}
+                className={`${styles.categoryBtn} ${selectedCategory === null ? styles.categoryBtnActive : ''}`}
+                onClick={() => setSelectedCategory(null)}
               >
-                {cat.name}
+                Todos
               </button>
-            ))}
+              {categories?.map((cat) => (
+                <button
+                  key={cat.id}
+                  className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.categoryBtnActive : ''}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+            <button
+              className={styles.categoryScrollBtn}
+              onClick={() => scrollCategories('right')}
+              aria-label="Scroll derecha"
+            >
+              ›
+            </button>
           </div>
           <CartDesktopButton />
         </div>
