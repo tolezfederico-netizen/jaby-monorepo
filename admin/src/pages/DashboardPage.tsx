@@ -46,6 +46,10 @@ function DashboardPage() {
         <span className={styles.titleSub}>{getTodayLabel()}</span>
       </div>
 
+      <div className={styles.devTip}>
+        💡 Para una mejor experiencia al notificar clientes, se recomienda usar <strong>WhatsApp Desktop</strong>.
+      </div>
+
       {/* Estado de la app */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Estado de la aplicación</h2>
