@@ -346,10 +346,7 @@ function OrdersPage() {
   const handleDeleteCancel = () => setOrderToDelete(null);
 
   const handleWaConfirm = () => {
-    if (pendingWaUrl) {
-      alert(pendingWaUrl);
-      window.location.href = pendingWaUrl;
-    }
+    if (pendingWaUrl) window.open(pendingWaUrl, '_blank');
     setPendingWaUrl(null);
   };
 
