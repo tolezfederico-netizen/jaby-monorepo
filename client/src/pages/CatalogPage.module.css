@@ -985,4 +985,8 @@
     height: auto;
     min-height: 220px;
   }
+
+  .storeInfoItemAddress {
+    margin-left: 3px;
+  }
 }
