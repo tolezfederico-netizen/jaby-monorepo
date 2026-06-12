@@ -32,9 +32,9 @@ const STATUS_WA_MESSAGE: Partial<
   Record<OrderStatusType, (name: string, number: string) => string>
 > = {
   confirmed: (name, number) =>
-    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! 👋 Tu pedido fue *confirmado* y ya lo estamos preparando. ¡Gracias por elegirnos!`)}`,
+    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! Tu pedido fue *confirmado* y ya lo estamos preparando. ¡Gracias por elegirnos!`)}`,
   in_progress: (name, number) =>
-    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! 🚀 Tu pedido está *en camino*. ¡Ya casi llega!`)}`,
+    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! Tu pedido está *en camino*. Te avisamos cuando esté listo para entregar.`)}`,
 };
 
 type FilterStatus = OrderStatusType | "all";
