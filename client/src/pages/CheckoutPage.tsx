@@ -4,18 +4,11 @@ import { useAppStatus } from '../hooks/useAppStatus'
 import { useCart } from '../context/CartContext'
 import { useCreateOrder } from '../hooks/useCreateOrder'
 import Footer from '../components/Footer'
+import { formatPrice } from '@jaby/shared'
 import type { OrderModalityType } from '@jaby/shared'
 import styles from './CheckoutPage.module.css'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
 
 function padOrderNumber(n: number): string {
   return String(n).padStart(4, '0')
@@ -84,6 +77,7 @@ function CartSummary() {
               src={product.image_url ?? ''}
               alt={product.name}
               className={styles.cartItemImage}
+              loading="lazy"
             />
             <div className={styles.cartItemInfo}>
               <span className={styles.cartItemName}>{product.name}</span>
@@ -251,7 +245,7 @@ function CheckoutPage() {
         </button>
         <h1 className={styles.title}>Confirmar pedido</h1>
           <img
-            src="/logojavi.png"
+            src="/logo.png"
             alt="Logo"
             className={styles.headerLogo}
           />

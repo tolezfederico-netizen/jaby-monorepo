@@ -159,10 +159,14 @@ function ProductsPage() {
   const handleToggleActive = async (product: ProductType, e: React.MouseEvent) => {
     e.stopPropagation()
     if (updateProduct.isPending) return
-    await updateProduct.mutateAsync({
-      id: product.id,
-      payload: { is_active: !product.is_active },
-    })
+    try {
+      await updateProduct.mutateAsync({
+        id: product.id,
+        payload: { is_active: !product.is_active },
+      })
+    } catch {
+      setFormError('Error al cambiar el estado del producto. Intentá de nuevo.')
+    }
   }
 
   const handleDeleteRequest = (product: ProductType, e: React.MouseEvent) => {
@@ -172,9 +176,14 @@ function ProductsPage() {
 
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return
-    await deleteProduct.mutateAsync(productToDelete.id)
-    if (selected?.id === productToDelete.id) closePanel()
-    setProductToDelete(null)
+    try {
+      await deleteProduct.mutateAsync(productToDelete.id)
+      if (selected?.id === productToDelete.id) closePanel()
+      setProductToDelete(null)
+    } catch {
+      setFormError('Error al eliminar el producto. Intentá de nuevo.')
+      setProductToDelete(null)
+    }
   }
 
   const handleDeleteCancel = () => setProductToDelete(null)
@@ -242,6 +251,7 @@ function ProductsPage() {
                       src={product.image_url}
                       alt={product.name}
                       className={styles.itemThumb}
+                      loading="lazy"
                     />
                   )}
                   <div className={styles.itemInfo}>

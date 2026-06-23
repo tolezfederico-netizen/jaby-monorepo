@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { z } from 'zod'
 import { ProductSchema, ProductCreateSchema, ProductUpdateSchema } from '@jaby/shared'
 import type { ProductCreateType, ProductUpdateType } from '@jaby/shared'
 
@@ -12,7 +11,7 @@ async function fetchAllProducts() {
 
   if (error) throw new Error(error.message)
 
-  return z.array(ProductSchema).parse(data)
+  return ProductSchema.array().parse(data)
 }
 
 export function useProducts() {

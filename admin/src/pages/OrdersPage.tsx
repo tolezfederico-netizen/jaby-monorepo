@@ -7,6 +7,7 @@ import {
 import type { OrderWithItemsType } from "../hooks/useOrders";
 import type { OrderStatusType } from "@jaby/shared";
 import ConfirmModal from "../components/ConfirmModal";
+import { formatPrice } from "@jaby/shared";
 import styles from "./OrdersPage.module.css";
 
 const STATUS_LABELS: Record<OrderStatusType, string> = {
@@ -48,14 +49,6 @@ function formatDate(iso: string | null | undefined): string {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 function timeAgo(iso: string | null | undefined): string {
@@ -331,6 +324,9 @@ function OrdersPage() {
             setPendingWaUrl(url);
           }
         },
+        onError: () => {
+          console.error('Error al actualizar el estado del pedido', id);
+        },
       },
     );
   };
@@ -339,9 +335,14 @@ function OrdersPage() {
     setOrderToDelete(order);
   const handleDeleteConfirm = async () => {
     if (!orderToDelete) return;
-    await deleteOrder.mutateAsync(orderToDelete.id);
-    if (selectedOrderId === orderToDelete.id) setSelectedOrderId(null);
-    setOrderToDelete(null);
+    try {
+      await deleteOrder.mutateAsync(orderToDelete.id);
+      if (selectedOrderId === orderToDelete.id) setSelectedOrderId(null);
+      setOrderToDelete(null);
+    } catch {
+      console.error('Error al eliminar el pedido', orderToDelete.id);
+      setOrderToDelete(null);
+    }
   };
   const handleDeleteCancel = () => setOrderToDelete(null);
 

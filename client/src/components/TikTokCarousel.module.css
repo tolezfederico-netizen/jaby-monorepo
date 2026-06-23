@@ -1,0 +1,231 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2rem 1rem;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.carouselWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.arrow {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  font-family: inherit;
+  padding-bottom: 0.1rem;
+}
+
+.arrow:hover {
+  background-color: #E91E8C;
+  border-color: #E91E8C;
+  color: #ffffff;
+}
+
+.track {
+  flex: 1;
+  display: flex;
+  gap: 0.75rem;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.slide {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  aspect-ratio: 9 / 16;
+  max-height: 480px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slide:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(233, 30, 140, 0.25);
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  transition: background 0.15s ease;
+}
+
+.slide:hover .playOverlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.playButton {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: rgba(233, 30, 140, 0.9);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  padding-left: 0.2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.slide:hover .playButton {
+  transform: scale(1.1);
+  background-color: #E91E8C;
+}
+
+.fallbackLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #E91E8C;
+  text-decoration: none;
+  padding: 1rem;
+  text-align: center;
+}
+
+.fallbackLink:hover {
+  text-decoration: underline;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.dotActive {
+  background-color: #E91E8C;
+  transform: scale(1.3);
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 9 / 16;
+  max-height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #000;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+
+.modalClose {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.modalClose:hover {
+  background-color: #E91E8C;
+}
+
+.modalIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 2.5rem;
+  }
+
+  .arrow {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 2rem;
+  }
+
+  .slide {
+    max-height: 540px;
+  }
+
+  .modalContent {
+    max-width: 380px;
+  }
+}

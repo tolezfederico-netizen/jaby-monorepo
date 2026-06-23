@@ -8,7 +8,7 @@
   flex-direction: column;
   gap: 1.25rem;
   font-family: 'Nunito', sans-serif;
-  background-color: #111111;
+  background-color: #0D0D1A;
 }
 
 .loadingScreen {
@@ -21,7 +21,7 @@
 
 /* Banner */
 .banner {
-  background: linear-gradient(135deg, #E040A0 0%, #9B4FC8 50%, #40C4E0 100%);
+  background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
   color: #ffffff;
   text-align: center;
   padding: 0.625rem 1rem;
@@ -34,7 +34,7 @@
 
 /* Store header */
 .storeHeader {
-  background: linear-gradient(160deg, #40C4E0 0%, #9B4FC8 50%, #E040A0 100%);
+  background: linear-gradient(160deg, #E91E8C 0%, #1A1A2E 100%);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -171,7 +171,7 @@
   margin: 0 1rem;
   padding: 1rem;
   background-color: #1E1A2E;
-  border: 1px solid rgba(155, 79, 200, 0.3);
+  border: 1px solid rgba(233, 30, 140, 0.3);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
@@ -203,7 +203,7 @@
   font-size: 0.9375rem;
   color: #F0EBF8;
   background-color: #1E1A2E;
-  border: 1.5px solid rgba(155, 79, 200, 0.25);
+  border: 1.5px solid rgba(233, 30, 140, 0.25);
   border-radius: var(--radius-md);
   outline: none;
   font-family: inherit;
@@ -215,7 +215,7 @@
 }
 
 .searchInput:focus {
-  border-color: #9B4FC8;
+  border-color: #E91E8C;
 }
 
 .categoryFilters {
@@ -239,7 +239,7 @@
 }
 
 .categoryBtnActive {
-  background: linear-gradient(135deg, #E040A0 0%, #9B4FC8 50%, #40C4E0 100%);
+  background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
   color: #ffffff;
   border-color: transparent;
 }
@@ -250,7 +250,7 @@
   font-weight: 500;
   color: rgba(240, 235, 248, 0.6);
   background-color: transparent;
-  border: 1.5px solid rgba(155, 79, 200, 0.3);
+  border: 1.5px solid rgba(233, 30, 140, 0.3);
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -270,7 +270,7 @@
   font-size: 1.125rem;
   font-weight: 800;
   color: #F0EBF8;
-  border-left: 3px solid #9B4FC8;
+  border-left: 3px solid #E91E8C;
   padding-left: 0.625rem;
 }
 
@@ -300,7 +300,7 @@
   background-color: #1E1A2E;
   border-radius: 14px;
   padding: 0.875rem;
-  border: 1px solid rgba(155, 79, 200, 0.2);
+  border: 1px solid rgba(233, 30, 140, 0.2);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   transition: box-shadow 0.15s ease;
 }
@@ -317,9 +317,9 @@
 }
 
 .featuredCard {
-  background-color: #9B4FC8;
-  border: 1px solid rgba(155, 79, 200, 0.5);
-  box-shadow: 0 2px 16px rgba(155, 79, 200, 0.3);
+  background-color: #E91E8C;
+  border: 1px solid rgba(233, 30, 140, 0.5);
+  box-shadow: 0 2px 16px rgba(233, 30, 140, 0.3);
 }
 
 .featuredCard .productName {
@@ -341,7 +341,7 @@
 }
 
 .featuredCard .addButton:hover {
-  background: #111111;
+  background: #0D0D1A;
 }
 
 .productImageWrapper {
@@ -350,7 +350,7 @@
   flex-shrink: 0;
   border-radius: 10px;
   overflow: hidden;
-  background-color: #2A2040;
+  background-color: #1A1A2E;
 }
 
 .productImage {
@@ -399,22 +399,12 @@
   color: #F0EBF8;
 }
 
-.outOfStock {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: rgba(240, 235, 248, 0.5);
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(240, 235, 248, 0.2);
-  border-radius: 999px;
-  padding: 0.25rem 0.625rem;
-}
-
 .addButton {
   font-size: 0.875rem;
   font-weight: 700;
   padding: 0.5rem 1.25rem;
   min-height: 44px;
-  background: #9B4FC8;
+  background: #E91E8C;
   color: #ffffff;
   border: none;
   border-radius: 999px;
@@ -424,7 +414,7 @@
 }
 
 .addButton:hover {
-  background: #8A3FB8;
+  background: #C4187A;
 }
 
 .addButton:active {
@@ -442,12 +432,12 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(135deg, #E040A0 0%, #9B4FC8 50%, #40C4E0 100%);
+  background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
   color: #ffffff;
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(155, 79, 200, 0.4);
+  box-shadow: 0 4px 20px rgba(233, 30, 140, 0.4);
   font-family: inherit;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
   white-space: nowrap;
@@ -516,8 +506,9 @@
 
 /* Store Info Banner */
 .storeInfoBanner {
+  margin-top: 2rem;
   background-color: #1E1A2E;
-  border-top: 1px solid rgba(155, 79, 200, 0.2);
+  border-top: 1px solid rgba(233, 30, 140, 0.2);
   padding: 1.25rem 1rem;
   font-family: 'Nunito', sans-serif;
   margin-bottom: 4rem;
@@ -544,22 +535,12 @@
   gap: 0.75rem;
 }
 
-.storeInfoItemAddress {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.storeInfoAddressText {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #F0EBF8;
-}
-
 .storeInfoIcon {
   font-size: 1rem;
   flex-shrink: 0;
   margin-top: 0.1rem;
+  width: 1.25rem;
+  text-align: center;
 }
 
 .storeInfoText {
@@ -585,9 +566,8 @@
   gap: 0.4rem;
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #9B4FC8;
   text-decoration: none;
-  background: linear-gradient(135deg, #E040A0, #9B4FC8, #40C4E0);
+  background: linear-gradient(135deg, #E91E8C, #1A1A2E);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -606,7 +586,7 @@
   overflow: hidden;
   text-decoration: none;
   height: 150px;
-  border: 1px solid rgba(155, 79, 200, 0.25);
+  border: 1px solid rgba(233, 30, 140, 0.25);
 }
 
 .storeInfoMap {
@@ -621,7 +601,7 @@
   top: 0.625rem;
   left: 0.625rem;
   background-color: #1E1A2E;
-  border: 1px solid rgba(155, 79, 200, 0.4);
+  border: 1px solid rgba(233, 30, 140, 0.4);
   border-radius: 999px;
   padding: 0.3rem 0.75rem;
   font-size: 0.8125rem;
@@ -685,9 +665,9 @@
     grid-template-rows: 200px auto auto 1fr;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid rgba(155, 79, 200, 0.5);
-    box-shadow: 0 4px 24px rgba(155, 79, 200, 0.3);
-    background-color: #9B4FC8 !important;
+    border: 1px solid rgba(233, 30, 140, 0.5);
+    box-shadow: 0 4px 24px rgba(233, 30, 140, 0.3);
+    background-color: #E91E8C !important;
     position: relative;
     padding: 0;
     gap: 0;
@@ -738,7 +718,7 @@
   }
 
   .featuredCard .addButton:hover {
-    background-color: #111111 !important;
+    background-color: #0D0D1A !important;
   }
 
   .featuredCard::before {
@@ -746,7 +726,7 @@
     position: absolute;
     top: 0.625rem;
     left: 0.625rem;
-    background: linear-gradient(135deg, #E040A0, #9B4FC8);
+    background: linear-gradient(135deg, #E91E8C, #1A1A2E);
     color: #fff;
     font-size: 0.6875rem;
     font-weight: 700;
@@ -873,7 +853,7 @@
     height: 28px;
     flex-shrink: 0;
     background-color: transparent;
-    border: 1.5px solid rgba(155, 79, 200, 0.3);
+    border: 1.5px solid rgba(233, 30, 140, 0.3);
     border-radius: 50%;
     color: rgba(240, 235, 248, 0.6);
     font-size: 1.25rem;
@@ -884,13 +864,13 @@
   }
 
   .categoryScrollBtn:hover {
-    border-color: #9B4FC8;
+    border-color: #E91E8C;
     color: #F0EBF8;
-    background-color: rgba(155, 79, 200, 0.1);
+    background-color: rgba(233, 30, 140, 0.1);
   }
 
   .categoryScrollBtn:active {
-    background-color: rgba(155, 79, 200, 0.2);
+    background-color: rgba(233, 30, 140, 0.2);
   }
 
   /* Cart Desktop Button */
@@ -900,7 +880,7 @@
     gap: 0.5rem;
     padding: 0.6rem 1.25rem;
     border-radius: 999px;
-    border: 1.5px solid rgba(155, 79, 200, 0.3);
+    border: 1.5px solid rgba(233, 30, 140, 0.3);
     background-color: transparent;
     color: rgba(240, 235, 248, 0.4);
     cursor: not-allowed;
@@ -913,11 +893,11 @@
   }
 
   .cartDesktopBtnActive {
-    background: linear-gradient(135deg, #E040A0 0%, #9B4FC8 50%, #40C4E0 100%);
+    background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
     border-color: transparent;
     color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 2px 12px rgba(155, 79, 200, 0.35);
+    box-shadow: 0 2px 12px rgba(233, 30, 140, 0.35);
   }
 
   .cartDesktopBtnActive:hover {
@@ -987,6 +967,6 @@
   }
 
   .storeInfoItemAddress {
-    margin-left: 5px;
+    margin-left: 0;
   }
 }

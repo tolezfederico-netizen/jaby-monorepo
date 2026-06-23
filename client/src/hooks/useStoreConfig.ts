@@ -38,6 +38,6 @@ export function useStoreConfig() {
   return useQuery({
     queryKey: ['store_config'],
     queryFn: fetchStoreConfig,
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
   })
 }

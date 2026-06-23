@@ -25,3 +25,12 @@ export type OrderStatusType = z.infer<typeof OrderStatusSchema>
 export type OrderModalityType = z.infer<typeof OrderModalitySchema>
 
 export type BannerUpdateType = z.infer<typeof BannerUpdateSchema>
+
+export type TikTokVideoType = {
+  id: string
+  url: string
+  order: number
+  is_active: boolean
+  thumbnail_url: string | null
+  created_at: string
+}

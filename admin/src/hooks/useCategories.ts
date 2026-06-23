@@ -7,7 +7,7 @@ async function fetchAllCategories() {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .order('name', { ascending: true })
+    .order('sort_order', { ascending: true })
 
   if (error) throw error
   return CategorySchema.array().parse(data)

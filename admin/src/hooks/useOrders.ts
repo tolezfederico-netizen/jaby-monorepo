@@ -28,7 +28,7 @@ async function fetchOrders() {
 
   if (error) throw new Error(error.message)
 
-  return z.array(OrderWithItemsSchema).parse(data)
+  return OrderWithItemsSchema.array().parse(data)
 }
 
 export function useOrders() {

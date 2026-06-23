@@ -1,5 +1,5 @@
 .footer {
-  background: linear-gradient(160deg, #40C4E0 0%, #9B4FC8 50%, #E040A0 100%);
+  background: linear-gradient(160deg, #E91E8C 0%, #1A1A2E 100%);
   padding: 1rem 1rem 0.875rem;
   display: flex;
   flex-direction: column;
@@ -14,14 +14,6 @@
   color: #ffffff;
   letter-spacing: -0.01em;
   line-height: 1;
-}
-
-.footerMiddle {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
 }
 
 .footerTop {
@@ -48,17 +40,24 @@
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .infoRowDelivery {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .footerAction {
   display: flex;
   flex-shrink: 0;
+  gap: 0.5rem;
 }
 
 .footerBottom {
@@ -162,7 +161,8 @@
   }
 
   .infoRowAddress {
-    margin-left: 5px;
+    margin-left: 0;
+    padding-left: 0.25rem;
   }
 
   .whatsappLinkText {

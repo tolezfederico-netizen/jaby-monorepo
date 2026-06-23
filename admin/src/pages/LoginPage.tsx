@@ -30,7 +30,7 @@ function LoginPage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Javi</h1>
+        <h1 className={styles.title}>Antojos Expres</h1>
         <p className={styles.subtitle}>Panel de administración</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -44,7 +44,7 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="admin@javi.com"
+              placeholder="admin@antojosexpres.com"
               autoComplete="email"
               required
               disabled={isLoading}

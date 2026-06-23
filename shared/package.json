@@ -9,9 +9,33 @@
     ".": {
       "import": "./index.ts",
       "types": "./index.ts"
+    },
+    "./lib/supabase": {
+      "import": "./lib/supabase.ts",
+      "types": "./lib/supabase.ts"
+    },
+    "./lib/queryClient": {
+      "import": "./lib/queryClient.ts",
+      "types": "./lib/queryClient.ts"
+    },
+    "./lib/tiktok": {
+      "import": "./lib/tiktok.ts",
+      "types": "./lib/tiktok.ts"
+    },
+    "./utils/formatPrice": {
+      "import": "./utils/formatPrice.ts",
+      "types": "./utils/formatPrice.ts"
+    },
+    "./hooks/useBanner": {
+      "import": "./hooks/useBanner.ts",
+      "types": "./hooks/useBanner.ts"
     }
   },
   "dependencies": {
     "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "@supabase/supabase-js": "^2.45.0"
   }
 }

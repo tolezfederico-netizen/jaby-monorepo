@@ -79,8 +79,13 @@ function CategoriesPage() {
 
   const handleDeleteConfirm = async () => {
     if (!categoryToDelete) return
-    await deleteCategory.mutateAsync(categoryToDelete.id)
-    setCategoryToDelete(null)
+    try {
+      await deleteCategory.mutateAsync(categoryToDelete.id)
+      setCategoryToDelete(null)
+    } catch {
+      setFormError('Error al eliminar la categoría. Intentá de nuevo.')
+      setCategoryToDelete(null)
+    }
   }
 
   const handleDeleteCancel = () => setCategoryToDelete(null)

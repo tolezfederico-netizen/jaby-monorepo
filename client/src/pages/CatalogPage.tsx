@@ -6,7 +6,9 @@ import { useCategories } from '../hooks/useCategories'
 import { useBanner } from '../hooks/useBanner'
 import { useCart } from '../context/CartContext'
 import Footer from '../components/Footer'
+import TikTokCarousel from '../components/TikTokCarousel'
 import type { ProductType } from '@jaby/shared'
+import { formatPrice } from '@jaby/shared'
 import styles from './CatalogPage.module.css'
 
 // ─── Banner ───────────────────────────────────────────────────────────────────
@@ -69,11 +71,7 @@ function ProductCard({ product, showPrice, canOrder, featured }: ProductCardProp
         <div className={styles.productFooter}>
           {showPrice && product.price != null && (
             <span className={styles.productPrice}>
-              {new Intl.NumberFormat('es-AR', {
-                style: 'currency',
-                currency: 'ARS',
-                maximumFractionDigits: 0,
-              }).format(product.price)}
+              {formatPrice(product.price)}
             </span>
           )}
           {!isAvailable ? (
@@ -106,11 +104,7 @@ function CartFab() {
       <span className={styles.cartFabBadge}>{totalItems}</span>
       <span className={styles.cartFabLabel}>Ver pedido</span>
       <span className={styles.cartFabPrice}>
-        {new Intl.NumberFormat('es-AR', {
-          style: 'currency',
-          currency: 'ARS',
-          maximumFractionDigits: 0,
-        }).format(totalPrice)}
+        {formatPrice(totalPrice)}
       </span>
     </button>
   )
@@ -139,11 +133,7 @@ function CartDesktopButton() {
       )}
       {totalItems > 0 && (
         <span className={styles.cartDesktopPrice}>
-          {new Intl.NumberFormat('es-AR', {
-            style: 'currency',
-            currency: 'ARS',
-            maximumFractionDigits: 0,
-          }).format(totalPrice)}
+          {formatPrice(totalPrice)}
         </span>
       )}
     </button>
@@ -153,17 +143,18 @@ function CartDesktopButton() {
 // ─── Store Info Banner ─────────────────────────────────────────────────────────
 
 function StoreInfoBanner() {
-  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Belelli+1651'
+  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Martín+Rodríguez+502+Villa+Centenario+Lomas+de+Zamora'
 
   return (
     <div className={styles.storeInfoBanner}>
       <div className={styles.storeInfoGrid}>
 
         <div className={styles.storeInfoItems}>
-          <div className={styles.storeInfoItemAddress}>
+          <div className={styles.storeInfoItem}>
             <span className={styles.storeInfoIcon}>📍</span>
             <div className={styles.storeInfoText}>
-              <span className={styles.storeInfoAddressText}>Belelli 1651</span>
+              <span className={styles.storeInfoLabel}>Martín Rodríguez 502</span>
+              <span className={styles.storeInfoSub}>Villa Centenario, Lomas de Zamora</span>
             </div>
           </div>
 
@@ -171,7 +162,7 @@ function StoreInfoBanner() {
             <span className={styles.storeInfoIcon}>🛵</span>
             <div className={styles.storeInfoText}>
               <span className={styles.storeInfoLabel}>Delivery</span>
-              <span className={styles.storeInfoSub}>20:00 — 05:00hs · Disponible</span>
+              <span className={styles.storeInfoSub}>20:00 — 01:00hs · Disponible</span>
             </div>
           </div>
 
@@ -179,7 +170,7 @@ function StoreInfoBanner() {
             <span className={styles.storeInfoIcon}>🏪</span>
             <div className={styles.storeInfoText}>
               <span className={styles.storeInfoLabel}>Retiro en local</span>
-              <span className={styles.storeInfoSub}>20:00 — 06:00hs · Sin costo adicional</span>
+              <span className={styles.storeInfoSub}>11:00 — 03:00hs · Sin costo adicional</span>
             </div>
           </div>
 
@@ -209,7 +200,7 @@ function StoreInfoBanner() {
         >
           <iframe
             title="Ubicación del local"
-            src="https://maps.google.com/maps?q=Belelli+1651,Buenos+Aires&output=embed&z=15"
+            src="https://maps.google.com/maps?q=Martín+Rodríguez+502,Villa+Centenario,Lomas+de+Zamora&output=embed&z=15"
             className={styles.storeInfoMap}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
@@ -271,12 +262,12 @@ function CatalogPage() {
         <div className={styles.storeHeaderInner}>
           <div className={styles.storeHeaderLeft}>
             <img
-              src="/logojavi.png"
-              alt="Logo Bebidas Abi y Javi 247"
+              src="/logo.png"
+              alt="Logo Antojos Express"
               className={styles.storeLogo}
             />
             <div className={styles.storeHeaderText}>
-              <h1 className={styles.storeName}>{config?.store_name ?? 'Javi'}</h1>
+              <h1 className={styles.storeName}>{config?.store_name ?? 'Antojos Express'}</h1>
               <div className={styles.storeStatusBar}>
                 {isDeliveryAvailable ? (
                   <span className={styles.statusOpen}>
@@ -308,7 +299,7 @@ function CatalogPage() {
               className={styles.headerBtn}
               onClick={() => {
                 const url = window.location.href
-                const text = `Mirá el catálogo de ${config?.store_name ?? 'Javi'}: ${url}`
+                const text = `Mirá el catálogo de ${config?.store_name ?? 'Antojos Express'}: ${url}`
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
               }}
             >
@@ -421,6 +412,7 @@ function CatalogPage() {
 
         <CartFab />
       </div>
+      <TikTokCarousel />
       <StoreInfoBanner />
       <Footer />
     </>

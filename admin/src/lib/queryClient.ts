@@ -1,11 +1,6 @@
-import { QueryClient } from '@tanstack/react-query'
+import { createBaseQueryClient } from '@jaby/shared/lib/queryClient'
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 1,
-      retry: 1,
-      refetchOnWindowFocus: true,
-    },
-  },
+export const queryClient = createBaseQueryClient({
+  staleTime: 1000 * 60 * 1,
+  refetchOnWindowFocus: true,
 })

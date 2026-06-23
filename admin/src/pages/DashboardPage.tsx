@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToggleAppActive } from '../hooks/useStoreConfig'
 import { useStoreConfig } from '../hooks/useStoreConfig'
@@ -34,9 +35,16 @@ function DashboardPage() {
     completed: todayOrders.filter((o) => o.status === 'completed').length,
   }
 
+  const [toggleError, setToggleError] = useState<string | null>(null)
+
   const handleToggleApp = () => {
     if (toggleApp.isPending) return
-    toggleApp.mutate()
+    toggleApp.mutate(undefined, {
+      onSuccess: () => setToggleError(null),
+      onError: () => {
+        setToggleError('Error al cambiar el estado de la aplicación. Intentá de nuevo.')
+      },
+    })
   }
 
   return (
@@ -84,6 +92,9 @@ function DashboardPage() {
               : 'Activar'}
           </button>
         </div>
+        {toggleError && (
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-error)', marginTop: '0.5rem' }} role="alert">{toggleError}</p>
+        )}
       </section>
 
       {/* Pedidos del día */}

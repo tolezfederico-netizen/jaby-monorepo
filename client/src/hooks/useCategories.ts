@@ -1,15 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { z } from 'zod'
-import { ProductSchema } from '@jaby/shared'
-
-const CategorySchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  sort_order: z.number(),
-})
-
-export type CategoryType = z.infer<typeof CategorySchema>
+import { CategorySchema, type CategoryType } from '@jaby/shared'
 
 async function fetchCategories() {
   const { data, error } = await supabase
@@ -19,7 +10,7 @@ async function fetchCategories() {
 
   if (error) throw new Error(error.message)
 
-  return z.array(CategorySchema).parse(data)
+  return CategorySchema.array().parse(data)
 }
 
 export function useCategories() {

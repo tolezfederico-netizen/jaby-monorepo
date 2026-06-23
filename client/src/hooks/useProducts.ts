@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { z } from "zod";
 import { ProductSchema } from '@jaby/shared'
 
 interface UseProductsOptions {
@@ -32,7 +31,7 @@ async function fetchProducts(options: UseProductsOptions) {
 
   if (error) throw new Error(error.message);
 
-  return z.array(ProductSchema).parse(data);
+  return ProductSchema.array().parse(data);
 }
 
 export function useProducts(options: UseProductsOptions = {}) {
@@ -59,7 +58,7 @@ export function useProducts(options: UseProductsOptions = {}) {
   return useQuery({
     queryKey: ["products", options],
     queryFn: () => fetchProducts(options),
-    staleTime: 1000 * 60 * 2,
+    staleTime: Infinity,
   });
 }
 

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { StoreConfigSchema } from '@jaby/shared'
 
@@ -14,10 +15,30 @@ async function fetchStoreConfig() {
 }
 
 export function useStoreConfig() {
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    const channelName = `db-store-config-${crypto.randomUUID()}`
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'store_config' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['admin', 'store_config'] })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [queryClient])
+
   return useQuery({
     queryKey: ['admin', 'store_config'],
     queryFn: fetchStoreConfig,
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
   })
 }
 

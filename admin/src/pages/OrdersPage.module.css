@@ -74,15 +74,15 @@
   font-family: inherit;
 }
 
-.filterBtn:hover {
+.filterBtn:hover:not(.filterBtnActive) {
   color: var(--color-text-primary);
-  border-color: rgba(155, 79, 200, 0.4);
+  border-color: var(--color-border);
 }
 
 .filterBtnActive {
-  background-color: var(--color-primary);
-  color: var(--color-button-text);
-  border-color: var(--color-primary);
+  background-color: #1A1A2E;
+  color: #ffffff;
+  border-color: #1A1A2E;
 }
 
 .filterCount {
@@ -119,12 +119,12 @@
 }
 
 .card:hover {
-  border-color: rgba(155, 79, 200, 0.35);
+  border-color: var(--color-text-secondary);
 }
 
 .cardSelected {
-  border-color: rgba(155, 79, 200, 0.35);
-  background-color: rgba(155, 79, 200, 0.03);
+  border-color: var(--color-text-secondary);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .card_pending {
@@ -161,7 +161,7 @@
 .orderNumber {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #9B4FC8;
+  color: var(--color-text-secondary);
 }
 
 .statusBadge {
@@ -187,8 +187,8 @@
 }
 
 .badge_completed {
-  background-color: rgba(155, 79, 200, 0.08);
-  color: #9B4FC8;
+  background-color: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-secondary);
 }
 
 .modality {
@@ -230,7 +230,7 @@
 
 .timeAgo {
   font-size: 0.75rem;
-  color: rgba(155, 79, 200, 0.7);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
@@ -245,7 +245,7 @@
   right: 0;
   height: 100vh;
   overflow-y: auto;
-  box-shadow: -4px 0 16px rgba(155, 79, 200, 0.07);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.07);
   display: flex;
   flex-direction: column;
 }
@@ -296,7 +296,7 @@
 .panelOrderNumber {
   font-size: 1rem;
   font-weight: 700;
-  color: #9B4FC8;
+  color: var(--color-text-secondary);
 }
 
 .panelBody {
@@ -413,7 +413,7 @@
 }
 
 .timestampDotCompleted {
-  background-color: #9B4FC8;
+  background-color: var(--color-text-secondary);
 }
 
 /* Panel footer */
@@ -462,23 +462,6 @@
 
 .deleteButton:hover {
   opacity: 0.8;
-}
-
-.waButton {
-  display: block;
-  text-align: center;
-  padding: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: #25D366;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: background-color 0.15s ease;
-}
-
-.waButton:hover {
-  background-color: #1ebe5d;
 }
 
 /* Panel close button — oculto en desktop */

@@ -1,26 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { BannerSchema, BannerUpdateSchema } from '@jaby/shared'
 import type { BannerUpdateType } from '@jaby/shared'
+import { createUseBanner } from '@jaby/shared/hooks/useBanner'
 
-async function fetchBanner() {
-  const { data, error } = await supabase
-    .from('banners')
-    .select('*')
-    .single()
-
-  if (error) throw new Error(error.message)
-
-  return BannerSchema.parse(data)
-}
-
-export function useBanner() {
-  return useQuery({
-    queryKey: ['admin', 'banner'],
-    queryFn: fetchBanner,
-    staleTime: 1000 * 60 * 5,
-  })
-}
+export const useBanner = createUseBanner(['admin', 'banner'])
 
 export function useUpdateBanner() {
   const queryClient = useQueryClient()

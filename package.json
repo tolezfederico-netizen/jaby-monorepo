@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18.0.0 <21.0.0"
   },
@@ -9,9 +10,21 @@
     "admin"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=client & npm run dev --workspace=admin",
+    "dev": "concurrently \"npm run dev --workspace=client\" \"npm run dev --workspace=admin\"",
     "build": "npm run build --workspace=client && npm run build --workspace=admin",
     "build:client": "npm run build --workspace=client",
-    "build:admin": "npm run build --workspace=admin"
+    "build:admin": "npm run build --workspace=admin",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.0",
+    "prettier": "^3.0.0",
+    "concurrently": "^8.2.0"
   }
 }
