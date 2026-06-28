@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTikTokVideos } from '../hooks/useTikTokVideos'
+import { useStoreConfig } from '../hooks/useStoreConfig'
 import styles from './TikTokCarousel.module.css'
 
 function extractTikTokId(url: string): string | null {
@@ -38,6 +39,8 @@ function TikTokModal({ videoId, onClose }: { videoId: string; onClose: () => voi
 
 function TikTokCarousel() {
   const { data: videos, isLoading } = useTikTokVideos()
+  const { data: config } = useStoreConfig()
+  const tiktokUsername = config?.tiktok_username ?? null
   const [current, setCurrent] = useState(0)
   const [visibleCount, setVisibleCount] = useState(1)
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null)
@@ -90,7 +93,12 @@ function TikTokCarousel() {
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.title}>📱 Seguinos en TikTok <span style={{ color: '#E91E8C' }}>@_antojosexpres_</span></h2>
+      <h2 className={styles.title}>
+        📱 Seguinos en TikTok
+        {tiktokUsername && (
+          <span style={{ color: '#E91E8C' }}> {tiktokUsername}</span>
+        )}
+      </h2>
 
       <div className={styles.carouselWrapper}>
         <button className={styles.arrow} onClick={handlePrev} aria-label="Anterior">‹</button>
@@ -101,20 +109,41 @@ function TikTokCarousel() {
             return (
               <div
                 key={`${video.id}-${index}`}
+                data-slide="true"
                 className={styles.slide}
                 onClick={() => videoId && setActiveVideoId(videoId)}
               >
                 {videoId ? (
                   <>
                     <img
-                      src={video.thumbnail_url ?? `https://placehold.co/270x480/1A1A2E/E91E8C?text=TikTok`}
+                      src={
+                        video.thumbnail_url && !video.thumbnail_url.includes('x-expires')
+                          ? video.thumbnail_url
+                          : `https://www.tiktok.com/api/img/?itemId=${videoId}&location=1`
+                      }
                       alt="TikTok video thumbnail"
                       className={styles.thumbnail}
                       loading="lazy"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://placehold.co/270x480/1A1A2E/E91E8C?text=TikTok'
+                        const img = e.target as HTMLImageElement
+                        if (!img.dataset.fallback) {
+                          img.dataset.fallback = '1'
+                          img.src = `https://www.tiktok.com/api/img/?itemId=${videoId}&location=1`
+                        } else {
+                          img.style.display = 'none'
+                          const parent = img.closest('[data-slide]')
+                          const placeholder = parent?.querySelector('[data-placeholder]') as HTMLElement | null
+                          if (placeholder) placeholder.style.display = 'flex'
+                        }
                       }}
                     />
+                    <div data-placeholder="true" className={styles.placeholder} style={{ display: 'none' }}>
+                      <svg className={styles.placeholderIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M15 12l-5-3v6z"/>
+                      </svg>
+                      <span className={styles.placeholderLabel}>TikTok</span>
+                    </div>
                     <div className={styles.playOverlay}>
                       <div className={styles.playButton}>▶</div>
                     </div>

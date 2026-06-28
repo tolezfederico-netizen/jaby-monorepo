@@ -40,7 +40,7 @@ export function useAppStatus() {
     config.delivery_enabled &&
     isWithinHours(config.delivery_hours_open, config.delivery_hours_close);
 
-  const reopenTime = !isStoreOpen ? config.business_hours_open : null;
+  const reopenTime = !isStoreOpen ? config.business_hours_open.slice(0, 5) : null;
 
   return {
     isLoading,

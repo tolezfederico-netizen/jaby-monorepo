@@ -19,12 +19,15 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "eslint": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "concurrently": "^8.2.0",
+    "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
-    "prettier": "^3.0.0",
-    "concurrently": "^8.2.0"
+    "prettier": "^3.0.0"
+  },
+  "dependencies": {
+    "xlsx-js-style": "^1.2.0"
   }
 }

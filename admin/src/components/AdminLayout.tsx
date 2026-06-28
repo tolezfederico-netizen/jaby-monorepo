@@ -6,9 +6,10 @@ import styles from './AdminLayout.module.css'
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', exact: true },
   { to: '/orders', label: 'Pedidos', exact: false },
-  { to: '/categories', label: 'Categorías', exact: false },
   { to: '/products', label: 'Productos', exact: false },
+  { to: '/categories', label: 'Categorías', exact: false },
   { to: '/tiktok', label: 'TikTok', exact: false },
+  { to: '/customers', label: 'Clientes', exact: false },
   { to: '/settings', label: 'Configuración', exact: false },
 ] as const
 

@@ -12,7 +12,9 @@ interface StoreInfoForm {
   business_hours_close: string
   show_prices: boolean
   instagram_url: string
-  logo_url: string
+  tiktok_username: string
+  neighborhood: string
+  municipality: string
 }
 
 function StoreInfoSection() {
@@ -27,7 +29,9 @@ function StoreInfoSection() {
     business_hours_close: '23:00',
     show_prices: true,
     instagram_url: '',
-    logo_url: '',
+    tiktok_username: '',
+    neighborhood: '',
+    municipality: '',
   })
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +46,9 @@ function StoreInfoSection() {
       business_hours_close: config.business_hours_close,
       show_prices: config.show_prices,
       instagram_url: config.instagram_url ?? '',
-      logo_url: config.logo_url ?? '',
+      tiktok_username: config.tiktok_username ?? '',
+      neighborhood: config.neighborhood ?? '',
+      municipality: config.municipality ?? '',
     })
   }, [config])
 
@@ -64,8 +70,10 @@ function StoreInfoSection() {
       business_hours_open: form.business_hours_open,
       business_hours_close: form.business_hours_close,
       show_prices: form.show_prices,
-      instagram_url: form.instagram_url.trim() || null,
-      logo_url: form.logo_url.trim() || null,
+      instagram_url: form.instagram_url.trim(),
+      tiktok_username: form.tiktok_username.trim() || null,
+      neighborhood: form.neighborhood.trim() || null,
+      municipality: form.municipality.trim() || null,
     }
 
     try {
@@ -89,9 +97,9 @@ function StoreInfoSection() {
               className={styles.input} required disabled={updateConfig.isPending} />
           </div>
           <div className={styles.field}>
-            <label className={styles.label}>WhatsApp (con código de país)</label>
+            <label className={styles.label}>WhatsApp</label>
             <input name="whatsapp_number" value={form.whatsapp_number} onChange={handleField}
-              className={styles.input} placeholder="5491100000000" required
+              className={styles.input} placeholder="1122334455" required
               disabled={updateConfig.isPending} />
           </div>
         </div>
@@ -100,6 +108,19 @@ function StoreInfoSection() {
           <label className={styles.label}>Dirección</label>
           <input name="address" value={form.address} onChange={handleField}
             className={styles.input} required disabled={updateConfig.isPending} />
+        </div>
+
+        <div className={styles.fieldRow}>
+          <div className={styles.field}>
+            <label className={styles.label}>Barrio</label>
+            <input name="neighborhood" value={form.neighborhood} onChange={handleField}
+              className={styles.input} disabled={updateConfig.isPending} />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Municipio</label>
+            <input name="municipality" value={form.municipality} onChange={handleField}
+              className={styles.input} disabled={updateConfig.isPending} />
+          </div>
         </div>
 
         <div className={styles.fieldRow}>
@@ -117,19 +138,23 @@ function StoreInfoSection() {
           </div>
         </div>
 
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Instagram (opcional)</label>
-            <input name="instagram_url" type="url" value={form.instagram_url}
-              onChange={handleField} className={styles.input} placeholder="https://instagram.com/..."
-              disabled={updateConfig.isPending} />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>URL del logo (opcional)</label>
-            <input name="logo_url" type="url" value={form.logo_url}
-              onChange={handleField} className={styles.input} placeholder="https://..."
-              disabled={updateConfig.isPending} />
-          </div>
+        <div className={styles.field}>
+          <label className={styles.label}>Instagram</label>
+          <input name="instagram_url" type="url" value={form.instagram_url}
+            onChange={handleField} className={styles.input} placeholder="https://instagram.com/tulocal"
+            required disabled={updateConfig.isPending} />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>Usuario de TikTok</label>
+          <input
+            name="tiktok_username"
+            value={form.tiktok_username}
+            onChange={handleField}
+            className={styles.input}
+            placeholder="@tulocal"
+            disabled={updateConfig.isPending}
+          />
         </div>
 
         <label className={styles.checkboxLabel}>

@@ -82,6 +82,34 @@
   display: block;
 }
 
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #1a1a2e;
+}
+
+.placeholderHidden {
+  display: none;
+}
+
+.placeholderIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #E91E8C;
+}
+
+.placeholderLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #E91E8C;
+  letter-spacing: 0.05em;
+}
+
 .playOverlay {
   position: absolute;
   inset: 0;

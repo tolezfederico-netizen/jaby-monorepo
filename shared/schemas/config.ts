@@ -9,6 +9,7 @@ export const StoreConfigSchema = z.object({
   business_hours_close: z.string(),
   show_prices: z.boolean(),
   instagram_url: z.string().nullable().optional(),
+  tiktok_username: z.string().nullable().optional(),
   logo_url: z.string().nullable().optional(),
   is_app_active: z.boolean(),
   delivery_enabled: z.boolean(),
@@ -17,6 +18,8 @@ export const StoreConfigSchema = z.object({
   delivery_cost: z.number(),
   delivery_minimum_order: z.number(),
   delivery_coverage_zones: z.array(z.string()),
+  neighborhood: z.string().nullable().optional(),
+  municipality: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
 })

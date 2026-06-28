@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { OrderSchema, OrderStatusSchema } from '@jaby/shared'
 import type { OrderStatusType } from '@jaby/shared'
 
+// TODO: mover a shared/schemas/order.ts y exportar desde @jaby/shared
 const OrderWithItemsSchema = OrderSchema.extend({
   customer_phone: z.string().nullable().optional(),
   order_items: z.array(

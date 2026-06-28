@@ -17,26 +17,67 @@ const STATUS_LABELS: Record<OrderStatusType, string> = {
   completed: "Completado",
 };
 
-const STATUS_NEXT: Partial<Record<OrderStatusType, OrderStatusType>> = {
-  pending: "confirmed",
-  confirmed: "in_progress",
-  in_progress: "completed",
-};
+function getNextStatus(
+  status: OrderStatusType,
+  modality: 'pickup' | 'delivery'
+): OrderStatusType | null {
+  if (modality === 'delivery') {
+    const map: Partial<Record<OrderStatusType, OrderStatusType>> = {
+      pending: 'confirmed',
+      confirmed: 'in_progress',
+      in_progress: 'completed',
+    }
+    return map[status] ?? null
+  }
+  const map: Partial<Record<OrderStatusType, OrderStatusType>> = {
+    pending: 'confirmed',
+    confirmed: 'completed',
+  }
+  return map[status] ?? null
+}
 
-const STATUS_NEXT_LABEL: Partial<Record<OrderStatusType, string>> = {
-  pending: "Confirmar pedido",
-  confirmed: "Poner en curso",
-  in_progress: "Marcar completado",
-};
+function getNextLabel(
+  status: OrderStatusType,
+  modality: 'pickup' | 'delivery'
+): string | null {
+  if (modality === 'delivery') {
+    const map: Partial<Record<OrderStatusType, string>> = {
+      pending: 'Confirmar pedido',
+      confirmed: 'Poner en curso',
+      in_progress: 'Marcar completado',
+    }
+    return map[status] ?? null
+  }
+  const map: Partial<Record<OrderStatusType, string>> = {
+    pending: 'Confirmar pedido',
+    confirmed: 'Marcar listo para retirar',
+  }
+  return map[status] ?? null
+}
 
-const STATUS_WA_MESSAGE: Partial<
-  Record<OrderStatusType, (name: string, number: string) => string>
-> = {
-  confirmed: (name, number) =>
-    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! Tu pedido fue *confirmado* y ya lo estamos preparando. ¡Gracias por elegirnos!`)}`,
-  in_progress: (name, number) =>
-    `https://wa.me/54${number}?text=${encodeURIComponent(`¡Hola ${name}! Tu pedido está *en camino*. Te avisamos cuando esté listo para entregar.`)}`,
-};
+function getWaUrl(
+  status: OrderStatusType,
+  modality: 'pickup' | 'delivery',
+  name: string,
+  phone: string
+): string | null {
+  let text: string | null = null
+  if (modality === 'delivery') {
+    if (status === 'confirmed') {
+      text = `¡Hola ${name}! Tu pedido fue *confirmado* y ya lo estamos preparando. ¡Gracias por elegirnos!`
+    } else if (status === 'in_progress') {
+      text = `¡Hola ${name}! Tu pedido está *en camino*. Te avisamos cuando esté listo para entregar.`
+    }
+  } else {
+    if (status === 'confirmed') {
+      text = `¡Hola ${name}! Tu pedido fue *recibido con éxito* y ya lo estamos preparando. Te avisamos cuando esté listo para que pases a buscarlo.`
+    } else if (status === 'completed') {
+      text = `¡Hola ${name}! Tu pedido está *listo para retirar*. ¡Te esperamos!`
+    }
+  }
+  if (!text) return null
+  return `https://wa.me/54${phone}?text=${encodeURIComponent(text)}`
+}
 
 type FilterStatus = OrderStatusType | "all";
 type FilterModality = "all" | "pickup" | "delivery";
@@ -140,8 +181,8 @@ function OrderDetailPanel({
     );
   }
 
-  const nextStatus = STATUS_NEXT[order.status];
-  const nextLabel = STATUS_NEXT_LABEL[order.status];
+  const nextStatus = getNextStatus(order.status, order.modality);
+  const nextLabel = getNextLabel(order.status, order.modality);
 
   return (
     <div
@@ -316,12 +357,9 @@ function OrdersPage() {
       { id, status },
       {
         onSuccess: () => {
-          if (order.customer_phone && STATUS_WA_MESSAGE[status]) {
-            const url = STATUS_WA_MESSAGE[status]!(
-              order.customer_name,
-              order.customer_phone,
-            );
-            setPendingWaUrl(url);
+          if (order.customer_phone) {
+            const url = getWaUrl(status, order.modality, order.customer_name, order.customer_phone);
+            if (url) setPendingWaUrl(url);
           }
         },
         onError: () => {

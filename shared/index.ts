@@ -6,4 +6,5 @@ export {
   createTikTokVideo,
   updateTikTokVideo,
   deleteTikTokVideo,
+  fetchTikTokThumbnail,
 } from './lib/tiktok.js'

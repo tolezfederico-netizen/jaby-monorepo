@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage'
 import CategoriesPage from './pages/CategoriesPage'
 import ProductsPage from './pages/ProductsPage'
 import OrdersPage from './pages/OrdersPage'
+import CustomersPage from './pages/CustomersPage'
 import SettingsPage from './pages/SettingsPage'
 import TikTokPage from './pages/TikTokPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
       {
         path: 'products',
         element: <ProductsPage />,
+      },
+      {
+        path: 'customers',
+        element: <CustomersPage />,
       },
       {
         path: 'settings',

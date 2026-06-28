@@ -15,7 +15,7 @@ async function fetchAllCategories() {
 
 export function useCategories() {
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: ['admin', 'categories'],
     queryFn: fetchAllCategories,
   })
 }
@@ -36,7 +36,7 @@ export function useCreateCategory() {
       return CategorySchema.parse(data)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] })
     },
   })
 }
@@ -54,7 +54,7 @@ export function useDeleteCategory() {
       if (error) throw error
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] })
     },
   })
 }
@@ -76,7 +76,7 @@ export function useUpdateCategory() {
       return CategorySchema.parse(data)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] })
     },
   })
 }

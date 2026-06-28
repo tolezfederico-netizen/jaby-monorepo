@@ -4,9 +4,15 @@ import {
   createTikTokVideo,
   updateTikTokVideo,
   deleteTikTokVideo,
+  fetchTikTokThumbnail,
 } from '@jaby/shared'
 
-const QUERY_KEY = ['tiktok_videos']
+const QUERY_KEY = ['admin', 'tiktok_videos']
+
+function extractVideoId(url: string): string | null {
+  const match = url.match(/video\/(\d+)/)
+  return match ? match[1] : null
+}
 
 export function useTikTokVideos() {
   return useQuery({
@@ -19,18 +25,8 @@ export function useCreateTikTokVideo() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (payload: { url: string; order: number }) => {
-      let thumbnail_url: string | null = null
-      try {
-        const oembedRes = await fetch(
-          `https://www.tiktok.com/oembed?url=${encodeURIComponent(payload.url)}`
-        )
-        if (oembedRes.ok) {
-          const oembedData = await oembedRes.json()
-          thumbnail_url = oembedData.thumbnail_url ?? null
-        }
-      } catch {
-        thumbnail_url = null
-      }
+      const videoId = extractVideoId(payload.url) ?? ''
+      const thumbnail_url = await fetchTikTokThumbnail(payload.url, videoId)
       return createTikTokVideo({ ...payload, thumbnail_url })
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
@@ -40,8 +36,15 @@ export function useCreateTikTokVideo() {
 export function useUpdateTikTokVideo() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof updateTikTokVideo>[1] }) =>
-      updateTikTokVideo(id, payload),
+    mutationFn: async ({ id, payload }: { id: string; payload: Parameters<typeof updateTikTokVideo>[1] }) => {
+      const hasUrl = 'url' in payload && payload.url
+      let thumbnail_url: string | undefined
+      if (hasUrl) {
+        const videoId = extractVideoId(payload.url!) ?? ''
+        thumbnail_url = await fetchTikTokThumbnail(payload.url!, videoId) ?? undefined
+      }
+      return updateTikTokVideo(id, { ...payload, ...(hasUrl ? { thumbnail_url } : {}) })
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   })
 }
