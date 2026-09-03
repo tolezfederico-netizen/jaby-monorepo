@@ -231,7 +231,11 @@ function CheckoutPage() {
       clearCart()
       navigate('/')
       window.location.href = waUrl
-    } catch {
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+        return
+      }
       setError('No se pudo registrar el pedido. Intentá de nuevo.')
     }
   }

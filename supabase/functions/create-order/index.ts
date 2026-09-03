@@ -17,10 +17,10 @@ const OrderItemPayloadSchema = z.object({
 
 const OrderPayloadSchema = z.object({
   modality: z.enum(['pickup', 'delivery']),
-  customer_name: z.string().min(1),
+  customer_name: z.string().min(1).max(100, 'El nombre es demasiado largo'),
   customer_phone: z.string().min(7).nullable().optional(),
-  customer_address: z.string().optional(),
-  notes: z.string().optional(),
+  customer_address: z.string().max(200, 'La dirección es demasiado larga').optional(),
+  notes: z.string().max(300, 'Las notas son demasiado largas').optional(),
   items: z.array(OrderItemPayloadSchema).min(1),
   total: z.number().nonnegative(),
   delivery_cost: z.number().nonnegative().optional(),

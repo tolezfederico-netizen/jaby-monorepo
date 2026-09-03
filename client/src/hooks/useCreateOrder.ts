@@ -13,7 +13,16 @@ async function createOrder(payload: OrderCreateType): Promise<CreateOrderResult>
     body: payload,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    let message = error.message
+    try {
+      const context = await error.context?.json?.()
+      if (context?.error) message = context.error
+    } catch {
+      // Usar el mensaje genérico si no se puede parsear la respuesta
+    }
+    throw new Error(message)
+  }
 
   if (!data?.order_id || !data?.order_number) {
     throw new Error('Respuesta inválida del servidor')
