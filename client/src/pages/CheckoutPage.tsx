@@ -302,6 +302,7 @@ function CheckoutPage() {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               className={styles.input}
+              maxLength={100}
               placeholder="Juan Pérez"
               required
               disabled={createOrder.isPending}
@@ -332,6 +333,7 @@ function CheckoutPage() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className={styles.input}
+                maxLength={200}
                 placeholder="Av. Corrientes 1234, 2° B"
                 required
                 disabled={createOrder.isPending}
@@ -345,6 +347,7 @@ function CheckoutPage() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className={styles.textarea}
+              maxLength={300}
               placeholder="Ej: tocar el timbre del fondo"
               rows={2}
               disabled={createOrder.isPending}

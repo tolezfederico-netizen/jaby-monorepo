@@ -1,5 +1,5 @@
 .page {
-  max-width: 720px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -43,7 +43,7 @@
 
 .sectionCount {
   background-color: rgba(233, 30, 140, 0.15);
-  color: #E91E8C;
+  color: #e91e8c;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.125rem 0.5rem;
@@ -59,6 +59,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
+  width: 100%;
 }
 
 .appStatusInfo {
@@ -101,6 +102,7 @@
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease;
+  flex-shrink: 0;
 }
 
 .toggleButton:disabled {
@@ -130,29 +132,30 @@
 /* Stats grid */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.875rem;
 }
 
 .statCard {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
 }
 
 .statNumber {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1;
   color: var(--color-text-primary);
 }
 
 .statLabel {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
   font-weight: 500;
 }
@@ -186,8 +189,8 @@
 /* Quick links */
 .quickLinks {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.875rem;
 }
 
 .quickLink {
@@ -195,15 +198,18 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
-  padding: 1rem 1.125rem;
+  padding: 1.125rem 1.25rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   color: inherit;
   font-family: inherit;
+  width: 100%;
 }
 
 .quickLink:hover {

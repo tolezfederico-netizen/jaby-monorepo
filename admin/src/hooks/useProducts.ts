@@ -70,12 +70,16 @@ export function useDeleteProduct() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('products')
         .delete()
         .eq('id', id)
+        .select()
 
       if (error) throw new Error(error.message)
+      if (!data || data.length === 0) {
+        throw new Error('No se encontró el registro a eliminar, o no tenés permisos para eliminarlo')
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })

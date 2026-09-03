@@ -36,10 +36,10 @@ export const OrderSchema = z.object({
 
 export const OrderCreateSchema = z.object({
   modality: OrderModalitySchema,
-  customer_name: z.string(),
+  customer_name: z.string().max(100, 'El nombre es demasiado largo'),
   customer_phone: z.string(),
-  customer_address: z.string().optional(),
-  notes: z.string().optional(),
+  customer_address: z.string().max(200, 'La dirección es demasiado larga').optional(),
+  notes: z.string().max(300, 'Las notas son demasiado largas').optional(),
   items: z.array(OrderItemCreateSchema),
   total: z.number(),
   delivery_cost: z.number().optional(),
