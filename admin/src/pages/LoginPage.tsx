@@ -30,7 +30,7 @@ function LoginPage() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Antojos Expres</h1>
+        <h1 className={styles.title}>Antojos Ya</h1>
         <p className={styles.subtitle}>Panel de administración</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>

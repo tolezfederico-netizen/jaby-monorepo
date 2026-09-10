@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   useProducts,
   useCreateProduct,
@@ -20,6 +21,7 @@ interface ProductFormData {
   imageFile: File | null
   is_active: boolean
   is_featured: boolean
+  is_out_of_stock: boolean
 }
 
 const EMPTY_FORM: ProductFormData = {
@@ -31,6 +33,7 @@ const EMPTY_FORM: ProductFormData = {
   imageFile: null,
   is_active: true,
   is_featured: false,
+  is_out_of_stock: false,
 }
 
 function productToForm(p: ProductType): ProductFormData {
@@ -43,6 +46,7 @@ function productToForm(p: ProductType): ProductFormData {
     imageFile: null,
     is_active: p.is_active,
     is_featured: p.is_featured,
+    is_out_of_stock: p.is_out_of_stock,
   }
 }
 
@@ -55,6 +59,7 @@ function ProductsPage() {
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
   const uploadImage = useUploadProductImage()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [selected, setSelected] = useState<ProductType | null>(null)
   const [isCreating, setIsCreating] = useState(false)
@@ -63,6 +68,7 @@ function ProductsPage() {
   const [productToDelete, setProductToDelete] = useState<ProductType | null>(null)
   const [searchName, setSearchName] = useState('')
   const [searchCategoryId, setSearchCategoryId] = useState('')
+  const isOutOfStockOnly = searchParams.get('filter') === 'out_of_stock'
 
   const isPanelActive = isCreating || selected !== null
   const isMobile = useIsMobile()
@@ -143,6 +149,7 @@ function ProductsPage() {
         image_url: finalImageUrl,
         is_active: form.is_active,
         is_featured: form.is_featured,
+        is_out_of_stock: form.is_out_of_stock,
       }
 
       if (isCreating) {
@@ -193,7 +200,7 @@ function ProductsPage() {
   const filteredProducts = (products ?? []).filter((p) => {
     const matchesName = p.name.toLowerCase().includes(searchName.toLowerCase().trim())
     const matchesCategory = searchCategoryId === '' || p.category_id === searchCategoryId
-    return matchesName && matchesCategory
+    return matchesName && matchesCategory && (!isOutOfStockOnly || p.is_out_of_stock)
   })
 
   return (
@@ -227,6 +234,15 @@ function ProductsPage() {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+          {isOutOfStockOnly && (
+            <button
+              type="button"
+              className={styles.outOfStockFilter}
+              onClick={() => setSearchParams({})}
+            >
+              Agotados ×
+            </button>
+          )}
         </div>
 
         {isLoading ? (
@@ -261,6 +277,9 @@ function ProductsPage() {
                       {product.price != null && ` · $${product.price}`}
                       {product.is_featured && (
                         <span className={styles.featuredTag}>Destacado</span>
+                      )}
+                      {product.is_out_of_stock && (
+                        <span className={styles.outOfStockTag}>Agotado</span>
                       )}
                     </span>
                   </div>
@@ -427,6 +446,16 @@ function ProductsPage() {
                     disabled={isSaving}
                   />
                   Producto destacado
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    name="is_out_of_stock"
+                    type="checkbox"
+                    checked={form.is_out_of_stock}
+                    onChange={handleField}
+                    disabled={isSaving}
+                  />
+                  Agotado
                 </label>
               </div>
 

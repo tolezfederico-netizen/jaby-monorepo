@@ -3,6 +3,20 @@ import { supabase } from '../lib/supabase'
 import { ProductSchema, ProductCreateSchema, ProductUpdateSchema } from '@jaby/shared'
 import type { ProductCreateType, ProductUpdateType } from '@jaby/shared'
 
+const PRODUCTS_QUERY_KEY = ['admin', 'products']
+
+async function fetchLongOutOfStockProductCount() {
+  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const { count, error } = await supabase
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_out_of_stock', true)
+    .lt('out_of_stock_since', cutoff)
+
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
 async function fetchAllProducts() {
   const { data, error } = await supabase
     .from('products')
@@ -16,8 +30,16 @@ async function fetchAllProducts() {
 
 export function useProducts() {
   return useQuery({
-    queryKey: ['admin', 'products'],
+    queryKey: PRODUCTS_QUERY_KEY,
     queryFn: fetchAllProducts,
+    staleTime: 1000 * 60 * 1,
+  })
+}
+
+export function useLongOutOfStockProductCount() {
+  return useQuery({
+    queryKey: ['admin', 'products', 'long-out-of-stock-count'],
+    queryFn: fetchLongOutOfStockProductCount,
     staleTime: 1000 * 60 * 1,
   })
 }
@@ -38,7 +60,7 @@ export function useCreateProduct() {
       return ProductSchema.parse(data)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })
 }
@@ -60,7 +82,7 @@ export function useUpdateProduct() {
       return ProductSchema.parse(data)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })
 }
@@ -82,7 +104,7 @@ export function useDeleteProduct() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] })
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })
 }

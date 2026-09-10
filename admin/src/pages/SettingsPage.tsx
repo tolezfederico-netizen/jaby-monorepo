@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useStoreConfig, useUpdateStoreConfig } from '../hooks/useStoreConfig'
+import ConfirmModal from '../components/ConfirmModal'
+import CoverageZoneModal from '../components/CoverageZoneModal'
 import styles from './SettingsPage.module.css'
 
 // ─── Store Info Section ───────────────────────────────────────────────────────
@@ -184,7 +186,7 @@ interface DeliveryForm {
   delivery_hours_close: string
   cost: string
   minimum_order: string
-  coverage_zones: string
+  coverage_zones: string[]
 }
 
 function DeliverySection() {
@@ -197,10 +199,12 @@ function DeliverySection() {
     delivery_hours_close: '23:00',
     cost: '0',
     minimum_order: '0',
-    coverage_zones: '',
+    coverage_zones: [],
   })
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isZoneModalOpen, setIsZoneModalOpen] = useState(false)
+  const [zoneToDelete, setZoneToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     if (!config) return
@@ -210,7 +214,7 @@ function DeliverySection() {
       delivery_hours_close: config.delivery_hours_close,
       cost: String(config.delivery_cost),
       minimum_order: String(config.delivery_minimum_order),
-      coverage_zones: config.delivery_coverage_zones.join(', '),
+      coverage_zones: config.delivery_coverage_zones,
     })
   }, [config])
 
@@ -231,10 +235,7 @@ function DeliverySection() {
       delivery_hours_close: form.delivery_hours_close,
       delivery_cost: Number(form.cost),
       delivery_minimum_order: Number(form.minimum_order),
-      delivery_coverage_zones: form.coverage_zones
-        .split(',')
-        .map((z) => z.trim())
-        .filter(Boolean),
+      delivery_coverage_zones: form.coverage_zones,
     }
 
     try {
@@ -246,6 +247,24 @@ function DeliverySection() {
   }
 
   if (isLoading) return <p className={styles.loadingText}>Cargando...</p>
+
+  const handleAddZone = (zone: string) => {
+    setForm((prev) => ({
+      ...prev,
+      coverage_zones: [...prev.coverage_zones, zone],
+    }))
+    setSaved(false)
+  }
+
+  const handleDeleteZone = () => {
+    if (!zoneToDelete) return
+    setForm((prev) => ({
+      ...prev,
+      coverage_zones: prev.coverage_zones.filter((zone) => zone !== zoneToDelete),
+    }))
+    setZoneToDelete(null)
+    setSaved(false)
+  }
 
   return (
     <section className={styles.section}>
@@ -288,10 +307,40 @@ function DeliverySection() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Zonas de cobertura (separadas por coma)</label>
-          <input name="coverage_zones" value={form.coverage_zones} onChange={handleField}
-            className={styles.input} placeholder="Lomas de Zamora, Banfield, Temperley"
-            disabled={updateConfig.isPending} />
+          <label className={styles.label}>Zonas de cobertura</label>
+          {form.coverage_zones.length > 0 ? (
+            <div className={styles.coverageZonesList}>
+              {form.coverage_zones.map((zone) => (
+                <div key={zone} className={styles.coverageZoneTag}>
+                  <span>{zone}</span>
+                  <button
+                    type="button"
+                    className={styles.coverageZoneRemove}
+                    onClick={() => setZoneToDelete(zone)}
+                    disabled={updateConfig.isPending}
+                    aria-label={`Eliminar zona ${zone}`}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                      <path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                    Ã—
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.coverageZonesEmpty}>
+              No hay zonas de cobertura configuradas. Se realizan envÃ­os a cualquier zona.
+            </p>
+          )}
+          <button
+            type="button"
+            className={styles.addZoneButton}
+            onClick={() => setIsZoneModalOpen(true)}
+            disabled={updateConfig.isPending}
+          >
+            + Agregar zona
+          </button>
           <span className={styles.hint}>Dejá vacío si no querés restringir por zona.</span>
         </div>
 
@@ -304,6 +353,26 @@ function DeliverySection() {
           </button>
         </div>
       </form>
+
+      {isZoneModalOpen && (
+        <CoverageZoneModal
+          existingZones={form.coverage_zones}
+          isSaving={updateConfig.isPending}
+          onConfirm={handleAddZone}
+          onClose={() => setIsZoneModalOpen(false)}
+        />
+      )}
+
+      {zoneToDelete && (
+        <ConfirmModal
+          title="Eliminar zona de cobertura"
+          message={`Eliminar "${zoneToDelete}" de las zonas de cobertura?`}
+          confirmLabel="Eliminar"
+          isDanger={true}
+          onConfirm={handleDeleteZone}
+          onCancel={() => setZoneToDelete(null)}
+        />
+      )}
     </section>
   )
 }

@@ -6,6 +6,7 @@ import { useCreateOrder } from '../hooks/useCreateOrder'
 import Footer from '../components/Footer'
 import { formatPrice } from '@jaby/shared'
 import type { OrderModalityType } from '@jaby/shared'
+import { saveLastOrder } from '../lib/orderStorage'
 import styles from './CheckoutPage.module.css'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -81,6 +82,11 @@ function CartSummary() {
             />
             <div className={styles.cartItemInfo}>
               <span className={styles.cartItemName}>{product.name}</span>
+              {product.description?.trim() && (
+                <span className={styles.cartItemDescription}>
+                  {product.description}
+                </span>
+              )}
               {showPrices && product.price != null && (
                 <span className={styles.cartItemPrice}>
                   {formatPrice(product.price * quantity)}
@@ -145,7 +151,14 @@ function CheckoutPage() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#111111' }}>
         <div className={styles.emptyCart} style={{ flex: 1 }}>
-          <p>Tu carrito está vacío.</p>
+          <svg className={styles.emptyCartIcon} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="9" cy="20" r="1" />
+            <circle cx="19" cy="20" r="1" />
+            <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6" />
+            <path d="M12 10h4M14 8v4" />
+          </svg>
+          <p className={styles.emptyCartTitle}>Tu carrito está vacío</p>
+          <p className={styles.emptyCartText}>Agregá productos desde el catálogo para continuar.</p>
           <button className={styles.backButton} onClick={() => navigate('/')}>
             Ver catálogo
           </button>
@@ -228,6 +241,17 @@ function CheckoutPage() {
 
       const waUrl = `https://wa.me/54${whatsappNumber}?text=${encodeURIComponent(message)}`
 
+      saveLastOrder({
+        items: items.map((item) => ({
+          product_id: item.product.id,
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.product.price ?? null,
+        })),
+        total,
+        modality,
+        confirmedAt: new Date().toISOString(),
+      })
       clearCart()
       navigate('/')
       window.location.href = waUrl
@@ -400,7 +424,7 @@ function CheckoutPage() {
       </form>
         </div>
       </div>
-    </div>
+      </div>
 
       <Footer />
     </>

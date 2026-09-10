@@ -18,9 +18,13 @@
       "import": "./lib/queryClient.ts",
       "types": "./lib/queryClient.ts"
     },
-    "./lib/tiktok": {
-      "import": "./lib/tiktok.ts",
-      "types": "./lib/tiktok.ts"
+    "./lib/media-content": {
+      "import": "./lib/media-content.ts",
+      "types": "./lib/media-content.ts"
+    },
+    "./lib/media-providers": {
+      "import": "./lib/media-providers.ts",
+      "types": "./lib/media-providers.ts"
     },
     "./utils/formatPrice": {
       "import": "./utils/formatPrice.ts",

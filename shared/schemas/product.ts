@@ -9,6 +9,8 @@ export const ProductSchema = z.object({
   image_url: z.string().nullable().optional(),
   is_active: z.boolean(),
   is_featured: z.boolean(),
+  is_out_of_stock: z.boolean().default(false),
+  out_of_stock_since: z.string().nullable().optional(),
   created_at: z.string().nullable().optional(),
   updated_at: z.string().nullable().optional(),
 })
@@ -21,6 +23,7 @@ export const ProductCreateSchema = z.object({
   image_url: z.string().optional(),
   is_active: z.boolean(),
   is_featured: z.boolean(),
+  is_out_of_stock: z.boolean().default(false),
 })
 
 export const ProductUpdateSchema = ProductCreateSchema.partial()

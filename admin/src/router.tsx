@@ -6,7 +6,7 @@ import ProductsPage from './pages/ProductsPage'
 import OrdersPage from './pages/OrdersPage'
 import CustomersPage from './pages/CustomersPage'
 import SettingsPage from './pages/SettingsPage'
-import TikTokPage from './pages/TikTokPage'
+import MediaContentPage from './pages/MediaContentPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './components/AdminLayout'
@@ -49,8 +49,8 @@ export const router = createBrowserRouter([
         element: <SettingsPage />,
       },
       {
-        path: 'tiktok',
-        element: <TikTokPage />,
+        path: 'contenido-multimedia',
+        element: <MediaContentPage />,
       },
     ],
   },

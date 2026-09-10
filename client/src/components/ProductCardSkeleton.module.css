@@ -1,0 +1,69 @@
+.card,
+.content,
+.footer {
+  display: flex;
+}
+
+.card {
+  gap: 0.875rem;
+  padding: 0.875rem;
+  background: #1E1A2E;
+  border: 1px solid rgba(240, 235, 248, 0.08);
+  border-radius: 14px;
+}
+
+.image,
+.line,
+.button {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.13) 50%, rgba(255, 255, 255, 0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.image {
+  width: 88px;
+  min-height: 88px;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+.content {
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.line {
+  height: 0.75rem;
+  border-radius: 999px;
+}
+
+.title { width: 72%; }
+.description { width: 90%; opacity: 0.75; }
+
+.footer {
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.price { width: 30%; }
+
+.button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (min-width: 768px) {
+  .card { padding: 1rem; }
+  .image { width: 104px; min-height: 104px; }
+}

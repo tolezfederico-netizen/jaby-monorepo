@@ -28,6 +28,7 @@ export const OrderSchema = z.object({
   notes: z.string().nullable().optional(),
   total: z.number(),
   delivery_cost: z.number().nullable().optional(),
+  is_archived: z.boolean().optional().default(false),
   created_at: z.string().nullable().optional(),
   confirmed_at: z.string().nullable().optional(),
   completed_at: z.string().nullable().optional(),

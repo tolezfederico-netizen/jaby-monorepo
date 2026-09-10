@@ -1,63 +1,10 @@
 .footer {
-  background: linear-gradient(160deg, #E91E8C 0%, #1A1A2E 100%);
-  padding: 1rem 1rem 0.875rem;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
   width: 100%;
+  padding: 0.7rem 1rem 0.65rem;
+  background: linear-gradient(160deg, #E91E8C 0%, #1A1A2E 100%);
   font-family: 'Nunito', sans-serif;
-}
-
-.storeName {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-  line-height: 1;
-}
-
-.footerTop {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.footerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-}
-
-.footerInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.infoRowAddress {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.3;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.infoRowDelivery {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.3;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.footerAction {
-  display: flex;
-  flex-shrink: 0;
-  gap: 0.5rem;
 }
 
 .footerBottom {
@@ -70,102 +17,17 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .creditText {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.divider {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
   margin: 0;
-}
-
-.whatsappLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: fit-content;
-  padding: 0.45rem 1rem;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1.5px solid rgba(255, 255, 255, 0.55);
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.8125rem;
-  border-radius: 999px;
-  text-decoration: none;
-  backdrop-filter: blur(4px);
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.whatsappLinkText {
-  display: none;
-}
-
-.whatsappLink:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
 }
 
 @media (min-width: 768px) {
   .footer {
-    padding: 1rem 2.5rem 0.75rem;
-    gap: 0.5rem;
-  }
-
-  .footerTop {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .footerLeft {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 1.5rem;
-  }
-
-  .footerInfo {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 1.5rem;
-  }
-
-  .footerAction {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
-
-  .footerBottom {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-
-  .credits {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .infoRowAddress,
-  .infoRowDelivery {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.3;
-  }
-
-  .infoRowAddress {
-    margin-left: 0;
-    padding-left: 0.25rem;
-  }
-
-  .whatsappLinkText {
-    display: inline;
+    padding: 0.7rem 2.5rem 0.65rem;
   }
 }

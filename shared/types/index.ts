@@ -26,11 +26,15 @@ export type OrderModalityType = z.infer<typeof OrderModalitySchema>
 
 export type BannerUpdateType = z.infer<typeof BannerUpdateSchema>
 
-export type TikTokVideoType = {
+export type MediaProvider = 'tiktok' | 'instagram'
+
+export type MediaContentType = {
   id: string
+  provider: MediaProvider
   url: string
   order: number
   is_active: boolean
   thumbnail_url: string | null
+  thumbnail_source: 'auto' | 'manual'
   created_at: string
 }

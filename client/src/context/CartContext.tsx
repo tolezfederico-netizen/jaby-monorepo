@@ -1,5 +1,7 @@
-import { createContext, useContext, useReducer, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react'
 import type { ProductType } from '@jaby/shared'
+
+const CART_STORAGE_KEY = 'antojos-express-cart'
 
 interface CartItem {
   product: ProductType
@@ -51,6 +53,35 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
+function isPersistedCartState(value: unknown): value is CartState {
+  if (!value || typeof value !== 'object' || !Array.isArray((value as CartState).items)) {
+    return false
+  }
+
+  return (value as CartState).items.every((item) => (
+    item &&
+    typeof item === 'object' &&
+    item.product &&
+    typeof item.product === 'object' &&
+    typeof item.product.id === 'string' &&
+    typeof item.product.name === 'string' &&
+    Number.isInteger(item.quantity) &&
+    item.quantity > 0
+  ))
+}
+
+function getInitialCartState(): CartState {
+  try {
+    const stored = window.localStorage.getItem(CART_STORAGE_KEY)
+    if (!stored) return { items: [] }
+
+    const parsed: unknown = JSON.parse(stored)
+    return isPersistedCartState(parsed) ? parsed : { items: [] }
+  } catch {
+    return { items: [] }
+  }
+}
+
 interface CartContextValue {
   items: CartItem[]
   addItem: (product: ProductType) => void
@@ -64,7 +95,19 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] })
+  const [state, dispatch] = useReducer(cartReducer, undefined, getInitialCartState)
+
+  useEffect(() => {
+    try {
+      if (state.items.length === 0) {
+        window.localStorage.removeItem(CART_STORAGE_KEY)
+      } else {
+        window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state))
+      }
+    } catch {
+      // localStorage can be unavailable or full; the in-memory cart remains usable.
+    }
+  }, [state])
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0)
   const totalPrice = state.items.reduce(
@@ -80,7 +123,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem: (productId) => dispatch({ type: 'REMOVE_ITEM', productId }),
         updateQuantity: (productId, quantity) =>
           dispatch({ type: 'UPDATE_QUANTITY', productId, quantity }),
-        clearCart: () => dispatch({ type: 'CLEAR_CART' }),
+        clearCart: () => {
+          dispatch({ type: 'CLEAR_CART' })
+          try {
+            window.localStorage.removeItem(CART_STORAGE_KEY)
+          } catch {
+            // The reducer state is still cleared if localStorage is unavailable.
+          }
+        },
         totalItems,
         totalPrice,
       }}

@@ -94,3 +94,25 @@ export function useDeleteOrder() {
     },
   })
 }
+
+export function useArchiveOrder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, is_archived }: { id: string; is_archived: boolean }) => {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ is_archived })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw new Error(error.message)
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] })
+    },
+  })
+}
+

@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { to: '/orders', label: 'Pedidos', exact: false },
   { to: '/products', label: 'Productos', exact: false },
   { to: '/categories', label: 'Categorías', exact: false },
-  { to: '/tiktok', label: 'TikTok', exact: false },
+  { to: '/contenido-multimedia', label: 'Contenido Multimedia', exact: false },
   { to: '/customers', label: 'Clientes', exact: false },
   { to: '/settings', label: 'Configuración', exact: false },
 ] as const
@@ -42,7 +42,7 @@ function AdminLayout() {
 
       <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.brand}>
-          <span className={styles.brandName}>Antojos Expres</span>
+          <span className={styles.brandName}>Antojos Ya</span>
           <span className={styles.brandLabel}>Admin</span>
         </div>
 

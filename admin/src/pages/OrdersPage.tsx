@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   useOrders,
   useUpdateOrderStatus,
   useDeleteOrder,
+  useArchiveOrder,
 } from "../hooks/useOrders";
 import type { OrderWithItemsType } from "../hooks/useOrders";
 import type { OrderStatusType } from "@jaby/shared";
@@ -79,8 +81,17 @@ function getWaUrl(
   return `https://wa.me/54${phone}?text=${encodeURIComponent(text)}`
 }
 
-type FilterStatus = OrderStatusType | "all";
+type FilterStatus = OrderStatusType | "all" | "archived";
 type FilterModality = "all" | "pickup" | "delivery";
+
+const ORDER_STATUSES = ["pending", "confirmed", "in_progress", "completed"] as const;
+
+function getFilterStatus(status: string | null): FilterStatus {
+  if (status === "archived") return "archived";
+  return ORDER_STATUSES.includes(status as OrderStatusType)
+    ? (status as OrderStatusType)
+    : "all";
+}
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -101,17 +112,83 @@ function timeAgo(iso: string | null | undefined): string {
   return `hace ${Math.floor(diff / 86400)} d`;
 }
 
+function isToday(iso: string | null | undefined): boolean {
+  if (!iso) return false;
+  const date = new Date(iso);
+  return date.toDateString() === new Date().toDateString();
+}
+
+type UnattendedUrgency = "none" | "warning" | "critical" | "abandoned";
+
+function getUnattendedUrgency(order: OrderWithItemsType): UnattendedUrgency {
+  if (order.status !== "pending" || !order.created_at || order.is_archived) return "none";
+  const ageMs = Date.now() - new Date(order.created_at).getTime();
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  const THREE_DAYS_MS = 3 * ONE_DAY_MS;
+  const THIRTY_DAYS_MS = 30 * ONE_DAY_MS;
+
+  if (ageMs <= ONE_DAY_MS) return "none";
+  if (ageMs <= THREE_DAYS_MS) return "warning";
+  if (ageMs <= THIRTY_DAYS_MS) return "critical";
+  return "abandoned";
+}
+
+function getDateGroup(order: OrderWithItemsType): "Hoy" | "Ayer" | "Esta semana" | "Más antiguos" {
+  if (!order.created_at) return "Más antiguos";
+  const date = new Date(order.created_at);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (date >= today) return "Hoy";
+  if (date >= yesterday) return "Ayer";
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  return date >= weekStart ? "Esta semana" : "Más antiguos";
+}
+
 interface OrderCardProps {
   order: OrderWithItemsType;
   isSelected: boolean;
   onClick: () => void;
+  onQuickConfirm: (order: OrderWithItemsType) => void;
+  isConfirming: boolean;
+  onArchive: (order: OrderWithItemsType) => void;
+  isArchiving: boolean;
 }
 
-function OrderCard({ order, isSelected, onClick }: OrderCardProps) {
+function OrderCard({
+  order,
+  isSelected,
+  onClick,
+  onQuickConfirm,
+  isConfirming,
+  onArchive,
+  isArchiving,
+}: OrderCardProps) {
+  const urgency = getUnattendedUrgency(order);
+
+  const urgencyCardClass =
+    urgency === "warning"
+      ? styles.cardUnattended_warning
+      : urgency === "critical"
+        ? styles.cardUnattended_critical
+        : urgency === "abandoned"
+          ? styles.cardUnattended_abandoned
+          : "";
+
   return (
     <div
-      className={`${styles.card} ${styles[`card_${order.status}`]} ${isSelected ? styles.cardSelected : ""}`}
+      className={`${styles.card} ${styles[`card_${order.status}`]} ${isSelected ? styles.cardSelected : ""} ${urgencyCardClass} ${order.is_archived ? styles.card_archived : ""}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <div className={styles.cardHeader}>
         <div className={styles.cardHeaderLeft}>
@@ -123,9 +200,57 @@ function OrderCard({ order, isSelected, onClick }: OrderCardProps) {
           >
             {STATUS_LABELS[order.status]}
           </span>
+          {order.is_archived && (
+            <span className={`${styles.statusBadge} ${styles.badge_archived}`}>
+              Archivado
+            </span>
+          )}
+          {urgency === "warning" && (
+            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_warning}`}>
+              ! Sin atender
+            </span>
+          )}
+          {urgency === "critical" && (
+            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_critical}`}>
+              ! Sin atender
+            </span>
+          )}
+          {urgency === "abandoned" && (
+            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_abandoned}`}>
+              Abandonado
+            </span>
+          )}
           <span className={styles.modality}>
             {order.modality === "delivery" ? "🚗 Delivery" : "🏪 Retiro"}
           </span>
+        </div>
+        <div className={styles.cardActions}>
+          {order.status === "pending" && !order.is_archived && urgency === "abandoned" && (
+            <button
+              type="button"
+              className={styles.archiveButton}
+              onClick={(event) => {
+                event.stopPropagation();
+                onArchive(order);
+              }}
+              disabled={isArchiving}
+            >
+              {isArchiving ? "Archivando..." : "Archivar"}
+            </button>
+          )}
+          {order.status === "pending" && !order.is_archived && urgency !== "abandoned" && (
+            <button
+              type="button"
+              className={styles.quickConfirmButton}
+              onClick={(event) => {
+                event.stopPropagation();
+                onQuickConfirm(order);
+              }}
+              disabled={isConfirming}
+            >
+              {isConfirming ? "Confirmando..." : "Confirmar"}
+            </button>
+          )}
         </div>
       </div>
       <div className={styles.cardBody}>
@@ -155,6 +280,8 @@ interface OrderDetailPanelProps {
   onClose: () => void;
   isPending: boolean;
   isPanelOpen: boolean;
+  onArchiveToggle: (order: OrderWithItemsType, is_archived: boolean) => void;
+  isArchiving: boolean;
 }
 
 function OrderDetailPanel({
@@ -164,21 +291,11 @@ function OrderDetailPanel({
   onClose,
   isPending,
   isPanelOpen,
+  onArchiveToggle,
+  isArchiving,
 }: OrderDetailPanelProps) {
   if (!order) {
-    return (
-      <div
-        className={`${styles.panel} ${isPanelOpen ? styles.panelVisible : ""}`}
-      >
-        <div className={styles.panelEmpty}>
-          <span className={styles.panelEmptyIcon}>📋</span>
-          <p className={styles.panelEmptyTitle}>Ningún pedido seleccionado</p>
-          <p className={styles.panelEmptyDesc}>
-            Seleccioná un pedido de la lista para ver su detalle.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const nextStatus = getNextStatus(order.status, order.modality);
@@ -198,13 +315,28 @@ function OrderDetailPanel({
           >
             {STATUS_LABELS[order.status]}
           </span>
+          {order.is_archived && (
+            <span className={`${styles.statusBadge} ${styles.badge_archived}`}>
+              Archivado
+            </span>
+          )}
         </div>
-        <button className={styles.deleteButton} onClick={() => onDelete(order)}>
-          Eliminar
-        </button>
-        <button className={styles.panelCloseBtn} onClick={onClose}>
-          ✕
-        </button>
+        <div className={styles.panelHeaderRight}>
+          <button
+            type="button"
+            className={styles.archivePanelButton}
+            onClick={() => onArchiveToggle(order, !order.is_archived)}
+            disabled={isArchiving}
+          >
+            {order.is_archived ? "Desarchivar" : "Archivar"}
+          </button>
+          <button className={styles.deleteButton} onClick={() => onDelete(order)}>
+            Eliminar
+          </button>
+          <button className={styles.panelCloseBtn} onClick={onClose}>
+            ✕
+          </button>
+        </div>
       </div>
 
       <div className={styles.panelBody}>
@@ -322,8 +454,10 @@ function OrdersPage() {
   const { data: orders, isLoading } = useOrders();
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
+  const archiveOrder = useArchiveOrder();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const filterStatus = getFilterStatus(searchParams.get("status"));
   const [filterModality, setFilterModality] = useState<FilterModality>("all");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [orderToDelete, setOrderToDelete] = useState<OrderWithItemsType | null>(
@@ -331,17 +465,36 @@ function OrdersPage() {
   );
   const [pendingWaUrl, setPendingWaUrl] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [searchCustomer, setSearchCustomer] = useState("");
+  const [showTodayOnly, setShowTodayOnly] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const orderId = searchParams.get("orderId");
+    if (orderId) {
+      setSelectedOrderId(orderId);
+      setIsPanelOpen(true);
+    }
+  }, [searchParams]);
 
   const allOrders = orders ?? [];
+  const activeOrders = allOrders.filter((o) => !o.is_archived);
+  const archivedOrders = allOrders.filter((o) => !!o.is_archived);
 
   const countByStatus = (status: OrderStatusType) =>
-    allOrders.filter((o) => o.status === status).length;
+    activeOrders.filter((o) => o.status === status).length;
 
-  const filtered = allOrders.filter((o) => {
-    if (filterStatus !== "all" && o.status !== filterStatus) return false;
+  const ordersToFilter = filterStatus === "archived" ? archivedOrders : activeOrders;
+
+  const filtered = ordersToFilter.filter((o) => {
+    if (filterStatus !== "all" && filterStatus !== "archived" && o.status !== filterStatus) return false;
     if (filterModality !== "all" && o.modality !== filterModality) return false;
+    if (showTodayOnly && !isToday(o.created_at)) return false;
+    if (!o.customer_name.toLocaleLowerCase().includes(searchCustomer.trim().toLocaleLowerCase())) return false;
     return true;
-  });
+  }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
+
+  const dateGroups = ["Hoy", "Ayer", "Esta semana", "Más antiguos"] as const;
 
   const selectedOrder = selectedOrderId
     ? ((orders ?? []).find((o) => o.id === selectedOrderId) ?? null)
@@ -369,6 +522,24 @@ function OrdersPage() {
     );
   };
 
+  const handleArchive = (order: OrderWithItemsType, is_archived: boolean = true) => {
+    if (archiveOrder.isPending) return;
+    archiveOrder.mutate(
+      { id: order.id, is_archived },
+      {
+        onSuccess: () => {
+          setSuccessMessage(
+            is_archived
+              ? `Pedido #${String(order.order_number).padStart(4, "0")} archivado.`
+              : `Pedido #${String(order.order_number).padStart(4, "0")} desarchivado.`
+          );
+          window.setTimeout(() => setSuccessMessage(null), 3000);
+        },
+        onError: () => console.error("Error al archivar el pedido", order.id),
+      },
+    );
+  };
+
   const handleDeleteRequest = (order: OrderWithItemsType) =>
     setOrderToDelete(order);
   const handleDeleteConfirm = async () => {
@@ -391,10 +562,42 @@ function OrdersPage() {
 
   const handleWaCancel = () => setPendingWaUrl(null);
 
+  const handleQuickConfirm = (order: OrderWithItemsType) => {
+    if (updateStatus.isPending) return;
+    updateStatus.mutate(
+      { id: order.id, status: "confirmed" },
+      {
+        onSuccess: () => {
+          setSuccessMessage(`Pedido #${String(order.order_number).padStart(4, "0")} confirmado.`);
+          window.setTimeout(() => setSuccessMessage(null), 3000);
+        },
+        onError: () => console.error("Error al confirmar el pedido", order.id),
+      },
+    );
+  };
+
+  const handleStatusFilterChange = (status: FilterStatus) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    if (status === "all") {
+      nextSearchParams.delete("status");
+    } else {
+      nextSearchParams.set("status", status);
+    }
+    setSearchParams(nextSearchParams);
+  };
+
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${selectedOrder ? styles.pageHasSelection : ""}`}>
       <div className={styles.listColumn}>
         <h1 className={styles.title}>Pedidos</h1>
+
+        <input
+          type="search"
+          className={styles.searchInput}
+          placeholder="Buscar por nombre de cliente..."
+          value={searchCustomer}
+          onChange={(event) => setSearchCustomer(event.target.value)}
+        />
 
         <div className={styles.filtersWrapper}>
           <div className={styles.filterSection}>
@@ -402,23 +605,30 @@ function OrdersPage() {
             <div className={styles.filterGroup}>
               <button
                 className={`${styles.filterBtn} ${filterStatus === "all" ? styles.filterBtnActive : ""}`}
-                onClick={() => setFilterStatus("all")}
+                onClick={() => handleStatusFilterChange("all")}
               >
                 Todos
-                <span className={styles.filterCount}>{allOrders.length}</span>
+                <span className={`${styles.filterCount} ${styles.filterCount_all}`}>{activeOrders.length}</span>
               </button>
               {(
-                ["pending", "confirmed", "in_progress", "completed"] as const
+                ORDER_STATUSES
               ).map((s) => (
                 <button
                   key={s}
                   className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ""}`}
-                  onClick={() => setFilterStatus(s)}
+                  onClick={() => handleStatusFilterChange(s)}
                 >
                   {STATUS_LABELS[s]}
-                  <span className={styles.filterCount}>{countByStatus(s)}</span>
+                  <span className={`${styles.filterCount} ${styles[`filterCount_${s}`]}`}>{countByStatus(s)}</span>
                 </button>
               ))}
+              <button
+                className={`${styles.filterBtn} ${filterStatus === "archived" ? styles.filterBtnActive : ""}`}
+                onClick={() => handleStatusFilterChange("archived")}
+              >
+                Archivados
+                <span className={`${styles.filterCount} ${styles.filterCount_archived}`}>{archivedOrders.length}</span>
+              </button>
             </div>
           </div>
 
@@ -442,25 +652,57 @@ function OrdersPage() {
               ))}
             </div>
           </div>
+
+          <div className={styles.filterDivider} />
+
+          <div className={styles.filterSection}>
+            <span className={styles.filterLabel}>Fecha</span>
+            <div className={styles.filterGroup}>
+              <button
+                type="button"
+                className={`${styles.filterBtn} ${showTodayOnly ? styles.filterBtnActive : ""}`}
+                onClick={() => setShowTodayOnly((current) => !current)}
+              >
+                Hoy
+              </button>
+            </div>
+          </div>
         </div>
+
+        {successMessage && <p className={styles.successToast} role="status">{successMessage}</p>}
 
         {isLoading ? (
           <p className={styles.loadingText}>Cargando pedidos...</p>
         ) : filtered.length === 0 ? (
           <p className={styles.emptyText}>No hay pedidos con estos filtros.</p>
         ) : (
-          <div className={styles.list}>
-            {filtered.map((order) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                isSelected={selectedOrder?.id === order.id}
-                onClick={() => {
-                  setSelectedOrderId(order.id);
-                  setIsPanelOpen(true);
-                }}
-              />
-            ))}
+          <div className={styles.groupedList}>
+            {dateGroups.map((group) => {
+              const ordersInGroup = filtered.filter((order) => getDateGroup(order) === group);
+              if (ordersInGroup.length === 0) return null;
+              return (
+                <section key={group} className={styles.orderGroup}>
+                  <h2 className={styles.groupTitle}>{group}</h2>
+                  <div className={`${styles.list} ${selectedOrder ? styles.listWithSelection : ""}`}>
+                    {ordersInGroup.map((order) => (
+                      <OrderCard
+                        key={order.id}
+                        order={order}
+                        isSelected={selectedOrder?.id === order.id}
+                        isConfirming={updateStatus.isPending}
+                        onQuickConfirm={handleQuickConfirm}
+                        isArchiving={archiveOrder.isPending}
+                        onArchive={(o) => handleArchive(o, true)}
+                        onClick={() => {
+                          setSelectedOrderId(order.id);
+                          setIsPanelOpen(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         )}
       </div>
@@ -468,7 +710,10 @@ function OrdersPage() {
       {isPanelOpen && (
         <div
           className={styles.panelOverlay}
-          onClick={() => setIsPanelOpen(false)}
+          onClick={() => {
+            setIsPanelOpen(false);
+            setSelectedOrderId(null);
+          }}
         />
       )}
       <OrderDetailPanel
@@ -476,8 +721,13 @@ function OrdersPage() {
         onStatusChange={handleStatusChange}
         onDelete={handleDeleteRequest}
         isPending={updateStatus.isPending}
-        onClose={() => setIsPanelOpen(false)}
+        onClose={() => {
+          setIsPanelOpen(false);
+          setSelectedOrderId(null);
+        }}
         isPanelOpen={isPanelOpen}
+        onArchiveToggle={handleArchive}
+        isArchiving={archiveOrder.isPending}
       />
 
       {orderToDelete && (

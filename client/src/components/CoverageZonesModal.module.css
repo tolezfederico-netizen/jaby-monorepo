@@ -1,0 +1,45 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
+  background: #1E1A2E;
+  border: 1px solid rgba(233, 30, 140, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.15s ease;
+}
+
+.closeButton:hover { background: #E91E8C; }
+.title { margin: 0 2.5rem 1.25rem 0; color: #ffffff; font-size: 1.125rem; }
+.zoneList { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.zoneTag { padding: 0.4rem 0.7rem; color: #F0EBF8; background: rgba(233, 30, 140, 0.16); border: 1px solid rgba(233, 30, 140, 0.35); border-radius: 999px; font-size: 0.875rem; }
+.emptyMessage { margin: 0; color: rgba(240, 235, 248, 0.7); font-size: 0.875rem; line-height: 1.5; }

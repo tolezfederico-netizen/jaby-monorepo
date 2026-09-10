@@ -56,7 +56,7 @@ serve(async (req) => {
 
     const { data: products, error: productsError } = await supabase
       .from('products')
-      .select('id, name, price, is_active')
+      .select('id, name, price, is_active, is_out_of_stock')
       .in('id', productIds)
 
     if (productsError) {
@@ -79,6 +79,13 @@ serve(async (req) => {
       if (!product.is_active) {
         return new Response(
           JSON.stringify({ error: `El producto "${product.name}" ya no está disponible` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (product.is_out_of_stock) {
+        return new Response(
+          JSON.stringify({ error: `El producto "${product.name}" está agotado` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
