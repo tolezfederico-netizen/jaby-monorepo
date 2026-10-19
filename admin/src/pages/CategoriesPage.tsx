@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '../hooks/useCategories'
+import { useProducts } from '../hooks/useProducts'
 import type { CategoryType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
+import { CategoriesIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon, AlertIcon } from '../components/icons'
 import styles from './CategoriesPage.module.css'
 
 function CategoriesPage() {
   const { data: categories, isLoading } = useCategories()
+  const { data: products } = useProducts()
   const createCategory = useCreateCategory()
   const deleteCategory = useDeleteCategory()
   const updateCategory = useUpdateCategory()
@@ -13,67 +17,87 @@ function CategoriesPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [selected, setSelected] = useState<CategoryType | null>(null)
   const [name, setName] = useState('')
-  const [editName, setEditName] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryType | null>(null)
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<number | undefined>(undefined)
 
+  const isDialogOpen = isCreating || selected !== null
   const isSaving = createCategory.isPending || updateCategory.isPending
+
+  const showToast = (message: string) => {
+    setToast(message)
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(null), 4000)
+  }
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  const productCounts = (categoryId: string) => {
+    const list = (products ?? []).filter((p) => p.category_id === categoryId)
+    return { total: list.length, paused: list.filter((p) => !p.is_active).length }
+  }
 
   const openCreate = () => {
     setSelected(null)
     setName('')
     setFormError(null)
     setIsCreating(true)
-    setIsPanelOpen(true)
   }
 
   const openEdit = (category: CategoryType) => {
     setIsCreating(false)
     setSelected(category)
-    setEditName(category.name)
+    setName(category.name)
     setFormError(null)
-    setIsPanelOpen(true)
   }
 
-  const closePanel = () => {
+  const closeDialog = () => {
     setIsCreating(false)
     setSelected(null)
     setName('')
-    setEditName('')
     setFormError(null)
-    setIsPanelOpen(false)
   }
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setFormError(null)
-
-    if (!name.trim()) { setFormError('El nombre es obligatorio.'); return }
-
-    try {
-      await createCategory.mutateAsync({ name: name.trim() })
-      closePanel()
-    } catch {
-      setFormError('Ocurrió un error al guardar. Intentá de nuevo.')
+  useEffect(() => {
+    if (!isDialogOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !categoryToDelete) closeDialog()
     }
-  }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isDialogOpen, categoryToDelete])
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
 
-    if (!editName.trim()) { setFormError('El nombre es obligatorio.'); return }
+    const trimmed = name.trim()
+    if (!trimmed) { setFormError('El nombre es obligatorio.'); return }
+    const duplicated = (categories ?? []).some(
+      (c) => c.id !== selected?.id && c.name.toLowerCase() === trimmed.toLowerCase()
+    )
+    if (duplicated) { setFormError('Ya existe una categoría con ese nombre.'); return }
 
     try {
-      await updateCategory.mutateAsync({ id: selected!.id, payload: { name: editName.trim() } })
-      closePanel()
+      if (isCreating) {
+        await createCategory.mutateAsync({ name: trimmed })
+      } else if (selected) {
+        await updateCategory.mutateAsync({ id: selected.id, payload: { name: trimmed } })
+      }
+      closeDialog()
     } catch {
       setFormError('Ocurrió un error al guardar. Intentá de nuevo.')
     }
   }
 
   const handleDeleteRequest = (category: CategoryType) => {
+    const { total } = productCounts(category.id)
+    if (total > 0) {
+      showToast(
+        `No se puede eliminar "${category.name}": tiene ${total} ${total === 1 ? 'producto' : 'productos'}. Movelos a otra categoría primero.`
+      )
+      return
+    }
     setCategoryToDelete(category)
   }
 
@@ -81,165 +105,134 @@ function CategoriesPage() {
     if (!categoryToDelete) return
     try {
       await deleteCategory.mutateAsync(categoryToDelete.id)
-      setCategoryToDelete(null)
+      if (selected?.id === categoryToDelete.id) closeDialog()
     } catch {
-      setFormError('Error al eliminar la categoría. Intentá de nuevo.')
-      setCategoryToDelete(null)
+      showToast('Error al eliminar la categoría. Intentá de nuevo.')
     }
+    setCategoryToDelete(null)
   }
 
-  const handleDeleteCancel = () => setCategoryToDelete(null)
+  const total = categories?.length ?? 0
 
   return (
     <div className={styles.page}>
-      <div className={styles.listColumn}>
-        <div className={styles.listHeader}>
-          <h1 className={styles.title}>Categorías</h1>
-        </div>
+      <div className={styles.topBar}>
+        <span className={styles.topBarInfo}>
+          {total} {total === 1 ? 'categoría' : 'categorías'}
+        </span>
+        <button className={styles.createButton} onClick={openCreate}>
+          <PlusIcon size={16} />
+          Nueva categoría
+        </button>
+      </div>
 
-        {isLoading ? (
-          <p className={styles.loadingText}>Cargando categorías...</p>
-        ) : !categories?.length ? (
-          <p className={styles.emptyText}>No hay categorías todavía.</p>
-        ) : (
-          <ul className={styles.list}>
-            {categories.map((category) => (
-              <li
-                key={category.id}
-                className={`${styles.item} ${selected?.id === category.id ? styles.itemSelected : ''}`}
-              >
-                <div className={styles.itemMain}>
-                  <span className={styles.itemName}>{category.name}</span>
+      {isLoading ? (
+        <p className={styles.loadingText}>Cargando categorías...</p>
+      ) : !categories?.length ? (
+        <p className={styles.emptyText}>No hay categorías todavía.</p>
+      ) : (
+        <ul className={styles.list}>
+          {categories.map((category) => {
+            const { total: count, paused } = productCounts(category.id)
+            return (
+              <li key={category.id} className={styles.card} onClick={() => openEdit(category)}>
+                <span className={styles.cardIcon}>
+                  <CategoriesIcon size={20} />
+                </span>
+                <div className={styles.cardInfo}>
+                  <span className={styles.cardName} title={category.name}>{category.name}</span>
+                  <span className={styles.cardMeta}>
+                    {count === 0
+                      ? 'Sin productos'
+                      : `${count} ${count === 1 ? 'producto' : 'productos'}${
+                          paused > 0 ? ` · ${paused} ${paused === 1 ? 'pausado' : 'pausados'}` : ''
+                        }`}
+                  </span>
                 </div>
-                <div className={styles.itemActions}>
+                <div className={styles.cardActions}>
                   <button
-                    className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
-                    onClick={() => openEdit(category)}
+                    className={styles.iconBtn}
+                    onClick={(e) => { e.stopPropagation(); openEdit(category) }}
+                    title="Editar"
+                    aria-label="Editar"
                   >
-                    Editar
+                    <EditIcon size={15} />
                   </button>
                   <button
-                    className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
-                    onClick={() => handleDeleteRequest(category)}
+                    className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
+                    onClick={(e) => { e.stopPropagation(); handleDeleteRequest(category) }}
                     disabled={deleteCategory.isPending}
+                    title="Eliminar"
+                    aria-label="Eliminar"
                   >
-                    Eliminar
+                    <TrashIcon size={15} />
                   </button>
                 </div>
               </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {isPanelOpen && (
-        <div
-          className={styles.panelOverlay}
-          onClick={closePanel}
-        />
+            )
+          })}
+        </ul>
       )}
-      <div className={`${styles.panel} ${isPanelOpen ? styles.panelVisible : ''}`}>
-        {!isCreating && selected === null ? (
-          <div className={styles.panelEmpty}>
-            <span className={styles.panelEmptyIcon}>📂</span>
-            <p className={styles.panelEmptyTitle}>Ninguna categoría seleccionada</p>
-            <p className={styles.panelEmptyDesc}>
-              Seleccioná una categoría para editarla, o creá una nueva.
-            </p>
-            <button className={styles.createButton} onClick={openCreate}>
-              + Nueva categoría
-            </button>
-          </div>
-        ) : isCreating ? (
-          <>
-            <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>Nueva categoría</h2>
-              <button className={styles.closeButton} onClick={closePanel}>✕</button>
-            </div>
 
-            <form onSubmit={handleCreateSubmit} className={styles.form}>
-              <div className={styles.field}>
-                <label className={styles.label}>Nombre *</label>
+      {isDialogOpen &&
+        createPortal(
+          <>
+            <div className={styles.overlay} onClick={closeDialog} />
+            <form className={styles.dialog} onSubmit={handleSubmit} role="dialog" aria-modal="true">
+              <div className={styles.dialogHeader}>
+                <h2 className={styles.dialogTitle}>
+                  {isCreating ? 'Nueva categoría' : 'Editar categoría'}
+                </h2>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={closeDialog}
+                  aria-label="Cerrar"
+                >
+                  <CloseIcon size={18} />
+                </button>
+              </div>
+
+              <div className={styles.dialogBody}>
+                <label className={styles.label} htmlFor="category-name">Nombre *</label>
                 <input
+                  id="category-name"
                   name="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={styles.input}
                   placeholder="Ej: Cervezas"
                   disabled={isSaving}
+                  autoFocus
                   required
                 />
+                {formError && (
+                  <p className={styles.formError} role="alert">
+                    <AlertIcon size={16} />
+                    {formError}
+                  </p>
+                )}
               </div>
 
-              {formError && (
-                <p className={styles.formError} role="alert">{formError}</p>
-              )}
-
-              <div className={styles.formActions}>
+              <div className={styles.dialogFooter}>
                 <button
                   type="button"
                   className={styles.cancelButton}
-                  onClick={closePanel}
+                  onClick={closeDialog}
                   disabled={isSaving}
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className={styles.saveButton}
-                  disabled={isSaving}
-                >
-                  {isSaving ? 'Guardando...' : 'Crear categoría'}
+                <button type="submit" className={styles.saveButton} disabled={isSaving}>
+                  {isSaving ? 'Guardando...' : isCreating ? 'Crear categoría' : 'Guardar cambios'}
                 </button>
               </div>
             </form>
-          </>
-        ) : (
-          <>
-            <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>Editar categoría</h2>
-              <button className={styles.closeButton} onClick={closePanel}>✕</button>
-            </div>
-
-            <form onSubmit={handleEditSubmit} className={styles.form}>
-              <div className={styles.field}>
-                <label className={styles.label}>Nombre *</label>
-                <input
-                  name="editName"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className={styles.input}
-                  placeholder="Ej: Cervezas"
-                  disabled={isSaving}
-                  required
-                />
-              </div>
-
-              {formError && (
-                <p className={styles.formError} role="alert">{formError}</p>
-              )}
-
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  className={styles.cancelButton}
-                  onClick={closePanel}
-                  disabled={isSaving}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className={styles.saveButton}
-                  disabled={isSaving}
-                >
-                  {isSaving ? 'Guardando...' : 'Guardar cambios'}
-                </button>
-              </div>
-            </form>
-          </>
+          </>,
+          document.body
         )}
-      </div>
+
+      {toast && <div className={styles.toast} role="status">{toast}</div>}
 
       {categoryToDelete && (
         <ConfirmModal
@@ -248,7 +241,7 @@ function CategoriesPage() {
           confirmLabel="Eliminar"
           isDanger={true}
           onConfirm={handleDeleteConfirm}
-          onCancel={handleDeleteCancel}
+          onCancel={() => setCategoryToDelete(null)}
         />
       )}
     </div>
