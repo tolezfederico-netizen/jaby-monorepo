@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useStoreConfig, useUpdateStoreConfig } from '../hooks/useStoreConfig'
 import ConfirmModal from '../components/ConfirmModal'
 import CoverageZoneModal from '../components/CoverageZoneModal'
+import { CheckCircleIcon, ClockIcon, CloseIcon, PlusIcon, ScooterIcon, StoreIcon, AlertIcon } from '../components/icons'
 import styles from './SettingsPage.module.css'
 
 // ─── Store Info Section ───────────────────────────────────────────────────────
@@ -88,89 +89,103 @@ function StoreInfoSection() {
 
   if (isLoading) return <p className={styles.loadingText}>Cargando...</p>
 
+  const busy = updateConfig.isPending
+
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>Información del local</h2>
+      <header className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><StoreIcon size={20} /></span>
+        <div>
+          <h2 className={styles.sectionTitle}>Información del local</h2>
+          <p className={styles.sectionDesc}>Se muestra en la tienda y en el banner de información.</p>
+        </div>
+      </header>
+
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Nombre del local</label>
-            <input name="store_name" value={form.store_name} onChange={handleField}
-              className={styles.input} required disabled={updateConfig.isPending} />
+        <div className={styles.formBody}>
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label className={styles.label}>Nombre del local</label>
+              <input name="store_name" value={form.store_name} onChange={handleField}
+                className={styles.input} required disabled={busy} />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>WhatsApp</label>
+              <input name="whatsapp_number" value={form.whatsapp_number} onChange={handleField}
+                className={styles.input} placeholder="1122334455" required disabled={busy} />
+            </div>
           </div>
+
           <div className={styles.field}>
-            <label className={styles.label}>WhatsApp</label>
-            <input name="whatsapp_number" value={form.whatsapp_number} onChange={handleField}
-              className={styles.input} placeholder="1122334455" required
-              disabled={updateConfig.isPending} />
+            <label className={styles.label}>Dirección</label>
+            <input name="address" value={form.address} onChange={handleField}
+              className={styles.input} required disabled={busy} />
           </div>
+
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label className={styles.label}>Barrio</label>
+              <input name="neighborhood" value={form.neighborhood} onChange={handleField}
+                className={styles.input} disabled={busy} />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Municipio</label>
+              <input name="municipality" value={form.municipality} onChange={handleField}
+                className={styles.input} disabled={busy} />
+            </div>
+          </div>
+
+          <div className={styles.group}>
+            <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de atención</span>
+            <div className={styles.fieldRow}>
+              <div className={styles.field}>
+                <label className={styles.label}>Apertura</label>
+                <input name="business_hours_open" type="time" value={form.business_hours_open}
+                  onChange={handleField} className={styles.input} required disabled={busy} />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label}>Cierre</label>
+                <input name="business_hours_close" type="time" value={form.business_hours_close}
+                  onChange={handleField} className={styles.input} required disabled={busy} />
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label className={styles.label}>Instagram</label>
+              <input name="instagram_url" type="url" value={form.instagram_url}
+                onChange={handleField} className={styles.input}
+                placeholder="https://instagram.com/tulocal" required disabled={busy} />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>Usuario de TikTok</label>
+              <input name="tiktok_username" value={form.tiktok_username}
+                onChange={handleField} className={styles.input} placeholder="@tulocal" disabled={busy} />
+            </div>
+          </div>
+
+          <label className={styles.toggleRow}>
+            <span>
+              <strong>Mostrar precios en el catálogo público</strong>
+              <small>Si lo desactivás, los clientes no ven los precios.</small>
+            </span>
+            <input name="show_prices" type="checkbox" className={styles.switch}
+              checked={form.show_prices} onChange={handleField} disabled={busy} />
+          </label>
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.label}>Dirección</label>
-          <input name="address" value={form.address} onChange={handleField}
-            className={styles.input} required disabled={updateConfig.isPending} />
-        </div>
-
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Barrio</label>
-            <input name="neighborhood" value={form.neighborhood} onChange={handleField}
-              className={styles.input} disabled={updateConfig.isPending} />
+        <div className={styles.formFooter}>
+          <div className={styles.status}>
+            {error && (
+              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+            )}
+            {saved && (
+              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+            )}
           </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Municipio</label>
-            <input name="municipality" value={form.municipality} onChange={handleField}
-              className={styles.input} disabled={updateConfig.isPending} />
-          </div>
-        </div>
-
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Horario apertura</label>
-            <input name="business_hours_open" type="time" value={form.business_hours_open}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Horario cierre</label>
-            <input name="business_hours_close" type="time" value={form.business_hours_close}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label}>Instagram</label>
-          <input name="instagram_url" type="url" value={form.instagram_url}
-            onChange={handleField} className={styles.input} placeholder="https://instagram.com/tulocal"
-            required disabled={updateConfig.isPending} />
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label}>Usuario de TikTok</label>
-          <input
-            name="tiktok_username"
-            value={form.tiktok_username}
-            onChange={handleField}
-            className={styles.input}
-            placeholder="@tulocal"
-            disabled={updateConfig.isPending}
-          />
-        </div>
-
-        <label className={styles.checkboxLabel}>
-          <input name="show_prices" type="checkbox" checked={form.show_prices}
-            onChange={handleField} disabled={updateConfig.isPending} />
-          Mostrar precios en el catálogo público
-        </label>
-
-        {error && <p className={styles.errorText} role="alert">{error}</p>}
-        {saved && <p className={styles.successText}>Cambios guardados.</p>}
-
-        <div className={styles.formActions}>
-          <button type="submit" className={styles.saveButton} disabled={updateConfig.isPending}>
-            {updateConfig.isPending ? 'Guardando...' : 'Guardar cambios'}
+          <button type="submit" className={styles.saveButton} disabled={busy}>
+            {busy ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>
@@ -266,90 +281,111 @@ function DeliverySection() {
     setSaved(false)
   }
 
+  const busy = updateConfig.isPending
+
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>Delivery</h2>
+      <header className={styles.sectionHeader}>
+        <span className={styles.sectionIcon}><ScooterIcon size={20} /></span>
+        <div>
+          <h2 className={styles.sectionTitle}>Delivery</h2>
+          <p className={styles.sectionDesc}>Horarios, costos y zonas donde llegás.</p>
+        </div>
+      </header>
+
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.checkboxLabel}>
-          <input name="is_enabled" type="checkbox" checked={form.is_enabled}
-            onChange={handleField} disabled={updateConfig.isPending} />
-          Habilitar delivery
-        </label>
+        <div className={styles.formBody}>
+          <label className={styles.toggleRow}>
+            <span>
+              <strong>Habilitar delivery</strong>
+              <small>Si está apagado, la tienda solo ofrece retiro en el local.</small>
+            </span>
+            <input name="is_enabled" type="checkbox" className={styles.switch}
+              checked={form.is_enabled} onChange={handleField} disabled={busy} />
+          </label>
 
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Horario inicio delivery</label>
-            <input name="delivery_hours_open" type="time" value={form.delivery_hours_open}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Horario fin delivery</label>
-            <input name="delivery_hours_close" type="time" value={form.delivery_hours_close}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-        </div>
-
-        <div className={styles.fieldRow}>
-          <div className={styles.field}>
-            <label className={styles.label}>Costo de envío ($)</label>
-            <input name="cost" type="number" min="0" value={form.cost}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Monto mínimo ($)</label>
-            <input name="minimum_order" type="number" min="0" value={form.minimum_order}
-              onChange={handleField} className={styles.input} required
-              disabled={updateConfig.isPending} />
-          </div>
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label}>Zonas de cobertura</label>
-          {form.coverage_zones.length > 0 ? (
-            <div className={styles.coverageZonesList}>
-              {form.coverage_zones.map((zone) => (
-                <div key={zone} className={styles.coverageZoneTag}>
-                  <span>{zone}</span>
-                  <button
-                    type="button"
-                    className={styles.coverageZoneRemove}
-                    onClick={() => setZoneToDelete(zone)}
-                    disabled={updateConfig.isPending}
-                    aria-label={`Eliminar zona ${zone}`}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-                      <path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                    Ã—
-                  </button>
+          <div className={`${styles.deliveryFields} ${form.is_enabled ? '' : styles.dimmed}`}>
+            <div className={styles.group}>
+              <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de delivery</span>
+              <div className={styles.fieldRow}>
+                <div className={styles.field}>
+                  <label className={styles.label}>Inicio</label>
+                  <input name="delivery_hours_open" type="time" value={form.delivery_hours_open}
+                    onChange={handleField} className={styles.input} required disabled={busy} />
                 </div>
-              ))}
+                <div className={styles.field}>
+                  <label className={styles.label}>Fin</label>
+                  <input name="delivery_hours_close" type="time" value={form.delivery_hours_close}
+                    onChange={handleField} className={styles.input} required disabled={busy} />
+                </div>
+              </div>
             </div>
-          ) : (
-            <p className={styles.coverageZonesEmpty}>
-              No hay zonas de cobertura configuradas. Se realizan envÃ­os a cualquier zona.
-            </p>
-          )}
-          <button
-            type="button"
-            className={styles.addZoneButton}
-            onClick={() => setIsZoneModalOpen(true)}
-            disabled={updateConfig.isPending}
-          >
-            + Agregar zona
-          </button>
-          <span className={styles.hint}>Dejá vacío si no querés restringir por zona.</span>
+
+            <div className={styles.fieldRow}>
+              <div className={styles.field}>
+                <label className={styles.label}>Costo de envío</label>
+                <div className={styles.moneyInput}>
+                  <span>$</span>
+                  <input name="cost" type="number" min="0" value={form.cost}
+                    onChange={handleField} required disabled={busy} />
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label}>Monto mínimo</label>
+                <div className={styles.moneyInput}>
+                  <span>$</span>
+                  <input name="minimum_order" type="number" min="0" value={form.minimum_order}
+                    onChange={handleField} required disabled={busy} />
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>Zonas de cobertura</label>
+              <div className={styles.coverageZonesList}>
+                {form.coverage_zones.map((zone) => (
+                  <span key={zone} className={styles.coverageZoneTag}>
+                    {zone}
+                    <button
+                      type="button"
+                      className={styles.coverageZoneRemove}
+                      onClick={() => setZoneToDelete(zone)}
+                      disabled={busy}
+                      aria-label={`Eliminar zona ${zone}`}
+                    >
+                      <CloseIcon size={12} />
+                    </button>
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  className={styles.addZoneButton}
+                  onClick={() => setIsZoneModalOpen(true)}
+                  disabled={busy}
+                >
+                  <PlusIcon size={13} /> Agregar zona
+                </button>
+              </div>
+              <span className={styles.hint}>
+                {form.coverage_zones.length === 0
+                  ? 'Sin zonas cargadas: se envía a cualquier zona.'
+                  : 'Dejá vacío si no querés restringir por zona.'}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {error && <p className={styles.errorText} role="alert">{error}</p>}
-        {saved && <p className={styles.successText}>Cambios guardados.</p>}
-
-        <div className={styles.formActions}>
-          <button type="submit" className={styles.saveButton} disabled={updateConfig.isPending}>
-            {updateConfig.isPending ? 'Guardando...' : 'Guardar cambios'}
+        <div className={styles.formFooter}>
+          <div className={styles.status}>
+            {error && (
+              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+            )}
+            {saved && (
+              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+            )}
+          </div>
+          <button type="submit" className={styles.saveButton} disabled={busy}>
+            {busy ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>
@@ -366,7 +402,7 @@ function DeliverySection() {
       {zoneToDelete && (
         <ConfirmModal
           title="Eliminar zona de cobertura"
-          message={`Eliminar "${zoneToDelete}" de las zonas de cobertura?`}
+          message={`¿Eliminar "${zoneToDelete}" de las zonas de cobertura?`}
           confirmLabel="Eliminar"
           isDanger={true}
           onConfirm={handleDeleteZone}
@@ -382,7 +418,6 @@ function DeliverySection() {
 function SettingsPage() {
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Configuración</h1>
       <StoreInfoSection />
       <DeliverySection />
     </div>

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { ScooterIcon } from './icons'
 import styles from './CoverageZoneModal.module.css'
 
 interface CoverageZoneModalProps {
@@ -11,6 +12,14 @@ interface CoverageZoneModalProps {
 function CoverageZoneModal({ existingZones, isSaving = false, onConfirm, onClose }: CoverageZoneModalProps) {
   const [zone, setZone] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -33,7 +42,10 @@ function CoverageZoneModal({ existingZones, isSaving = false, onConfirm, onClose
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(event) => event.stopPropagation()}>
-        <h3 className={styles.title}>Agregar zona de cobertura</h3>
+        <div className={styles.header}>
+          <span className={styles.icon}><ScooterIcon size={20} /></span>
+          <h3 className={styles.title}>Agregar zona de cobertura</h3>
+        </div>
         <form onSubmit={handleSubmit}>
           <label className={styles.label} htmlFor="coverage-zone-name">Nombre de la zona</label>
           <input
