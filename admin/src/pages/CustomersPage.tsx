@@ -1,9 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import * as XLSX from 'xlsx-js-style'
 import { useCustomers, useDeleteCustomer } from '../hooks/useCustomers'
 import type { CustomerType } from '../hooks/useCustomers'
 import ConfirmModal from '../components/ConfirmModal'
+import {
+  AlertIcon,
+  CloseIcon,
+  PinIcon,
+  ScooterIcon,
+  StoreIcon,
+  TrashIcon,
+  WhatsAppIcon,
+} from '../components/icons'
 import styles from './CustomersPage.module.css'
+
+type SortKey = 'recent' | 'orders' | 'name'
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[1][0]).toUpperCase()
+}
+
+function modalityLabel(modality: string | null): string | null {
+  if (modality === 'delivery') return 'Delivery'
+  if (modality === 'pickup') return 'Retiro'
+  return null
+}
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—'
@@ -129,119 +154,149 @@ function exportToExcel(customers: CustomerType[]) {
   XLSX.writeFile(wb, 'clientes-antojos-express.xlsx', { cellStyles: true })
 }
 
+function ModalityIcon({ modality }: { modality: string | null }) {
+  if (modality === 'delivery') return <ScooterIcon size={14} />
+  if (modality === 'pickup') return <StoreIcon size={14} />
+  return null
+}
+
 interface CustomerCardProps {
   customer: CustomerType
-  isSelected: boolean
   onClick: () => void
 }
 
-function CustomerCard({ customer, isSelected, onClick }: CustomerCardProps) {
+function CustomerCard({ customer, onClick }: CustomerCardProps) {
+  const modality = modalityLabel(customer.last_modality)
   return (
-    <div
-      className={`${styles.card} ${isSelected ? styles.cardSelected : ''}`}
-      onClick={onClick}
-    >
-      <div className={styles.cardHeader}>
-        <span className={styles.customerName}>{customer.name}</span>
-        <span className={styles.totalOrders}>
-          {customer.total_orders} pedido{customer.total_orders !== 1 ? 's' : ''}
+    <div className={styles.card} onClick={onClick}>
+      <span className={styles.avatar}>{initials(customer.name)}</span>
+      <div className={styles.cardInfo}>
+        <span className={styles.customerName} title={customer.name}>{customer.name}</span>
+        <span className={styles.phone}>{customer.phone}</span>
+        <span className={styles.cardMeta}>
+          {modality && (
+            <span className={styles.modality}>
+              <ModalityIcon modality={customer.last_modality} />
+              {modality}
+            </span>
+          )}
+          <span>{timeAgo(customer.last_seen_at)}</span>
         </span>
       </div>
-      <div className={styles.cardBody}>
-        <span className={styles.phone}>📱 {customer.phone}</span>
-        <div className={styles.cardBodyRight}>
-          <span className={styles.lastSeen}>{timeAgo(customer.last_seen_at)}</span>
-        </div>
-      </div>
+      <span className={styles.totalOrders}>
+        {customer.total_orders} pedido{customer.total_orders !== 1 ? 's' : ''}
+      </span>
     </div>
   )
 }
 
-interface CustomerDetailPanelProps {
-  customer: CustomerType | null
+interface CustomerDialogProps {
+  customer: CustomerType
   onClose: () => void
-  isPanelOpen: boolean
   onDelete: (customer: CustomerType) => void
 }
 
-function CustomerDetailPanel({ customer, onClose, isPanelOpen, onDelete }: CustomerDetailPanelProps) {
-  if (!customer) {
-    return (
-      <div className={`${styles.panel} ${isPanelOpen ? styles.panelVisible : ''}`}>
-        <div className={styles.panelEmpty}>
-          <span className={styles.panelEmptyIcon}>👤</span>
-          <p className={styles.panelEmptyTitle}>Ningún cliente seleccionado</p>
-          <p className={styles.panelEmptyDesc}>Seleccioná un cliente de la lista para ver su detalle.</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className={`${styles.panel} ${isPanelOpen ? styles.panelVisible : ''}`}>
-      <div className={styles.panelHeader}>
-        <div className={styles.panelHeaderLeft}>
-          <span className={styles.panelCustomerName}>{customer.name}</span>
-        </div>
-        <button className={styles.deleteButton} onClick={() => onDelete(customer)}>
-          Eliminar
-        </button>
-        <button className={styles.panelCloseBtn} onClick={onClose}>✕</button>
-      </div>
-
-      <div className={styles.panelBody}>
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Teléfono</span>
-          <span className={styles.panelValue}>📱 {customer.phone}</span>
-        </div>
-
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Última modalidad</span>
-          <span className={styles.panelValue}>
-            {customer.last_modality === 'delivery'
-              ? '🚗 Delivery'
-              : customer.last_modality === 'pickup'
-                ? '🏪 Retiro en local'
-                : '—'}
-          </span>
-        </div>
-
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Última dirección</span>
-          <span className={styles.panelValue}>{customer.last_address ?? '—'}</span>
-        </div>
-
-        {customer.address_history.length > 1 && (
-          <div className={styles.panelSection}>
-            <span className={styles.panelLabel}>Historial de direcciones</span>
-            <ul className={styles.addressList}>
-              {customer.address_history.map((addr, i) => (
-                <li key={i} className={styles.addressItem}>{addr}</li>
-              ))}
-            </ul>
+function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
+  const modality = modalityLabel(customer.last_modality)
+  return createPortal(
+    <>
+      <div className={styles.overlay} onClick={onClose} />
+      <div className={styles.dialog} role="dialog" aria-modal="true">
+        <div className={styles.dialogHeader}>
+          <span className={styles.avatarLarge}>{initials(customer.name)}</span>
+          <div className={styles.dialogTitleBlock}>
+            <h2 className={styles.dialogTitle}>{customer.name}</h2>
+            <span className={styles.dialogSubtitle}>
+              {customer.total_orders} pedido{customer.total_orders !== 1 ? 's' : ''} realizados
+            </span>
           </div>
-        )}
-
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Pedidos realizados</span>
-          <span className={styles.panelValue}>{customer.total_orders}</span>
+          <button className={styles.closeButton} onClick={onClose} aria-label="Cerrar">
+            <CloseIcon size={18} />
+          </button>
         </div>
 
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Historial</span>
-          <div className={styles.timestamps}>
-            <div className={styles.timestampRow}>
-              <span className={styles.timestampDot} />
-              <span>Primer pedido: {formatDate(customer.first_seen_at)}</span>
-            </div>
-            <div className={styles.timestampRow}>
-              <span className={`${styles.timestampDot} ${styles.timestampDotConfirmed}`} />
-              <span>Último pedido: {formatDate(customer.last_seen_at)}</span>
+        <div className={styles.dialogBody}>
+          <div className={styles.section}>
+            <span className={styles.label}>Teléfono</span>
+            <div className={styles.valueRow}>
+              <span className={styles.value}>{customer.phone}</span>
+              <a
+                className={styles.waLink}
+                href={`https://wa.me/54${customer.phone}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <WhatsAppIcon size={15} /> WhatsApp
+              </a>
             </div>
           </div>
+
+          <div className={styles.section}>
+            <span className={styles.label}>Última modalidad</span>
+            <span className={styles.value}>
+              {modality ? (
+                <span className={styles.modality}>
+                  <ModalityIcon modality={customer.last_modality} />
+                  {customer.last_modality === 'pickup' ? 'Retiro en local' : modality}
+                </span>
+              ) : '—'}
+            </span>
+          </div>
+
+          <div className={styles.section}>
+            <span className={styles.label}>Última dirección</span>
+            <div className={styles.valueRow}>
+              <span className={styles.value}>{customer.last_address ?? '—'}</span>
+              {customer.last_address && (
+                <a
+                  className={styles.mapsLink}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.last_address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <PinIcon size={15} /> Ver en Maps
+                </a>
+              )}
+            </div>
+          </div>
+
+          {customer.address_history.length > 1 && (
+            <div className={styles.section}>
+              <span className={styles.label}>Historial de direcciones</span>
+              <ul className={styles.addressList}>
+                {customer.address_history.map((addr, i) => (
+                  <li key={i} className={styles.addressItem}>{addr}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className={styles.section}>
+            <span className={styles.label}>Historial</span>
+            <div className={styles.timestamps}>
+              <div className={styles.timestampRow}>
+                <span className={styles.timestampDot} />
+                <span>Primer pedido: {formatDate(customer.first_seen_at)}</span>
+              </div>
+              <div className={styles.timestampRow}>
+                <span className={`${styles.timestampDot} ${styles.timestampDotConfirmed}`} />
+                <span>Último pedido: {formatDate(customer.last_seen_at)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.dialogFooter}>
+          <button className={styles.deleteButton} onClick={() => onDelete(customer)}>
+            <TrashIcon size={16} />
+            Eliminar cliente
+          </button>
+          <span className={styles.footerSpacer} />
+          <button className={styles.closeAction} onClick={onClose}>Cerrar</button>
         </div>
       </div>
-    </div>
+    </>,
+    document.body
   )
 }
 
@@ -249,99 +304,131 @@ function CustomersPage() {
   const { data: customers, isLoading } = useCustomers()
   const deleteCustomer = useDeleteCustomer()
   const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<SortKey>('recent')
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [customerToDelete, setCustomerToDelete] = useState<CustomerType | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<number | undefined>(undefined)
 
   const allCustomers = customers ?? []
 
-  const handleDeleteRequest = (customer: CustomerType) => setCustomerToDelete(customer)
+  const showToast = (message: string) => {
+    setToast(message)
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(null), 3500)
+  }
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  useEffect(() => {
+    if (!selectedCustomerId) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !customerToDelete) setSelectedCustomerId(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedCustomerId, customerToDelete])
 
   const handleDeleteConfirm = async () => {
     if (!customerToDelete) return
     try {
       await deleteCustomer.mutateAsync(customerToDelete.id)
-      if (selectedCustomerId === customerToDelete.id) {
-        setSelectedCustomerId(null)
-        setIsPanelOpen(false)
-      }
-      setCustomerToDelete(null)
+      if (selectedCustomerId === customerToDelete.id) setSelectedCustomerId(null)
     } catch {
-      console.error('Error al eliminar el cliente', customerToDelete.id)
-      setCustomerToDelete(null)
+      showToast('No se pudo eliminar el cliente. Intentá de nuevo.')
     }
+    setCustomerToDelete(null)
   }
 
-  const handleDeleteCancel = () => setCustomerToDelete(null)
-
-  const filtered = allCustomers.filter((c) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    return c.name.toLowerCase().includes(q) || c.phone.includes(q)
-  })
+  const filtered = allCustomers
+    .filter((c) => {
+      if (!search.trim()) return true
+      const q = search.toLowerCase()
+      return c.name.toLowerCase().includes(q) || c.phone.includes(q)
+    })
+    .sort((a, b) => {
+      if (sort === 'orders') return b.total_orders - a.total_orders
+      if (sort === 'name') return a.name.localeCompare(b.name, 'es')
+      return new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime()
+    })
 
   const selectedCustomer = selectedCustomerId
     ? (allCustomers.find((c) => c.id === selectedCustomerId) ?? null)
     : null
 
+  const sortOptions: { key: SortKey; label: string }[] = [
+    { key: 'recent', label: 'Recientes' },
+    { key: 'orders', label: 'Más pedidos' },
+    { key: 'name', label: 'Nombre A–Z' },
+  ]
+
   return (
     <div className={styles.page}>
-      <div className={styles.listColumn}>
-        <div className={styles.titleRow}>
-          <h1 className={styles.title}>Clientes</h1>
-          <button
-            className={styles.exportButton}
-            onClick={() => exportToExcel(allCustomers)}
-            disabled={allCustomers.length === 0}
-          >
-            Exportar Excel
-          </button>
+      <div className={styles.topBar}>
+        <input
+          type="text"
+          className={styles.searchInput}
+          placeholder="Buscar por nombre o teléfono..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className={styles.chipGroup}>
+          <span className={styles.filterLabel}>Ordenar</span>
+          {sortOptions.map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              className={`${styles.chip} ${sort === o.key ? styles.chipActive : ''}`}
+              onClick={() => setSort(o.key)}
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
-
-        <div className={styles.searchWrapper}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar por nombre o teléfono..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <p className={styles.countText}>
-          {allCustomers.length} cliente{allCustomers.length !== 1 ? 's' : ''} registrados
-        </p>
-
-        {isLoading ? (
-          <p className={styles.loadingText}>Cargando clientes...</p>
-        ) : filtered.length === 0 ? (
-          <p className={styles.emptyText}>No se encontraron clientes.</p>
-        ) : (
-          <div className={styles.list}>
-            {filtered.map((customer) => (
-              <CustomerCard
-                key={customer.id}
-                customer={customer}
-                isSelected={selectedCustomer?.id === customer.id}
-                onClick={() => {
-                  setSelectedCustomerId(customer.id)
-                  setIsPanelOpen(true)
-                }}
-              />
-            ))}
-          </div>
-        )}
+        <button
+          className={styles.exportButton}
+          onClick={() => exportToExcel(allCustomers)}
+          disabled={allCustomers.length === 0}
+        >
+          Exportar Excel
+        </button>
       </div>
 
-      {isPanelOpen && (
-        <div className={styles.panelOverlay} onClick={() => setIsPanelOpen(false)} />
+      <p className={styles.countText}>
+        {filtered.length === allCustomers.length
+          ? `${allCustomers.length} cliente${allCustomers.length !== 1 ? 's' : ''} registrados`
+          : `${filtered.length} de ${allCustomers.length} clientes`}
+      </p>
+
+      {isLoading ? (
+        <p className={styles.loadingText}>Cargando clientes...</p>
+      ) : filtered.length === 0 ? (
+        <p className={styles.emptyText}>No se encontraron clientes.</p>
+      ) : (
+        <div className={styles.list}>
+          {filtered.map((customer) => (
+            <CustomerCard
+              key={customer.id}
+              customer={customer}
+              onClick={() => setSelectedCustomerId(customer.id)}
+            />
+          ))}
+        </div>
       )}
-      <CustomerDetailPanel
-        customer={selectedCustomer}
-        onClose={() => setIsPanelOpen(false)}
-        isPanelOpen={isPanelOpen}
-        onDelete={handleDeleteRequest}
-      />
+
+      {selectedCustomer && (
+        <CustomerDialog
+          customer={selectedCustomer}
+          onClose={() => setSelectedCustomerId(null)}
+          onDelete={setCustomerToDelete}
+        />
+      )}
+
+      {toast && (
+        <div className={styles.toast} role="status">
+          <AlertIcon size={16} />
+          {toast}
+        </div>
+      )}
 
       {customerToDelete && (
         <ConfirmModal
@@ -350,7 +437,7 @@ function CustomersPage() {
           confirmLabel="Eliminar"
           isDanger={true}
           onConfirm={handleDeleteConfirm}
-          onCancel={handleDeleteCancel}
+          onCancel={() => setCustomerToDelete(null)}
         />
       )}
     </div>
