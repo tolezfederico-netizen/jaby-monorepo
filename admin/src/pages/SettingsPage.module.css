@@ -408,3 +408,104 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Vista previa del banner (mismo degradé que en la tienda) */
+.bannerPreview {
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  color: #ffffff;
+  background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
+  border-radius: var(--radius-md);
+  overflow-wrap: anywhere;
+}
+
+.bannerPreviewOff {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+/* Banner: sección de ancho completo debajo de las dos columnas */
+.sectionWide {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(233, 30, 140, 0.25);
+}
+
+.page .sectionWide .form {
+  border-left: none;
+}
+
+.sectionWide .sectionHeader {
+  position: static;
+}
+
+.sectionWide .formFooter {
+  position: static;
+}
+
+.bannerBody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.bannerControls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+
+@media (max-width: 900px) {
+  .bannerBody {
+    grid-template-columns: 1fr;
+    gap: 1.375rem;
+  }
+}
+
+/* Título del banner centrado en su barra */
+.headerCenter {
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .headerCenter {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+/* Ubicación del botón Guardar de cada sección */
+.footerLeft {
+  justify-content: flex-start;
+}
+
+.footerLeft .saveButton {
+  order: -1;
+}
+
+.footerRight {
+  justify-content: space-between;
+}
+
+.footerCenter {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footerCenter .saveButton {
+  order: -1;
+}
+
+/* Pantallas angostas: el botón Guardar queda en su lugar, al final de cada formulario,
+   y no acompaña el scroll (va al final del archivo para ganarle a la regla de pie fijo) */
+@media (max-width: 1100px) {
+  .section .formFooter {
+    position: static;
+  }
+}

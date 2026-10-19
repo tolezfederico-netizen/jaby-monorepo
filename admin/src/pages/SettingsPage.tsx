@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useStoreConfig, useUpdateStoreConfig } from '../hooks/useStoreConfig'
+import { useBanner, useUpdateBanner } from '../hooks/useBanner'
 import ConfirmModal from '../components/ConfirmModal'
 import CoverageZoneModal from '../components/CoverageZoneModal'
-import { CheckCircleIcon, ClockIcon, CloseIcon, PlusIcon, ScooterIcon, StoreIcon, AlertIcon } from '../components/icons'
+import { CheckCircleIcon, ChatIcon, ClockIcon, CloseIcon, PlusIcon, ScooterIcon, StoreIcon, AlertIcon } from '../components/icons'
 import styles from './SettingsPage.module.css'
 
 // ─── Store Info Section ───────────────────────────────────────────────────────
@@ -175,7 +176,7 @@ function StoreInfoSection() {
           </label>
         </div>
 
-        <div className={styles.formFooter}>
+        <div className={`${styles.formFooter} ${styles.footerLeft}`}>
           <div className={styles.status}>
             {error && (
               <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
@@ -375,7 +376,7 @@ function DeliverySection() {
           </div>
         </div>
 
-        <div className={styles.formFooter}>
+        <div className={`${styles.formFooter} ${styles.footerRight}`}>
           <div className={styles.status}>
             {error && (
               <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
@@ -413,6 +414,120 @@ function DeliverySection() {
   )
 }
 
+// ─── Banner Section ───────────────────────────────────────────────────────────
+
+const BANNER_MAX_LENGTH = 120
+
+function BannerSection() {
+  const { data: banner, isLoading } = useBanner()
+  const updateBanner = useUpdateBanner()
+
+  const [text, setText] = useState('')
+  const [isActive, setIsActive] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (banner === undefined) return
+    setText(banner?.text ?? '')
+    setIsActive(banner?.is_active ?? false)
+  }, [banner])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setSaved(false)
+
+    const trimmed = text.trim()
+    if (isActive && !trimmed) {
+      setError('Escribí un mensaje o desactivá el banner.')
+      return
+    }
+
+    try {
+      await updateBanner.mutateAsync({ text: trimmed || null, is_active: isActive })
+      setSaved(true)
+    } catch {
+      setError('Error al guardar. Intentá de nuevo.')
+    }
+  }
+
+  if (isLoading) return <p className={styles.loadingText}>Cargando...</p>
+
+  const busy = updateBanner.isPending
+  const previewText = text.trim()
+
+  return (
+    <section className={`${styles.section} ${styles.sectionWide}`}>
+      <header className={`${styles.sectionHeader} ${styles.headerCenter}`}>
+        <span className={styles.sectionIcon}><ChatIcon size={20} /></span>
+        <div>
+          <h2 className={styles.sectionTitle}>Banner promocional</h2>
+          <p className={styles.sectionDesc}>Mensaje destacado arriba del catálogo de la tienda.</p>
+        </div>
+      </header>
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={`${styles.formBody} ${styles.bannerBody}`}>
+          <div className={styles.bannerControls}>
+          <label className={styles.toggleRow}>
+            <span>
+              <strong>Mostrar banner</strong>
+              <small>Si está apagado, la tienda no muestra ningún mensaje.</small>
+            </span>
+            <input
+              type="checkbox"
+              className={styles.switch}
+              checked={isActive}
+              onChange={(e) => { setIsActive(e.target.checked); setSaved(false) }}
+              disabled={busy}
+            />
+          </label>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="banner-text">Mensaje</label>
+            <input
+              id="banner-text"
+              className={styles.input}
+              value={text}
+              maxLength={BANNER_MAX_LENGTH}
+              onChange={(e) => { setText(e.target.value); setSaved(false) }}
+              placeholder="Ej: ¡2x1 en cervezas hasta las 12!"
+              disabled={busy}
+            />
+            <span className={styles.hint}>{text.length}/{BANNER_MAX_LENGTH} caracteres</span>
+          </div>
+          </div>
+
+          <div className={styles.field}>
+            <span className={styles.label}>Así se ve en la tienda</span>
+            <div className={`${styles.bannerPreview} ${isActive && previewText ? '' : styles.bannerPreviewOff}`}>
+              {previewText || 'Tu mensaje va a aparecer acá'}
+            </div>
+            {!isActive && (
+              <span className={styles.hint}>El banner está apagado: los clientes no lo ven.</span>
+            )}
+          </div>
+        </div>
+
+        <div className={`${styles.formFooter} ${styles.footerCenter}`}>
+          <div className={styles.status}>
+            {error && (
+              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+            )}
+            {saved && (
+              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+            )}
+          </div>
+          <button type="submit" className={styles.saveButton} disabled={busy}>
+            {busy ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+        </div>
+      </form>
+    </section>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function SettingsPage() {
@@ -420,6 +535,7 @@ function SettingsPage() {
     <div className={styles.page}>
       <StoreInfoSection />
       <DeliverySection />
+      <BannerSection />
     </div>
   )
 }
