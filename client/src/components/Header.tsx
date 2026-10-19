@@ -139,7 +139,7 @@ function Header({
     <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={styles.headerInner}>
         <div className={styles.storeInfo}>
-          <img src="/logo.png" alt="Logo Antojos Express" className={styles.logo} />
+          <img src="/logo.png" alt="Logo Antojos Ya" className={styles.logo} />
           <div className={styles.storeText}>
             <h1 className={styles.storeName}>{storeName}</h1>
             <div className={styles.status}>
@@ -184,6 +184,9 @@ function Header({
                   )}
                   <span className={styles.resultInfo}>
                     <span className={styles.resultName}>{product.name}</span>
+                    {product.description && (
+                      <span className={styles.resultDesc}>{product.description}</span>
+                    )}
                     {showPrices && product.price != null && (
                       <span className={styles.resultPrice}>{formatPrice(product.price)}</span>
                     )}
@@ -206,7 +209,11 @@ function Header({
                 aria-expanded={isContactOpen}
                 onClick={() => setIsContactOpen((open) => !open)}
               >
-                <span className={styles.actionIcon} aria-hidden="true"><WhatsAppIcon size={16} /></span>
+                <span className={styles.actionIcon} aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </span>
                 <span className={styles.actionText}>Contactar</span>
                 <svg className={`${styles.contactChevron} ${isContactOpen ? styles.contactChevronOpen : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="2.5 4.5 6 8 9.5 4.5" />
@@ -237,7 +244,15 @@ function Header({
             </div>
           )}
           <button type="button" className={styles.actionButton} onClick={shareCatalog}>
-            <span className={styles.actionIcon} aria-hidden="true">↗</span>
+            <span className={styles.actionIcon} aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </span>
             <span className={styles.actionText}>Compartir</span>
           </button>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { formatPrice, type ProductType } from '@jaby/shared'
 import { useProducts } from '../hooks/useProducts'
 import { useCart } from '../context/CartContext'
@@ -84,10 +85,16 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
     onRepeatSuccess?.(productCount)
   }
 
-  const confirmedAt = new Date(lastOrder.confirmedAt).toLocaleString('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  })
+  const confirmedDate = new Date(lastOrder.confirmedAt)
+  const confirmedAt = `${confirmedDate.toLocaleDateString('es-AR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })} · ${confirmedDate.toLocaleTimeString('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })}`
   const modality = lastOrder.modality === 'delivery' ? 'Delivery' : 'Retiro en local'
 
   return (
@@ -97,7 +104,7 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
         <span>Ver mi último pedido</span>
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <div className={styles.overlay} role="presentation" onClick={() => setIsOpen(false)}>
           <section
             className={styles.modal}
@@ -107,27 +114,24 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
             onClick={(event) => event.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <div>
-                <p className={styles.eyebrow}>Referencia guardada</p>
-                <h2 id="last-order-title">Tu último pedido</h2>
+              <div className={styles.headerMain}>
+                <span className={styles.headerIcon} aria-hidden="true">↺</span>
+                <div>
+                  <h2 id="last-order-title">Tu último pedido</h2>
+                  <p className={styles.subtitle}>{modality} · {confirmedAt}</p>
+                </div>
               </div>
               <button type="button" className={styles.closeButton} onClick={() => setIsOpen(false)} aria-label="Cerrar">
                 ×
               </button>
             </div>
 
-            <div className={styles.meta}>
-              <span>{modality}</span>
-              <span>{confirmedAt}</span>
-            </div>
-
             <ul className={styles.items}>
               {lastOrder.items.map((item, index) => (
                 <li key={`${item.name}-${index}`} className={styles.item}>
+                  <span className={styles.qty}>{item.quantity}×</span>
                   <span className={styles.itemInfo}>
-                    <span>
-                      <strong>{item.quantity}×</strong> {item.name}
-                    </span>
+                    <span className={styles.itemName}>{item.name}</span>
                     {findCurrentProduct(item)?.description?.trim() && (
                       <span className={styles.itemDescription}>
                         {findCurrentProduct(item)?.description}
@@ -135,7 +139,7 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
                     )}
                   </span>
                   {item.price != null && (
-                    <span>{formatPrice(item.price * item.quantity)}</span>
+                    <span className={styles.itemPrice}>{formatPrice(item.price * item.quantity)}</span>
                   )}
                 </li>
               ))}
@@ -145,6 +149,7 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
               <span>Total</span>
               <strong>{formatPrice(lastOrder.total)}</strong>
             </div>
+            <p className={styles.note}>Al repetirlo se usan los precios actuales del catálogo.</p>
 
             {repeatError && (
               <p className={styles.repeatError} role="alert">{repeatError}</p>
@@ -154,7 +159,8 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
               Repetir pedido
             </button>
           </section>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

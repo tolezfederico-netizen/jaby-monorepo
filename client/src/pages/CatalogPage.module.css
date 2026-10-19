@@ -824,13 +824,12 @@
 
 /* Store Info Banner */
 .storeInfoBanner {
-  margin-top: 2rem;
+  margin: 0 1rem;
   background-color: #1E1A2E;
-  border-top: 1px solid rgba(233, 30, 140, 0.2);
+  border: 1px solid rgba(233, 30, 140, 0.25);
+  border-radius: 14px;
   padding: 1.25rem 1rem;
   font-family: 'Nunito', sans-serif;
-  margin-bottom: 4rem;
-  border-radius: 0;
 }
 
 .storeInfoGrid {
@@ -854,12 +853,26 @@
 }
 
 .storeInfoIcon {
-  font-size: 1rem;
+  display: inline-flex;
   flex-shrink: 0;
-  margin-top: 0.1rem;
-  width: 1.25rem;
-  text-align: center;
+  margin-top: 0.05rem;
+  color: #E91E8C;
 }
+
+.storeInfoIcon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.storeInfoTitleRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.75rem;
+}
+
+.storeInfoStatusOpen { color: #4ade80; font-weight: 700; }
+.storeInfoStatusClosed { color: #ff9b8a; font-weight: 700; }
 
 .storeInfoText {
   display: flex;
@@ -869,8 +882,8 @@
 
 .storeInfoLabel {
   font-size: 0.9375rem;
-  font-weight: 600;
-  color: #F0EBF8;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .storeInfoSub {
@@ -918,12 +931,16 @@
   font-weight: 700;
   text-decoration: none;
   color: #ffffff;
-  padding: 0;
-  border-radius: 0;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid rgba(37, 211, 102, 0.7);
+  border-radius: 999px;
+  background-color: rgba(37, 211, 102, 0.1);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .storeInfoWhatsapp:hover {
-  opacity: 0.8;
+  background-color: rgba(37, 211, 102, 0.2);
+  border-color: #25D366;
 }
 
 .storeInfoWhatsapp svg {
@@ -976,6 +993,7 @@
   height: 100%;
   border: none;
   pointer-events: none;
+  filter: grayscale(0.85) contrast(1.05) brightness(0.95);
 }
 
 .storeInfoMapOverlay {
@@ -1000,9 +1018,10 @@
 
 @media (min-width: 768px) {
   .page {
-    max-width: 1200px;
-    padding: 7rem 2rem 6rem;
-    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 3.9rem 1.5rem 3rem;
+    gap: 1.5rem;
   }
 
   .storeHeaderInner {
@@ -1038,21 +1057,24 @@
 
   .featuredGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.875rem;
+    width: 100%;
   }
 
   .featuredCard {
     display: grid;
-    grid-template-rows: 200px auto auto 1fr;
+    grid-template-rows: 100px auto auto 1fr;
     border-radius: 16px;
     overflow: hidden;
-    border: 1px solid rgba(233, 30, 140, 0.5);
-    box-shadow: 0 4px 24px rgba(233, 30, 140, 0.3);
-    background-color: #E91E8C !important;
+    border: 1px solid rgba(233, 30, 140, 0.6);
+    box-shadow: 0 4px 18px rgba(233, 30, 140, 0.18);
+    background-color: #1E1A2E !important;
     position: relative;
     padding: 0;
     gap: 0;
+    width: 100%;
+    max-width: none;
   }
 
   .featuredCard .productImageWrapper {
@@ -1070,38 +1092,47 @@
   }
 
   .featuredCard .productName {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 800;
-    padding: 0.875rem 1rem 0;
+    padding: 0.625rem 0.75rem 0;
     color: #ffffff !important;
     align-self: start;
   }
 
   .featuredCard .productDesc {
-    padding: 0.2rem 1rem 0;
+    padding: 0.15rem 0.75rem 0;
     color: rgba(255, 255, 255, 0.75) !important;
     align-self: start;
   }
 
   .featuredCard .productPrice {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 800;
-    color: #ffffff !important;
+    color: #ff8aca !important;
   }
 
   .featuredCard .productFooter {
-    padding: 0.5rem 1rem 1rem;
+    padding: 0.4rem 0.75rem 0.75rem;
     align-self: end;
   }
 
   .featuredCard .addButton {
-    background-color: #1E1A2E !important;
+    background-color: #E91E8C !important;
     color: #ffffff !important;
   }
 
   .featuredCard .addButton:hover {
-    background-color: #0D0D1A !important;
+    background-color: #C4187A !important;
   }
+
+  .featuredCard .quantityStepper {
+    background: #E91E8C;
+  }
+
+  .featuredSection::after {
+    display: none;
+  }
+
 
   .featuredCard .addButtonDisabled,
   .featuredCard .addButtonDisabled:hover,
@@ -1126,13 +1157,13 @@
 
   .productsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 0.875rem;
   }
 
   .productCard {
     display: grid;
-    grid-template-rows: 160px auto auto 1fr;
+    grid-template-rows: 120px auto auto 1fr;
     border-radius: 12px;
     overflow: hidden;
     border: none;
@@ -1148,10 +1179,14 @@
     height: 100%;
     border-radius: 0;
     flex-shrink: unset;
+    background-color: #f4f3f7;
   }
 
   .productImage {
     border-radius: 0;
+    object-fit: contain;
+    padding: 0.4rem;
+    mix-blend-mode: multiply;
   }
 
   .productInfo {
@@ -1159,33 +1194,33 @@
   }
 
   .productName {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 700;
-    padding: 0.625rem 0.75rem 0;
+    padding: 0.5rem 0.625rem 0;
     align-self: start;
   }
 
   .productDesc {
     font-size: 0.75rem;
     -webkit-line-clamp: 1;
-    padding: 0.2rem 0.75rem 0;
+    padding: 0.1rem 0.625rem 0;
     align-self: start;
   }
 
   .productFooter {
-    padding: 0.5rem 0.75rem 0.75rem;
+    padding: 0.4rem 0.625rem 0.625rem;
     margin-top: 0;
     align-self: end;
   }
 
   .productPrice {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 800;
   }
 
   .addButton {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     min-height: unset;
     padding: 0;
     border-radius: 50%;
@@ -1196,12 +1231,12 @@
   }
 
   .quantityStepper {
-    min-height: 36px;
+    min-height: 32px;
   }
 
   .quantityButton {
-    width: 1.75rem;
-    height: 36px;
+    width: 1.625rem;
+    height: 32px;
     font-size: 1rem;
   }
 
@@ -1211,8 +1246,8 @@
   }
 
   .shareProductButton {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 
   .addButtonLabelDesktop {
@@ -1226,10 +1261,22 @@
   .filters {
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
-    padding: 0;
     justify-content: flex-start;
     gap: 0.75rem;
+    /* Barra fija bajo el header: categorias y carrito siempre a mano */
+    order: -1;
+    position: sticky;
+    top: 3.1rem;
+    z-index: 150;
+    /* A todo el ancho de la ventana, con el mismo margen lateral que el header */
+    margin-inline: calc(50% - 50vw + var(--scrollbar-width, 0px) / 2);
+    padding: 0.5rem max(2rem, calc((100vw - var(--scrollbar-width, 0px) - 1600px) / 2 + 2rem));
+    background-color: #0D0D1A;
+    border-bottom: 1px solid rgba(233, 30, 140, 0.18);
+  }
+
+  .banner {
+    border-radius: 12px;
   }
 
   .searchInput {
@@ -1283,14 +1330,14 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
+    padding: 0.45rem 1rem;
     border-radius: 999px;
     border: 1.5px solid rgba(233, 30, 140, 0.3);
     background-color: transparent;
     color: rgba(240, 235, 248, 0.4);
     cursor: not-allowed;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
@@ -1325,9 +1372,9 @@
 
   .cartDesktopPrice {
     display: inline;
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 700;
-  padding-left: 0.3rem;
+    padding-left: 0.3rem;
     border-left: 1px solid rgba(255, 255, 255, 0.3);
   }
 
@@ -1346,29 +1393,52 @@
   }
 
   .storeInfoBanner {
-    max-width: min(1200px, 92vw);
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 100%;
+    margin: 0;
     border-radius: 16px;
-    padding: 2rem 2.5rem;
+    padding: 1.25rem 2rem;
   }
 
   .storeInfoGrid {
-    max-width: min(1200px, 92vw);
-    flex-direction: row;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
     align-items: stretch;
-    gap: 3rem;
+    gap: 2rem;
   }
 
   .storeInfoItems {
     flex: 1;
+    gap: 0.75rem;
     justify-content: center;
   }
 
+  /* Orden en desktop: direccion, retiro, delivery y, abajo, WhatsApp */
+  .storeInfoItems > :nth-child(2) { order: 3; }
+  .storeInfoItems > :nth-child(3) { order: 2; }
+  .storeInfoItems > :nth-child(4) { order: 4; }
+
+  .storeInfoSub {
+    white-space: nowrap;
+  }
+
+  .storeInfoLabel {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .storeInfoWhatsapp {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.875rem;
+  }
+
+  .storeInfoItems > :nth-child(4) {
+    margin-top: 0.25rem;
+  }
+
   .storeInfoMapLink {
-    flex: 1.5;
     height: auto;
-    min-height: 220px;
+    min-height: 170px;
   }
 
   .storeInfoItemAddress {
@@ -1377,8 +1447,48 @@
 
   .scrollToTop {
     bottom: 2rem;
-    right: 2rem;
+    right: 1rem;
     width: 48px;
     height: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 3.9rem 2rem 4rem;
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 3.9rem 2.5rem 4rem;
+    gap: 1.75rem;
+  }
+
+  .featuredGrid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* Desktop con mouse: el boton de compartir aparece solo al pasar sobre la card */
+@media (min-width: 768px) and (hover: hover) {
+  .shareProductButton {
+    display: none;
+  }
+
+  .productCard:hover .shareProductButton,
+  .productCard:focus-within .shareProductButton {
+    display: inline-flex;
   }
 }

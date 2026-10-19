@@ -29,6 +29,7 @@
 }
 
 body {
+  overflow-x: hidden;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #0D0D1A;
   color: var(--color-text-primary);

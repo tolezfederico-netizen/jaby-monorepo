@@ -30,17 +30,19 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   background: rgba(5, 5, 15, 0.78);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.15s ease;
 }
 
 .modal {
-  width: min(100%, 28rem);
-  max-height: min(90vh, 34rem);
+  width: min(100%, 26rem);
+  max-height: min(90vh, 36rem);
   overflow-y: auto;
   padding: 1.25rem;
   color: #F0EBF8;
@@ -48,11 +50,10 @@
   border: 1px solid rgba(233, 30, 140, 0.45);
   border-radius: 18px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: popIn 0.18s ease;
 }
 
 .modalHeader,
-.meta,
-.item,
 .total {
   display: flex;
   align-items: center;
@@ -60,12 +61,34 @@
 }
 
 .modalHeader { gap: 1rem; }
-.eyebrow { margin: 0 0 0.2rem; color: #ff8aca; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
-.modal h2 { margin: 0; font-size: 1.2rem; }
+.headerMain { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+
+.headerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #E91E8C;
+  background: rgba(233, 30, 140, 0.14);
+  border-radius: 12px;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.modal h2 { margin: 0; font-size: 1.2rem; line-height: 1.2; }
+.subtitle { margin: 0.15rem 0 0; color: rgba(240, 235, 248, 0.6); font-size: 0.8125rem; }
 
 .closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: flex-start;
   width: 2rem;
   height: 2rem;
+  padding: 0;
   color: rgba(240, 235, 248, 0.7);
   background: rgba(255, 255, 255, 0.06);
   border: 0;
@@ -73,22 +96,50 @@
   cursor: pointer;
   font-size: 1.4rem;
   line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.meta {
-  gap: 0.5rem;
-  margin: 1rem 0 0.75rem;
-  color: rgba(240, 235, 248, 0.55);
+.closeButton:hover { color: #ffffff; background: rgba(233, 30, 140, 0.35); }
+
+.items { list-style: none; margin: 1rem 0 0; padding: 0; }
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(233, 30, 140, 0.12);
+  font-size: 0.875rem;
+}
+
+.qty {
+  flex-shrink: 0;
+  min-width: 2rem;
+  padding: 0.1rem 0.4rem;
+  color: #ff8aca;
+  background: rgba(233, 30, 140, 0.14);
+  border-radius: 999px;
   font-size: 0.75rem;
+  font-weight: 800;
+  text-align: center;
 }
 
-.items { list-style: none; margin: 0; padding: 0; }
-.item { gap: 1rem; padding: 0.65rem 0; border-bottom: 1px solid rgba(233, 30, 140, 0.12); font-size: 0.8125rem; }
-.itemInfo { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.itemInfo { display: flex; flex: 1; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.itemName { font-weight: 700; }
 .itemDescription { color: rgba(240, 235, 248, 0.55); font-size: 0.75rem; line-height: 1.3; }
-.item strong { color: #ff8aca; }
-.total { margin-top: 0.85rem; font-size: 0.875rem; }
-.total strong { color: #ff8aca; font-size: 1.05rem; }
+.itemPrice { flex-shrink: 0; font-weight: 700; }
+
+.total {
+  margin-top: 0.85rem;
+  padding: 0.75rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(233, 30, 140, 0.15);
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.total strong { color: #ff8aca; font-size: 1.15rem; }
+.note { margin: 0.5rem 0 0; color: rgba(240, 235, 248, 0.5); font-size: 0.75rem; text-align: center; }
 
 .repeatError {
   margin: 1rem 0 0;
@@ -105,15 +156,19 @@
 .repeatButton {
   width: 100%;
   margin-top: 1rem;
-  padding: 0.65rem 1rem;
+  padding: 0.7rem 1rem;
   color: #ffffff;
   background: #E91E8C;
   border: none;
   border-radius: 999px;
   cursor: pointer;
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 800;
+  transition: background-color 0.15s ease;
 }
 
 .repeatButton:hover { background: #C4187A; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }

@@ -80,80 +80,82 @@ function MediaContentCarousel() {
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.title}>Lo último que subimos</h2>
-      <div className={styles.carouselWrapper}>
-        <button className={styles.arrow} onClick={handlePrev} aria-label="Anterior">&lt;</button>
-        <div className={styles.track}>
-          {visibleItems.map((item, index) => {
-            const externalId = extractExternalId(item.url, item.provider)
-            const fallbackThumbnail = item.provider === 'tiktok' && externalId
-              ? `https://www.tiktok.com/api/img/?itemId=${externalId}&location=1`
-              : null
-            const thumbnail = item.thumbnail_url || fallbackThumbnail
+      <div className={styles.carouselContainer}>
+        <h2 className={styles.title}>Lo último que subimos</h2>
+        <div className={styles.carouselWrapper}>
+          <button className={styles.arrow} onClick={handlePrev} aria-label="Anterior">&lt;</button>
+          <div className={styles.track}>
+            {visibleItems.map((item, index) => {
+              const externalId = extractExternalId(item.url, item.provider)
+              const fallbackThumbnail = item.provider === 'tiktok' && externalId
+                ? `https://www.tiktok.com/api/img/?itemId=${externalId}&location=1`
+                : null
+              const thumbnail = item.thumbnail_url || fallbackThumbnail
 
-            return (
-              <div
-                key={`${item.id}-${index}`}
-                data-slide="true"
-                className={styles.slide}
-                onClick={() => getEmbedUrl(item.url, item.provider) && setActiveItem(item)}
-              >
-                {thumbnail ? (
-                  <img
-                    src={thumbnail}
-                    alt={`Contenido ${item.provider}`}
-                    className={styles.thumbnail}
-                    loading="lazy"
-                    onError={(event) => {
-                      const image = event.currentTarget
-                      if (fallbackThumbnail && image.src !== fallbackThumbnail) {
-                        image.src = fallbackThumbnail
-                        return
-                      }
-                      image.style.display = 'none'
-                      const placeholder = image.closest('[data-slide]')?.querySelector('[data-placeholder]') as HTMLElement | null
-                      if (placeholder) placeholder.style.display = 'flex'
-                    }}
-                  />
-                ) : null}
-                <div data-placeholder="true" className={styles.placeholder} style={{ display: thumbnail ? 'none' : 'flex' }}>
-                  <svg className={styles.placeholderIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M15 12l-5-3v6z" />
-                  </svg>
-                  <span className={styles.placeholderLabel}>Contenido</span>
-                </div>
-                <span className={styles.providerBadge}>{item.provider === 'instagram' ? 'Instagram' : 'TikTok'}</span>
-                {getEmbedUrl(item.url, item.provider) ? (
-                  <div className={styles.playOverlay}>
-                    <div className={styles.playButton}>&gt;</div>
+              return (
+                <div
+                  key={`${item.id}-${index}`}
+                  data-slide="true"
+                  className={styles.slide}
+                  onClick={() => getEmbedUrl(item.url, item.provider) && setActiveItem(item)}
+                >
+                  {thumbnail ? (
+                    <img
+                      src={thumbnail}
+                      alt={`Contenido ${item.provider}`}
+                      className={styles.thumbnail}
+                      loading="lazy"
+                      onError={(event) => {
+                        const image = event.currentTarget
+                        if (fallbackThumbnail && image.src !== fallbackThumbnail) {
+                          image.src = fallbackThumbnail
+                          return
+                        }
+                        image.style.display = 'none'
+                        const placeholder = image.closest('[data-slide]')?.querySelector('[data-placeholder]') as HTMLElement | null
+                        if (placeholder) placeholder.style.display = 'flex'
+                      }}
+                    />
+                  ) : null}
+                  <div data-placeholder="true" className={styles.placeholder} style={{ display: thumbnail ? 'none' : 'flex' }}>
+                    <svg className={styles.placeholderIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 12l-5-3v6z" />
+                    </svg>
+                    <span className={styles.placeholderLabel}>Contenido</span>
                   </div>
-                ) : (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.fallbackLink}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    Ver contenido en {item.provider === 'instagram' ? 'Instagram' : 'TikTok'} &gt;
-                  </a>
-                )}
-              </div>
-            )
-          })}
+                  <span className={styles.providerBadge}>{item.provider === 'instagram' ? 'Instagram' : 'TikTok'}</span>
+                  {getEmbedUrl(item.url, item.provider) ? (
+                    <div className={styles.playOverlay}>
+                      <div className={styles.playButton}>&gt;</div>
+                    </div>
+                  ) : (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.fallbackLink}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Ver contenido en {item.provider === 'instagram' ? 'Instagram' : 'TikTok'} &gt;
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <button className={styles.arrow} onClick={handleNext} aria-label="Siguiente">&gt;</button>
         </div>
-        <button className={styles.arrow} onClick={handleNext} aria-label="Siguiente">&gt;</button>
-      </div>
-      <div className={styles.dots}>
-        {activeItems.map((_, index) => (
-          <button
-            key={index}
-            className={`${styles.dot} ${index === current ? styles.dotActive : ''}`}
-            onClick={() => setCurrent(index)}
-            aria-label={`Ir al contenido ${index + 1}`}
-          />
-        ))}
+        <div className={styles.dots}>
+          {activeItems.map((_, index) => (
+            <button
+              key={index}
+              className={`${styles.dot} ${index === current ? styles.dotActive : ''}`}
+              onClick={() => setCurrent(index)}
+              aria-label={`Ir al contenido ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
       {activeItem && <MediaContentModal item={activeItem} onClose={handleCloseModal} />}
     </section>
