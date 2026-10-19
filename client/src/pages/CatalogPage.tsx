@@ -267,6 +267,8 @@ function StoreInfoBanner() {
   const { data: config } = useStoreConfig()
   const { isDeliveryAvailable } = useAppStatus()
   const [showCoverageZones, setShowCoverageZones] = useState(false)
+  // En mobile el bloque arranca plegado; en desktop siempre se ve abierto
+  const [expanded, setExpanded] = useState(false)
 
   const address = config?.address ?? ''
   const neighborhood = config?.neighborhood ?? ''
@@ -282,7 +284,40 @@ function StoreInfoBanner() {
     : ''
 
   return (
-    <div className={styles.storeInfoBanner}>
+    <div className={`${styles.storeInfoBanner} ${expanded ? '' : styles.storeInfoCollapsed}`}>
+      <button
+        type="button"
+        className={styles.storeInfoToggle}
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+      >
+        <span className={styles.storeInfoIcon}><PinIcon /></span>
+        <span className={styles.storeInfoToggleText}>
+          <span className={styles.storeInfoLabel}>Horarios y ubicación</span>
+          {config?.delivery_enabled && (
+            <span className={styles.storeInfoSub}>
+              Delivery{' '}
+              <span className={isDeliveryAvailable ? styles.storeInfoStatusOpen : styles.storeInfoStatusClosed}>
+                {isDeliveryAvailable ? 'abierto ahora' : 'cerrado ahora'}
+              </span>
+            </span>
+          )}
+        </span>
+        <svg
+          className={`${styles.storeInfoChevron} ${expanded ? styles.storeInfoChevronOpen : ''}`}
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
       <div className={styles.storeInfoGrid}>
 
         <div className={styles.storeInfoItems}>
