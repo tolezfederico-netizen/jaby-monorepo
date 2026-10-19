@@ -760,6 +760,7 @@ function OrdersPage() {
               value={searchCustomer}
               onChange={(event) => setSearchCustomer(event.target.value)}
             />
+            <div className={styles.filterChips}>
             <div className={styles.filterInline}>
               <span className={styles.filterLabel}>Modalidad</span>
               <div className={styles.filterGroup}>
@@ -785,9 +786,10 @@ function OrdersPage() {
             >
               Solo hoy
             </button>
+            </div>
           </div>
 
-          <div className={styles.filterGroup}>
+          <div className={`${styles.filterGroup} ${styles.statusGroup}`}>
             <button
               className={`${styles.filterBtn} ${filterStatus === "all" ? styles.filterBtnActive : ""}`}
               onClick={() => handleStatusFilterChange("all")}
