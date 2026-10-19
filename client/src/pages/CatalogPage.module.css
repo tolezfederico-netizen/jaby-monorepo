@@ -1492,3 +1492,23 @@
     display: inline-flex;
   }
 }
+
+/* Mobile: categorias fijas bajo el header y botones flotantes en la fila inferior */
+@media (max-width: 767px) {
+  .filters {
+    position: sticky;
+    top: 96px;
+    z-index: 150;
+    padding: 0.5rem 1rem;
+    background-color: #0D0D1A;
+    border-bottom: 1px solid rgba(233, 30, 140, 0.18);
+  }
+
+  .scrollToTop {
+    bottom: 1.25rem;
+    right: auto;
+    left: 0.75rem;
+    width: 44px;
+    height: 44px;
+  }
+}

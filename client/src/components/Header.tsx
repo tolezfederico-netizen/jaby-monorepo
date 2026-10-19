@@ -144,9 +144,21 @@ function Header({
             <h1 className={styles.storeName}>{storeName}</h1>
             <div className={styles.status}>
               <span className={`${styles.statusDot} ${isDeliveryAvailable ? styles.statusOpen : styles.statusClosed}`} />
-              {isDeliveryAvailable
-                ? `Delivery abierto · cierra a las ${formatHour(deliveryHoursClose)} hs`
-                : `Delivery cerrado · abre a las ${formatHour(deliveryHoursOpen)} hs`}
+              <span className={styles.statusText}>
+                {isDeliveryAvailable ? (
+                  <>
+                    <span className={styles.statusExtra}>Delivery </span>abierto · cierra{' '}
+                    <span className={styles.statusExtra}>a las </span>
+                    {formatHour(deliveryHoursClose)} hs
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.statusExtra}>Delivery </span>cerrado · abre{' '}
+                    <span className={styles.statusExtra}>a las </span>
+                    {formatHour(deliveryHoursOpen)} hs
+                  </>
+                )}
+              </span>
             </div>
           </div>
         </div>

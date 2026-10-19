@@ -81,6 +81,13 @@
   transition: font-size 0.25s ease;
 }
 
+.statusText {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .statusDot {
   width: 7px;
   height: 7px;
@@ -308,7 +315,9 @@
   .actionText { display: none; }
   .actionButton { width: 32px; height: 32px; padding: 0; }
   .contactChevron { display: none; }
-  .status { max-width: 42vw; }
+  .status { font-size: 0.75rem; }
+  .statusExtra { display: none; }
+  .statusText::first-letter { text-transform: uppercase; }
 }
 
 @media (min-width: 768px) {
