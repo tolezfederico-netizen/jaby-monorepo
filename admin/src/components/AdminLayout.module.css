@@ -7,7 +7,7 @@
 .sidebar {
   width: 220px;
   min-width: 220px;
-  background: linear-gradient(180deg, #1a1025 0%, #2d1b4e 100%);
+  background: linear-gradient(180deg, #14111f 0%, #231a38 100%);
   border-right: 1px solid rgba(233, 30, 140, 0.25);
   display: flex;
   flex-direction: column;
@@ -49,7 +49,9 @@
 }
 
 .navItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0.5rem 0.875rem;
   font-size: 0.9375rem;
   font-weight: 400;
@@ -62,6 +64,16 @@
 .navItem:hover {
   background-color: rgba(255, 255, 255, 0.07);
   color: rgba(255, 255, 255, 0.92);
+}
+
+.navItem svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.navItemActive svg {
+  color: #ff8aca;
+  opacity: 1;
 }
 
 .navItemActive {
@@ -113,7 +125,9 @@
   flex: 1;
   min-width: 0;
   padding: 2rem;
-  overflow-y: auto;
+  /* clip no crea un contenedor de scroll, así los elementos sticky de cada
+     pantalla se fijan respecto de la ventana */
+  overflow-x: clip;
 }
 
 /* Hamburger — solo mobile */

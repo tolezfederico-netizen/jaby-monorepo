@@ -1,3 +1,4 @@
+import { AlertIcon, CheckCircleIcon } from './icons'
 import styles from './ConfirmModal.module.css'
 
 interface ConfirmModalProps {
@@ -22,7 +23,12 @@ function ConfirmModal({
   return (
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.title}>{title}</h3>
+        <div className={styles.header}>
+          <span className={`${styles.icon} ${isDanger ? styles.iconDanger : ''}`}>
+            {isDanger ? <AlertIcon size={20} /> : <CheckCircleIcon size={20} />}
+          </span>
+          <h3 className={styles.title}>{title}</h3>
+        </div>
         <p className={styles.message}>{message}</p>
         <div className={styles.actions}>
           <button className={styles.cancelButton} onClick={onCancel}>

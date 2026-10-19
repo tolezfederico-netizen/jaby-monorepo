@@ -1,16 +1,25 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import {
+  CategoriesIcon,
+  CustomersIcon,
+  DashboardIcon,
+  MediaIcon,
+  OrdersIcon,
+  ProductsIcon,
+  SettingsIcon,
+} from './icons'
 import styles from './AdminLayout.module.css'
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', exact: true },
-  { to: '/orders', label: 'Pedidos', exact: false },
-  { to: '/products', label: 'Productos', exact: false },
-  { to: '/categories', label: 'Categorías', exact: false },
-  { to: '/contenido-multimedia', label: 'Contenido Multimedia', exact: false },
-  { to: '/customers', label: 'Clientes', exact: false },
-  { to: '/settings', label: 'Configuración', exact: false },
+  { to: '/', label: 'Dashboard', exact: true, Icon: DashboardIcon },
+  { to: '/orders', label: 'Pedidos', exact: false, Icon: OrdersIcon },
+  { to: '/products', label: 'Productos', exact: false, Icon: ProductsIcon },
+  { to: '/categories', label: 'Categorías', exact: false, Icon: CategoriesIcon },
+  { to: '/contenido-multimedia', label: 'Contenido Multimedia', exact: false, Icon: MediaIcon },
+  { to: '/customers', label: 'Clientes', exact: false, Icon: CustomersIcon },
+  { to: '/settings', label: 'Configuración', exact: false, Icon: SettingsIcon },
 ] as const
 
 function AdminLayout() {
@@ -57,6 +66,7 @@ function AdminLayout() {
               }
               onClick={() => setIsSidebarOpen(false)}
             >
+              <item.Icon size={18} />
               {item.label}
             </NavLink>
           ))}
