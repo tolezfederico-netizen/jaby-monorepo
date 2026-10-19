@@ -6,6 +6,16 @@ import { useOrders } from '../hooks/useOrders'
 import { useLongOutOfStockProductCount } from '../hooks/useProducts'
 import { formatPrice } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
+import {
+  BagIcon,
+  CashIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  FlagIcon,
+  OrdersIcon,
+  ProductsIcon,
+  SettingsIcon,
+} from '../components/icons'
 import styles from './DashboardPage.module.css'
 
 function getTodayOrders(orders: ReturnType<typeof useOrders>['data']) {
@@ -16,11 +26,22 @@ function getTodayOrders(orders: ReturnType<typeof useOrders>['data']) {
 }
 
 function getTodayLabel(): string {
-  return new Date().toLocaleDateString('es-AR', {
+  const label = new Date().toLocaleDateString('es-AR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   })
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
+const TIP_STORAGE_KEY = 'admin-hide-whatsapp-tip'
+
+function readTipHidden(): boolean {
+  try {
+    return localStorage.getItem(TIP_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
 }
 
 const STATUS_LABELS = {
@@ -65,7 +86,7 @@ function DashboardPage() {
   const todayOrders = getTodayOrders(orders)
   const latestOrders = [...(orders ?? [])]
     .sort((a, b) => new Date(b.created_at ?? '').getTime() - new Date(a.created_at ?? '').getTime())
-    .slice(0, 5)
+    .slice(0, 3)
   const weeklyOrders = getLastSevenDays(orders)
   const weeklyMax = Math.max(...weeklyOrders.map((day) => day.count), 1)
   const todayRevenue = todayOrders
@@ -80,6 +101,16 @@ function DashboardPage() {
   }
 
   const [toggleError, setToggleError] = useState<string | null>(null)
+  const [tipHidden, setTipHidden] = useState(readTipHidden)
+
+  const hideTip = () => {
+    setTipHidden(true)
+    try {
+      localStorage.setItem(TIP_STORAGE_KEY, '1')
+    } catch {
+      // Sin almacenamiento disponible: se oculta solo en esta sesión
+    }
+  }
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false)
 
   const handleToggleApp = () => {
@@ -104,10 +135,11 @@ function DashboardPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
-          <h1 className={styles.title}>
-            {configLoading ? 'Hola 👋' : `Hola, ${config?.store_name || 'tu tienda'} 👋`}
-          </h1>
-          <span className={styles.titleSub}>{getTodayLabel()}</span>
+          <h1 className={styles.title}>Hola 👋</h1>
+          <span className={styles.titleSub}>
+            {config?.store_name ? `${config.store_name} · ` : ''}
+            {getTodayLabel()}
+          </span>
         </div>
         <div className={styles.appStatusChip}>
           <div className={styles.appStatusInfo}>
@@ -146,9 +178,16 @@ function DashboardPage() {
         <p className={styles.toggleError} role="alert">{toggleError}</p>
       )}
 
-      <div className={styles.devTip}>
-        💡 Para una mejor experiencia al notificar clientes, se recomienda usar <strong>WhatsApp Desktop</strong>.
-      </div>
+      {!tipHidden && (
+        <div className={styles.devTip}>
+          <span>
+            Para notificar clientes con más comodidad, se recomienda usar <strong>WhatsApp Desktop</strong>.
+          </span>
+          <button type="button" className={styles.devTipClose} onClick={hideTip} aria-label="Ocultar aviso">
+            ✕
+          </button>
+        </div>
+      )}
 
       {longOutOfStockCount > 0 && (
         <div className={styles.stockAlert} role="status">
@@ -175,40 +214,57 @@ function DashboardPage() {
           <div className={styles.statsGrid}>
             <button
               type="button"
-              className={`${styles.statCard} ${styles.statPending}`}
+              className={`${styles.statCard} ${styles.statPending} ${counts.pending > 0 ? styles.statPendingAlert : ''}`}
               onClick={() => navigate('/orders?status=pending')}
             >
-              <span className={styles.statNumber}>{counts.pending}</span>
-              <span className={styles.statLabel}>Pendientes</span>
+              <span className={styles.statIcon}><ClockIcon size={20} /></span>
+              <span className={styles.statBody}>
+                <span className={styles.statNumber}>{counts.pending}</span>
+                <span className={styles.statLabel}>Pendientes</span>
+              </span>
             </button>
             <button
               type="button"
               className={`${styles.statCard} ${styles.statConfirmed}`}
               onClick={() => navigate('/orders?status=confirmed')}
             >
-              <span className={styles.statNumber}>{counts.confirmed}</span>
-              <span className={styles.statLabel}>Confirmados</span>
+              <span className={styles.statIcon}><CheckCircleIcon size={20} /></span>
+              <span className={styles.statBody}>
+                <span className={styles.statNumber}>{counts.confirmed}</span>
+                <span className={styles.statLabel}>Confirmados</span>
+              </span>
             </button>
             <button
               type="button"
               className={`${styles.statCard} ${styles.statInProgress}`}
               onClick={() => navigate('/orders?status=in_progress')}
             >
-              <span className={styles.statNumber}>{counts.in_progress}</span>
-              <span className={styles.statLabel}>En curso</span>
+              <span className={styles.statIcon}><BagIcon size={20} /></span>
+              <span className={styles.statBody}>
+                <span className={styles.statNumber}>{counts.in_progress}</span>
+                <span className={styles.statLabel}>En curso</span>
+              </span>
             </button>
             <button
               type="button"
               className={`${styles.statCard} ${styles.statCompleted}`}
               onClick={() => navigate('/orders?status=completed')}
             >
-              <span className={styles.statNumber}>{counts.completed}</span>
-              <span className={styles.statLabel}>Completados</span>
+              <span className={styles.statIcon}><FlagIcon size={20} /></span>
+              <span className={styles.statBody}>
+                <span className={styles.statNumber}>{counts.completed}</span>
+                <span className={styles.statLabel}>Completados</span>
+              </span>
             </button>
-            <div className={`${styles.statCard} ${styles.statRevenue}`}>
-              <span className={styles.statNumber}>{formatPrice(todayRevenue)}</span>
-              <span className={styles.statLabel}>Vendido hoy</span>
-              <span className={styles.statHint}>Confirmados, en curso y completados</span>
+            <div
+              className={`${styles.statCard} ${styles.statRevenue}`}
+              title="Suma de pedidos confirmados, en curso y completados"
+            >
+              <span className={styles.statIcon}><CashIcon size={20} /></span>
+              <span className={styles.statBody}>
+                <span className={styles.statNumber}>{formatPrice(todayRevenue)}</span>
+                <span className={styles.statLabel}>Vendido hoy</span>
+              </span>
             </div>
           </div>
         )}
@@ -277,7 +333,7 @@ function DashboardPage() {
             className={styles.quickLink}
             onClick={() => navigate('/orders')}
           >
-            <span className={styles.quickLinkIcon} aria-hidden="true">▤</span>
+            <span className={styles.quickLinkIcon} aria-hidden="true"><OrdersIcon size={20} /></span>
             <span className={styles.quickLinkTitle}>Pedidos</span>
             <span className={styles.quickLinkDesc}>Ver y gestionar todos los pedidos</span>
           </button>
@@ -285,7 +341,7 @@ function DashboardPage() {
             className={styles.quickLink}
             onClick={() => navigate('/products')}
           >
-            <span className={styles.quickLinkIcon} aria-hidden="true">□</span>
+            <span className={styles.quickLinkIcon} aria-hidden="true"><ProductsIcon size={20} /></span>
             <span className={styles.quickLinkTitle}>Productos</span>
             <span className={styles.quickLinkDesc}>Agregar, editar y pausar productos</span>
           </button>
@@ -293,7 +349,7 @@ function DashboardPage() {
             className={styles.quickLink}
             onClick={() => navigate('/settings')}
           >
-            <span className={styles.quickLinkIcon} aria-hidden="true">⚙</span>
+            <span className={styles.quickLinkIcon} aria-hidden="true"><SettingsIcon size={20} /></span>
             <span className={styles.quickLinkTitle}>Configuración</span>
             <span className={styles.quickLinkDesc}>Horarios, delivery y banner</span>
           </button>
