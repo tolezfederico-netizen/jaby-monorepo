@@ -9,6 +9,18 @@ import {
 import type { OrderWithItemsType } from "../hooks/useOrders";
 import type { OrderStatusType } from "@jaby/shared";
 import ConfirmModal from "../components/ConfirmModal";
+import { useProducts } from "../hooks/useProducts";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PhoneIcon,
+  PinIcon,
+  ProductsIcon,
+  ScooterIcon,
+  StoreIcon,
+  TrashIcon,
+  WhatsAppIcon,
+} from "../components/icons";
 import { formatPrice } from "@jaby/shared";
 import styles from "./OrdersPage.module.css";
 
@@ -103,6 +115,10 @@ function formatDate(iso: string | null | undefined): string {
   });
 }
 
+function countUnits(order: OrderWithItemsType): number {
+  return (order.order_items ?? []).reduce((sum, item) => sum + item.quantity, 0);
+}
+
 function timeAgo(iso: string | null | undefined): string {
   if (!iso) return "";
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -191,39 +207,68 @@ function OrderCard({
       }}
     >
       <div className={styles.cardHeader}>
-        <div className={styles.cardHeaderLeft}>
-          <span className={styles.orderNumber}>
-            #{String(order.order_number).padStart(4, "0")}
+        <span className={styles.orderNumber}>
+          #{String(order.order_number).padStart(4, "0")}
+        </span>
+        <span
+          className={`${styles.statusBadge} ${styles[`badge_${order.status}`]}`}
+        >
+          {STATUS_LABELS[order.status]}
+        </span>
+        {order.is_archived && (
+          <span className={`${styles.statusBadge} ${styles.badge_archived}`}>
+            Archivado
           </span>
-          <span
-            className={`${styles.statusBadge} ${styles[`badge_${order.status}`]}`}
-          >
-            {STATUS_LABELS[order.status]}
+        )}
+        {urgency === "warning" && (
+          <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_warning}`}>
+            ! Sin atender
           </span>
-          {order.is_archived && (
-            <span className={`${styles.statusBadge} ${styles.badge_archived}`}>
-              Archivado
-            </span>
+        )}
+        {urgency === "critical" && (
+          <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_critical}`}>
+            ! Sin atender
+          </span>
+        )}
+        {urgency === "abandoned" && (
+          <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_abandoned}`}>
+            Abandonado
+          </span>
+        )}
+        <span className={styles.timeAgo}>{timeAgo(order.created_at)}</span>
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardBodyMain}>
+          <span className={styles.customerName}>{order.customer_name}</span>
+          {order.customer_address && (
+            <span className={styles.address}>{order.customer_address}</span>
           )}
-          {urgency === "warning" && (
-            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_warning}`}>
-              ! Sin atender
-            </span>
-          )}
-          {urgency === "critical" && (
-            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_critical}`}>
-              ! Sin atender
-            </span>
-          )}
-          {urgency === "abandoned" && (
-            <span className={`${styles.unattendedBadge} ${styles.unattendedBadge_abandoned}`}>
-              Abandonado
-            </span>
-          )}
-          <span className={styles.modality}>
-            {order.modality === "delivery" ? "🚗 Delivery" : "🏪 Retiro"}
+        </div>
+        <div className={styles.cardTotalBox}>
+          <span className={styles.cardTotal}>
+            {formatPrice(order.total + (order.delivery_cost ?? 0))}
+          </span>
+          <span className={styles.cardItems}>
+            {countUnits(order)} {countUnits(order) === 1 ? "producto" : "productos"}
           </span>
         </div>
+      </div>
+      <div className={styles.cardFooter}>
+        <span className={styles.cardMeta}>
+          <span className={styles.modality}>
+            {order.modality === "delivery" ? (
+              <>
+                <ScooterIcon size={15} /> Delivery
+              </>
+            ) : (
+              <>
+                <StoreIcon size={15} /> Retiro
+              </>
+            )}
+          </span>
+          <span className={styles.metaDot} aria-hidden="true">·</span>
+          <span className={styles.createdAt}>{formatDate(order.created_at)}</span>
+        </span>
         <div className={styles.cardActions}>
           {order.status === "pending" && !order.is_archived && urgency === "abandoned" && (
             <button
@@ -253,18 +298,6 @@ function OrderCard({
           )}
         </div>
       </div>
-      <div className={styles.cardBody}>
-        <span className={styles.customerName}>{order.customer_name}</span>
-        {order.customer_address && (
-          <span className={styles.address}>{order.customer_address}</span>
-        )}
-        <div className={styles.cardBodyRight}>
-          <span className={styles.createdAt}>
-            {formatDate(order.created_at)}
-          </span>
-          <span className={styles.timeAgo}>{timeAgo(order.created_at)}</span>
-        </div>
-      </div>
     </div>
   );
 }
@@ -282,6 +315,10 @@ interface OrderDetailPanelProps {
   isPanelOpen: boolean;
   onArchiveToggle: (order: OrderWithItemsType, is_archived: boolean) => void;
   isArchiving: boolean;
+  productImages: Map<string, string | null | undefined>;
+  position: { index: number; total: number } | null;
+  onPrev: () => void;
+  onNext: () => void;
 }
 
 function OrderDetailPanel({
@@ -293,6 +330,10 @@ function OrderDetailPanel({
   isPanelOpen,
   onArchiveToggle,
   isArchiving,
+  productImages,
+  position,
+  onPrev,
+  onNext,
 }: OrderDetailPanelProps) {
   if (!order) {
     return null;
@@ -306,10 +347,48 @@ function OrderDetailPanel({
       className={`${styles.panel} ${isPanelOpen ? styles.panelVisible : ""}`}
     >
       <div className={styles.panelHeader}>
-        <div className={styles.panelHeaderLeft}>
-          <span className={styles.panelOrderNumber}>
-            #{String(order.order_number).padStart(4, "0")}
-          </span>
+        <span className={styles.panelOrderNumber}>
+          #{String(order.order_number).padStart(4, "0")}
+        </span>
+        <div className={styles.panelHeaderRight}>
+          {position && (
+            <div className={styles.panelNav} aria-label="Navegar entre pedidos">
+              <button
+                type="button"
+                className={styles.panelNavBtn}
+                onClick={onPrev}
+                disabled={position.index <= 0}
+                aria-label="Pedido anterior"
+              >
+                <ChevronLeftIcon size={16} />
+              </button>
+              <span className={styles.panelNavCount}>
+                {position.index + 1} / {position.total}
+              </span>
+              <button
+                type="button"
+                className={styles.panelNavBtn}
+                onClick={onNext}
+                disabled={position.index >= position.total - 1}
+                aria-label="Pedido siguiente"
+              >
+                <ChevronRightIcon size={16} />
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            className={styles.archivePanelButton}
+            onClick={() => onArchiveToggle(order, !order.is_archived)}
+            disabled={isArchiving}
+          >
+            {order.is_archived ? "Desarchivar" : "Archivar"}
+          </button>
+          <button className={styles.panelCloseBtn} onClick={onClose} aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+        <div className={styles.panelBadges}>
           <span
             className={`${styles.statusBadge} ${styles[`badge_${order.status}`]}`}
           >
@@ -321,122 +400,167 @@ function OrderDetailPanel({
             </span>
           )}
         </div>
-        <div className={styles.panelHeaderRight}>
-          <button
-            type="button"
-            className={styles.archivePanelButton}
-            onClick={() => onArchiveToggle(order, !order.is_archived)}
-            disabled={isArchiving}
-          >
-            {order.is_archived ? "Desarchivar" : "Archivar"}
-          </button>
-          <button className={styles.deleteButton} onClick={() => onDelete(order)}>
-            Eliminar
-          </button>
-          <button className={styles.panelCloseBtn} onClick={onClose}>
-            ✕
-          </button>
-        </div>
       </div>
 
       <div className={styles.panelBody}>
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Cliente</span>
-          <span className={styles.panelValue}>{order.customer_name}</span>
-          {order.customer_address && (
-            <span className={styles.panelSubValue}>
-              {order.customer_address}
-            </span>
-          )}
-          {order.customer_phone && (
-            <span className={styles.panelSubValue}>
-              📱 {order.customer_phone}
-            </span>
-          )}
-        </div>
-
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Modalidad</span>
-          <span className={styles.panelValue}>
-            {order.modality === "delivery"
-              ? "🚗 Delivery"
-              : "🏪 Retiro en local"}
-          </span>
-        </div>
-
-        {order.notes && (
+        <div className={styles.panelCol}>
           <div className={styles.panelSection}>
-            <span className={styles.panelLabel}>Notas</span>
-            <span className={styles.panelValue}>{order.notes}</span>
-          </div>
-        )}
-
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Productos</span>
-          <ul className={styles.itemsList}>
-            {(order.order_items ?? []).map((item) => (
-              <li key={item.id} className={styles.item}>
-                <span className={styles.itemName}>
-                  {item.quantity}x {item.product_name}
+            <span className={styles.panelLabel}>Cliente</span>
+            <span className={styles.panelValue}>{order.customer_name}</span>
+            {order.customer_address && (
+              <div className={styles.contactRow}>
+                <span className={styles.panelSubValue}>
+                  {order.customer_address}
                 </span>
-                <span className={styles.itemSubtotal}>
-                  {formatPrice(item.subtotal)}
+                <a
+                  className={styles.mapsLink}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customer_address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <PinIcon size={15} /> Ver en Maps
+                </a>
+              </div>
+            )}
+            {order.customer_phone && (
+              <div className={styles.contactRow}>
+                <span className={`${styles.panelSubValue} ${styles.iconLine}`}>
+                  <PhoneIcon size={15} /> {order.customer_phone}
                 </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className={styles.totals}>
-          <div className={styles.totalRow}>
-            <span>Subtotal</span>
-            <span>{formatPrice(order.total)}</span>
+                <a
+                  className={styles.waLink}
+                  href={`https://wa.me/54${order.customer_phone}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <WhatsAppIcon size={15} /> WhatsApp
+                </a>
+              </div>
+            )}
           </div>
-          {order.modality === "delivery" && (
-            <div className={styles.totalRow}>
-              <span>Envío</span>
-              <span>
-                {order.delivery_cost != null && order.delivery_cost > 0
-                  ? formatPrice(order.delivery_cost)
-                  : "A confirmar"}
-              </span>
+
+          <div className={styles.panelSection}>
+            <span className={styles.panelLabel}>Modalidad</span>
+            <span className={`${styles.panelValue} ${styles.iconLine}`}>
+              {order.modality === "delivery" ? (
+                <>
+                  <ScooterIcon size={18} /> Delivery
+                </>
+              ) : (
+                <>
+                  <StoreIcon size={18} /> Retiro en local
+                </>
+              )}
+            </span>
+          </div>
+
+          {order.notes && (
+            <div className={styles.panelSection}>
+              <span className={styles.panelLabel}>Notas del cliente</span>
+              <p className={styles.noteCallout}>{order.notes}</p>
             </div>
           )}
-          <div className={`${styles.totalRow} ${styles.totalRowFinal}`}>
-            <span>Total</span>
-            <span>{formatPrice(order.total + (order.delivery_cost ?? 0))}</span>
-          </div>
         </div>
 
-        <div className={styles.panelSection}>
-          <span className={styles.panelLabel}>Historial</span>
-          <div className={styles.timestamps}>
-            <div className={styles.timestampRow}>
-              <span className={styles.timestampDot} />
-              <span>Creado: {formatDate(order.created_at)}</span>
+        <div className={`${styles.panelCol} ${styles.panelColRight}`}>
+          <div className={styles.panelSection}>
+            <span className={styles.panelLabel}>
+              Productos
+              <span className={styles.unitsChip}>
+                {countUnits(order)} {countUnits(order) === 1 ? "unidad" : "unidades"}
+              </span>
+            </span>
+            <ul className={styles.itemsList}>
+              {(order.order_items ?? []).map((item) => {
+                const imageUrl = item.product_id
+                  ? productImages.get(item.product_id)
+                  : null;
+                return (
+                  <li key={item.id} className={styles.item}>
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt=""
+                        className={styles.itemThumb}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className={`${styles.itemThumb} ${styles.itemThumbEmpty}`}>
+                        <ProductsIcon size={18} />
+                      </span>
+                    )}
+                    <span className={styles.itemName}>
+                      <strong className={styles.itemQty}>{item.quantity}x</strong>{" "}
+                      {item.product_name}
+                    </span>
+                    <span className={styles.itemSubtotal}>
+                      {formatPrice(item.subtotal)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className={styles.totals}>
+            <div className={styles.totalRow}>
+              <span>Subtotal</span>
+              <span>{formatPrice(order.total)}</span>
             </div>
-            {order.confirmed_at && (
-              <div className={styles.timestampRow}>
-                <span
-                  className={`${styles.timestampDot} ${styles.timestampDotConfirmed}`}
-                />
-                <span>Confirmado: {formatDate(order.confirmed_at)}</span>
+            {order.modality === "delivery" && (
+              <div className={styles.totalRow}>
+                <span>Envío</span>
+                <span>
+                  {order.delivery_cost != null && order.delivery_cost > 0
+                    ? formatPrice(order.delivery_cost)
+                    : "A confirmar"}
+                </span>
               </div>
             )}
-            {order.completed_at && (
+            <div className={`${styles.totalRow} ${styles.totalRowFinal}`}>
+              <span>Total</span>
+              <span>{formatPrice(order.total + (order.delivery_cost ?? 0))}</span>
+            </div>
+          </div>
+
+          <div className={styles.panelSection}>
+            <span className={styles.panelLabel}>Historial</span>
+            <div className={styles.timestamps}>
               <div className={styles.timestampRow}>
-                <span
-                  className={`${styles.timestampDot} ${styles.timestampDotCompleted}`}
-                />
-                <span>Completado: {formatDate(order.completed_at)}</span>
+                <span className={styles.timestampDot} />
+                <span>Creado: {formatDate(order.created_at)}</span>
               </div>
-            )}
+              {order.confirmed_at && (
+                <div className={styles.timestampRow}>
+                  <span
+                    className={`${styles.timestampDot} ${styles.timestampDotConfirmed}`}
+                  />
+                  <span>Confirmado: {formatDate(order.confirmed_at)}</span>
+                </div>
+              )}
+              {order.completed_at && (
+                <div className={styles.timestampRow}>
+                  <span
+                    className={`${styles.timestampDot} ${styles.timestampDotCompleted}`}
+                  />
+                  <span>Completado: {formatDate(order.completed_at)}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {nextStatus && nextLabel && (
-        <div className={styles.panelFooter}>
+      <div className={styles.panelFooter}>
+        <button
+          type="button"
+          className={styles.deleteButton}
+          onClick={() => onDelete(order)}
+        >
+          <TrashIcon size={16} />
+          Eliminar
+        </button>
+        {nextStatus && nextLabel && (
           <button
             className={styles.actionButton}
             onClick={() => onStatusChange(order.id, nextStatus, order)}
@@ -444,8 +568,8 @@ function OrderDetailPanel({
           >
             {isPending ? "Guardando..." : nextLabel}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -455,6 +579,7 @@ function OrdersPage() {
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
   const archiveOrder = useArchiveOrder();
+  const { data: products } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const filterStatus = getFilterStatus(searchParams.get("status"));
@@ -495,6 +620,40 @@ function OrdersPage() {
   }).sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
 
   const dateGroups = ["Hoy", "Ayer", "Esta semana", "Más antiguos"] as const;
+
+  const productImages = new Map<string, string | null | undefined>(
+    (products ?? []).map(
+      (product) => [product.id, product.image_url] as const,
+    ),
+  );
+
+  const selectedIndex = selectedOrderId
+    ? filtered.findIndex((o) => o.id === selectedOrderId)
+    : -1;
+  const panelPosition =
+    selectedIndex >= 0 ? { index: selectedIndex, total: filtered.length } : null;
+
+  const goToOrder = (offset: number) => {
+    if (selectedIndex < 0) return;
+    const target = filtered[selectedIndex + offset];
+    if (target) setSelectedOrderId(target.id);
+  };
+
+  useEffect(() => {
+    if (!isPanelOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsPanelOpen(false);
+        setSelectedOrderId(null);
+      } else if (event.key === "ArrowLeft") {
+        goToOrder(-1);
+      } else if (event.key === "ArrowRight") {
+        goToOrder(1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   const selectedOrder = selectedOrderId
     ? ((orders ?? []).find((o) => o.id === selectedOrderId) ?? null)
@@ -546,7 +705,10 @@ function OrdersPage() {
     if (!orderToDelete) return;
     try {
       await deleteOrder.mutateAsync(orderToDelete.id);
-      if (selectedOrderId === orderToDelete.id) setSelectedOrderId(null);
+      if (selectedOrderId === orderToDelete.id) {
+        setSelectedOrderId(null);
+        setIsPanelOpen(false);
+      }
       setOrderToDelete(null);
     } catch {
       console.error('Error al eliminar el pedido', orderToDelete.id);
@@ -589,83 +751,67 @@ function OrdersPage() {
   return (
     <div className={`${styles.page} ${selectedOrder ? styles.pageHasSelection : ""}`}>
       <div className={styles.listColumn}>
-        <h1 className={styles.title}>Pedidos</h1>
-
-        <input
-          type="search"
-          className={styles.searchInput}
-          placeholder="Buscar por nombre de cliente..."
-          value={searchCustomer}
-          onChange={(event) => setSearchCustomer(event.target.value)}
-        />
-
         <div className={styles.filtersWrapper}>
-          <div className={styles.filterSection}>
-            <span className={styles.filterLabel}>Estado</span>
-            <div className={styles.filterGroup}>
-              <button
-                className={`${styles.filterBtn} ${filterStatus === "all" ? styles.filterBtnActive : ""}`}
-                onClick={() => handleStatusFilterChange("all")}
-              >
-                Todos
-                <span className={`${styles.filterCount} ${styles.filterCount_all}`}>{activeOrders.length}</span>
-              </button>
-              {(
-                ORDER_STATUSES
-              ).map((s) => (
-                <button
-                  key={s}
-                  className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ""}`}
-                  onClick={() => handleStatusFilterChange(s)}
-                >
-                  {STATUS_LABELS[s]}
-                  <span className={`${styles.filterCount} ${styles[`filterCount_${s}`]}`}>{countByStatus(s)}</span>
-                </button>
-              ))}
-              <button
-                className={`${styles.filterBtn} ${filterStatus === "archived" ? styles.filterBtnActive : ""}`}
-                onClick={() => handleStatusFilterChange("archived")}
-              >
-                Archivados
-                <span className={`${styles.filterCount} ${styles.filterCount_archived}`}>{archivedOrders.length}</span>
-              </button>
+          <div className={styles.filtersTop}>
+            <input
+              type="search"
+              className={styles.searchInput}
+              placeholder="Buscar por nombre de cliente..."
+              value={searchCustomer}
+              onChange={(event) => setSearchCustomer(event.target.value)}
+            />
+            <div className={styles.filterInline}>
+              <span className={styles.filterLabel}>Modalidad</span>
+              <div className={styles.filterGroup}>
+                {(["all", "pickup", "delivery"] as const).map((m) => (
+                  <button
+                    key={m}
+                    className={`${styles.filterBtn} ${filterModality === m ? styles.filterBtnActive : ""}`}
+                    onClick={() => setFilterModality(m)}
+                  >
+                    {m === "all"
+                      ? "Todas"
+                      : m === "pickup"
+                        ? "Retiro"
+                        : "Delivery"}
+                  </button>
+                ))}
+              </div>
             </div>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${showTodayOnly ? styles.filterBtnActive : ""}`}
+              onClick={() => setShowTodayOnly((current) => !current)}
+            >
+              Solo hoy
+            </button>
           </div>
 
-          <div className={styles.filterDivider} />
-
-          <div className={styles.filterSection}>
-            <span className={styles.filterLabel}>Modalidad</span>
-            <div className={styles.filterGroup}>
-              {(["all", "pickup", "delivery"] as const).map((m) => (
-                <button
-                  key={m}
-                  className={`${styles.filterBtn} ${filterModality === m ? styles.filterBtnActive : ""}`}
-                  onClick={() => setFilterModality(m)}
-                >
-                  {m === "all"
-                    ? "Todas"
-                    : m === "pickup"
-                      ? "Retiro"
-                      : "Delivery"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.filterDivider} />
-
-          <div className={styles.filterSection}>
-            <span className={styles.filterLabel}>Fecha</span>
-            <div className={styles.filterGroup}>
+          <div className={styles.filterGroup}>
+            <button
+              className={`${styles.filterBtn} ${filterStatus === "all" ? styles.filterBtnActive : ""}`}
+              onClick={() => handleStatusFilterChange("all")}
+            >
+              Todos
+              <span className={`${styles.filterCount} ${styles.filterCount_all}`}>{activeOrders.length}</span>
+            </button>
+            {ORDER_STATUSES.map((s) => (
               <button
-                type="button"
-                className={`${styles.filterBtn} ${showTodayOnly ? styles.filterBtnActive : ""}`}
-                onClick={() => setShowTodayOnly((current) => !current)}
+                key={s}
+                className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ""}`}
+                onClick={() => handleStatusFilterChange(s)}
               >
-                Hoy
+                {STATUS_LABELS[s]}
+                <span className={`${styles.filterCount} ${styles[`filterCount_${s}`]}`}>{countByStatus(s)}</span>
               </button>
-            </div>
+            ))}
+            <button
+              className={`${styles.filterBtn} ${filterStatus === "archived" ? styles.filterBtnActive : ""}`}
+              onClick={() => handleStatusFilterChange("archived")}
+            >
+              Archivados
+              <span className={`${styles.filterCount} ${styles.filterCount_archived}`}>{archivedOrders.length}</span>
+            </button>
           </div>
         </div>
 
@@ -707,7 +853,7 @@ function OrdersPage() {
         )}
       </div>
 
-      {isPanelOpen && (
+      {isPanelOpen && selectedOrder && (
         <div
           className={styles.panelOverlay}
           onClick={() => {
@@ -728,6 +874,10 @@ function OrdersPage() {
         isPanelOpen={isPanelOpen}
         onArchiveToggle={handleArchive}
         isArchiving={archiveOrder.isPending}
+        productImages={productImages}
+        position={panelPosition}
+        onPrev={() => goToOrder(-1)}
+        onNext={() => goToOrder(1)}
       />
 
       {orderToDelete && (
