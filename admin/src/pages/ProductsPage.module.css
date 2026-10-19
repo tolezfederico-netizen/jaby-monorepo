@@ -774,15 +774,41 @@
     padding: 0.75rem 1rem;
   }
 
+  /* Buscador y "Nuevo producto" en la misma fila; los chips en una línea con scroll */
+  .filtersTop {
+    gap: 0.5rem;
+  }
+
   .searchBox {
     max-width: none;
-    flex: 1 1 100%;
+    flex: 1 1 0;
   }
 
   .createButton {
     margin-left: 0;
+    flex-shrink: 0;
+    padding: 0 0.75rem;
+  }
+
+  .filtersTop > .filterLabel {
+    display: none;
+  }
+
+  .statusGroup {
+    order: 3;
     width: 100%;
-    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .statusGroup::-webkit-scrollbar {
+    display: none;
+  }
+
+  .statusGroup .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .list {
@@ -845,8 +871,24 @@
     flex-direction: column;
   }
 
+  /* Pie del diálogo en una sola fila: Eliminar pasa a ser solo el ícono */
   .dialogFooter {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .deleteLabel {
+    display: none;
+  }
+
+  .deleteButton {
+    padding: 0 0.75rem;
+  }
+
+  .cancelButton,
+  .saveButton {
+    padding: 0 0.875rem;
   }
 
   @keyframes sheetIn {

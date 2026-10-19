@@ -655,11 +655,12 @@ function ProductsPage() {
                   <button
                     type="button"
                     className={styles.deleteButton}
+                    aria-label="Eliminar producto"
                     onClick={() => handleDeleteRequest(selected)}
                     disabled={isSaving}
                   >
                     <TrashIcon size={16} />
-                    Eliminar
+                    <span className={styles.deleteLabel}>Eliminar</span>
                   </button>
                 )}
                 <span className={styles.footerSpacer} />

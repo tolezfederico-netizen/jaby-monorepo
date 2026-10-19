@@ -674,6 +674,32 @@
     padding: 0.75rem 1rem;
   }
 
+  .counters {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+
+  .counter {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .createButton {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0 0.75rem;
+  }
+
+  .hideMobile {
+    display: none;
+  }
+
+  .saveButton,
+  .cancelButton {
+    white-space: nowrap;
+  }
+
   .list {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.625rem;
@@ -681,6 +707,26 @@
 
   .thumbWrap {
     height: 170px;
+  }
+
+  /* Pie del diálogo en una sola fila: Eliminar pasa a ser solo el ícono */
+  .dialogFooter {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .deleteLabel {
+    display: none;
+  }
+
+  .deleteButton {
+    padding: 0 0.75rem;
+  }
+
+  .cancelButton,
+  .saveButton {
+    padding: 0 0.875rem;
   }
 
   .dialog {

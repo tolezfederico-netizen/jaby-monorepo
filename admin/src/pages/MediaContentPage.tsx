@@ -119,13 +119,13 @@ function MediaContentPage() {
         thumbnailUrl = await uploadThumbnail.mutateAsync({
           file: form.thumbnailFile,
           provider: form.provider,
-          externalId: extractExternalId(form.url.trim(), form.provider),
+          externalId: extractExternalId(cleanUrl(form.url), form.provider),
         })
       }
       if (creating) {
         const result = await createItem.mutateAsync({
           provider: form.provider,
-          url: form.url.trim(),
+          url: cleanUrl(form.url),
           order: items?.length ?? 0,
           is_active: form.is_active,
           thumbnail_url: form.provider === 'instagram' || form.thumbnailFile ? thumbnailUrl : null,
@@ -138,7 +138,7 @@ function MediaContentPage() {
           id: selected.id,
           payload: {
             provider: form.provider,
-            url: form.url.trim(),
+            url: cleanUrl(form.url),
             is_active: form.is_active,
             ...(form.provider === 'instagram' || form.thumbnailFile
               ? { thumbnail_url: thumbnailUrl, thumbnail_source: 'manual' as const }
@@ -204,7 +204,7 @@ function MediaContentPage() {
         </div>
         <button className={styles.createButton} onClick={openCreate}>
           <PlusIcon size={16} />
-          Agregar contenido
+          Agregar<span className={styles.hideMobile}> contenido</span>
         </button>
       </div>
 
@@ -409,11 +409,12 @@ function MediaContentPage() {
                   <button
                     type="button"
                     className={styles.deleteButton}
+                    aria-label="Eliminar contenido"
                     onClick={() => setDeleting(selected)}
                     disabled={deleteItem.isPending || saving}
                   >
                     <TrashIcon size={16} />
-                    Eliminar
+                    <span className={styles.deleteLabel}>Eliminar</span>
                   </button>
                 )}
                 <span className={styles.footerSpacer} />
@@ -447,6 +448,18 @@ function MediaContentPage() {
 
 function label(provider: MediaProvider): string {
   return provider === 'tiktok' ? 'TikTok' : 'Instagram'
+}
+
+// Guarda la URL sin parámetros de seguimiento (?_r=1&fbclid=..., ?igsh=...)
+function cleanUrl(url: string): string {
+  try {
+    const u = new URL(url.trim())
+    u.search = ''
+    u.hash = ''
+    return u.toString()
+  } catch {
+    return url.trim()
+  }
 }
 
 // Muestra la URL sin parámetros de seguimiento (?_r=1&fbclid=...)
