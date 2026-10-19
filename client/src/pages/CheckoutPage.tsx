@@ -11,6 +11,33 @@ import styles from './CheckoutPage.module.css'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function formatHour(time: string | null | undefined): string {
+  return time ? time.slice(0, 5) : ''
+}
+
+function StoreIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 9l1.5-5h15L21 9" />
+      <path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0" />
+      <path d="M5 12v8h14v-8" />
+      <path d="M10 20v-4h4v4" />
+    </svg>
+  )
+}
+
+function ScooterIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="6" cy="17" r="2.5" />
+      <circle cx="18" cy="17" r="2.5" />
+      <path d="M8.5 17h5l2-8h-3" />
+      <path d="M15.5 9L18 17" />
+      <path d="M4 8h5v4H4z" />
+    </svg>
+  )
+}
+
 function padOrderNumber(n: number): string {
   return String(n).padStart(4, '0')
 }
@@ -60,6 +87,21 @@ function buildWhatsAppMessage(
   }
 
   return lines.join('\n')
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+
+function CheckoutHeader({ title }: { title: string }) {
+  const navigate = useNavigate()
+  return (
+    <div className={styles.pageHeader}>
+      <button className={styles.backLink} onClick={() => navigate('/')}>
+        <span aria-hidden="true">←</span> Volver
+      </button>
+      <h1 className={styles.title}>{title}</h1>
+      <img src="/logo.png" alt="Logo" className={styles.headerLogo} />
+    </div>
+  )
 }
 
 // ─── Cart Summary ─────────────────────────────────────────────────────────────
@@ -149,7 +191,8 @@ function CheckoutPage() {
   // Redirect si el carrito está vacío
   if (items.length === 0) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#111111' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#0D0D1A' }}>
+        <CheckoutHeader title="Tu pedido" />
         <div className={styles.emptyCart} style={{ flex: 1 }}>
           <svg className={styles.emptyCartIcon} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="9" cy="20" r="1" />
@@ -170,11 +213,15 @@ function CheckoutPage() {
 
   if (!canOrder) {
     return (
-      <div className={styles.emptyCart}>
-        <p>El local no está recibiendo pedidos en este momento.</p>
-        <button className={styles.backButton} onClick={() => navigate('/')}>
-          Volver
-        </button>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#0D0D1A' }}>
+        <CheckoutHeader title="Tu pedido" />
+        <div className={styles.emptyCart} style={{ flex: 1 }}>
+          <p>El local no está recibiendo pedidos en este momento.</p>
+          <button className={styles.backButton} onClick={() => navigate('/')}>
+            Volver
+          </button>
+        </div>
+        <Footer />
       </div>
     )
   }
@@ -267,17 +314,7 @@ function CheckoutPage() {
   return (
     <>
       <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <button className={styles.backLink} onClick={() => navigate('/')}>
-          ← Volver
-        </button>
-        <h1 className={styles.title}>Confirmar pedido</h1>
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className={styles.headerLogo}
-          />
-        </div>
+      <CheckoutHeader title="Confirmar pedido" />
 
       <div className={styles.desktopLayout}>
         <div className={styles.desktopLeft}>
@@ -295,7 +332,10 @@ function CheckoutPage() {
               className={`${styles.modalityBtn} ${modality === 'pickup' ? styles.modalityBtnActive : ''}`}
               onClick={() => setModality('pickup')}
             >
-              <span className={styles.modalityBtnTitle}>🏪 Retiro en local</span>
+              <span className={styles.modalityBtnTitle}>
+                <StoreIcon />
+                Retiro en local
+              </span>
               <span className={styles.modalityBtnDesc}>Pasás a buscar tu pedido</span>
             </button>
 
@@ -305,11 +345,14 @@ function CheckoutPage() {
               onClick={() => isDeliveryAvailable && setModality('delivery')}
               disabled={!isDeliveryAvailable}
             >
-              <span className={styles.modalityBtnTitle}>🚗 Delivery</span>
+              <span className={styles.modalityBtnTitle}>
+                <ScooterIcon />
+                Delivery
+              </span>
               <span className={styles.modalityBtnDesc}>
                 {!isDeliveryAvailable
                   ? config?.delivery_enabled
-                    ? `Disponible desde las ${config.delivery_hours_open} hs`
+                    ? `Disponible desde las ${formatHour(config.delivery_hours_open)} hs`
                     : 'No disponible'
                   : deliveryCost > 0
                   ? `Costo de envío: ${formatPrice(deliveryCost)}`

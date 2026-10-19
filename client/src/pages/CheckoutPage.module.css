@@ -63,10 +63,11 @@
   display: block;
   width: 56px;
   height: 56px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 0.2rem;
   border-radius: 10px;
   flex-shrink: 0;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: #ffffff;
 }
 
 /* Empty / blocked states */
@@ -77,7 +78,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem;
   text-align: center;
   color: rgba(240, 235, 248, 0.6);
   font-size: 0.9375rem;
@@ -239,8 +240,8 @@
 }
 
 .cartTotalAmount {
-  font-weight: 700;
-  color: #F0EBF8;
+  font-weight: 800;
+  color: #ff8aca;
 }
 
 /* Modality */
@@ -282,9 +283,17 @@
 }
 
 .modalityBtnTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #F0EBF8;
+}
+
+.modalityBtnTitle svg {
+  flex-shrink: 0;
+  color: #E91E8C;
 }
 
 .modalityBtnDesc {
@@ -395,11 +404,12 @@
   font-size: 0.8125rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(160deg, #E91E8C 0%, #1A1A2E 100%);
+  background: #E91E8C;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 14px rgba(233, 30, 140, 0.3);
+  transition: opacity 0.15s ease, transform 0.1s ease;
   font-family: inherit;
   display: flex;
   align-items: center;
@@ -418,36 +428,76 @@
 
 @media (min-width: 768px) {
   .page {
-    max-width: 100%;
-    margin: 0;
-    background: #0D0D1A;
-    min-height: 100vh;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4.75rem 2rem 2rem;
+    background: transparent;
+    min-height: calc(100vh - 3rem);
   }
 
   .pageHeader {
     flex-direction: row;
     align-items: center;
-    padding: 0.75rem 2.5rem;
+    padding: 0.5rem 2rem;
     justify-content: flex-start;
-    gap: 1.5rem;
+    gap: 1.25rem;
+    background: linear-gradient(160deg, #1A1A2E 0%, #E91E8C 100%);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .backLink {
+    padding: 0.35rem 1rem;
+    font-size: 0.8125rem;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .backLink:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: #ffffff;
+  }
+
+  .title {
+    font-size: 1rem;
   }
 
   .headerLogo {
     display: block;
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 46px;
     object-fit: contain;
     margin-left: auto;
-    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
   }
 
   .desktopLayout {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
-    gap: 1rem;
-    padding: 1rem 2.5rem;
+    gap: 1.25rem;
+    padding: 0;
     align-items: start;
-    padding-bottom: 1.5rem;
+  }
+
+  .desktopRight {
+    position: sticky;
+    top: 4.75rem;
+  }
+
+  .input,
+  .textarea {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 9px;
+  }
+
+  .modalityBtnTitle {
+    font-size: 0.875rem;
+  }
+
+  .modalityBtnDesc {
+    font-size: 0.75rem;
   }
 
   .desktopLeft {
@@ -483,7 +533,6 @@
     display: block;
     width: 64px;
     height: 64px;
-    object-fit: cover;
     border-radius: 12px;
     flex-shrink: 0;
   }
@@ -567,5 +616,117 @@
 
   .modalityBtn {
     flex: 1;
+  }
+}
+
+/* Mobile: header en una fila, bloques como tarjetas y campos de 16px */
+@media (max-width: 767px) {
+  .page {
+    gap: 0.75rem;
+    padding: 4.5rem 0.75rem 1.25rem;
+    background: #0D0D1A;
+  }
+
+  .pageHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(160deg, #1A1A2E 0%, #E91E8C 100%);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .backLink {
+    padding: 0.3rem 0.8rem;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .headerLogo {
+    display: block;
+    width: 60px;
+    height: 40px;
+    object-fit: contain;
+    margin-left: auto;
+  }
+
+  .form {
+    gap: 0.75rem;
+  }
+
+  .section,
+  .finalTotal {
+    padding: 0.9rem;
+    margin: 0;
+    background-color: #1E1A2E;
+    border: 1px solid rgba(233, 30, 140, 0.2);
+    border-radius: 14px;
+  }
+
+  .sectionTitle {
+    font-size: 0.9375rem;
+  }
+
+  .cartItemImage {
+    width: 60px;
+    height: 60px;
+  }
+
+  .cartItemName,
+  .cartItemPrice {
+    font-size: 0.9375rem;
+  }
+
+  .qtyBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .removeBtn {
+    padding: 0.5rem;
+  }
+
+  .modalityBtn {
+    padding: 0.65rem 0.8rem;
+  }
+
+  .modalityBtnTitle {
+    font-size: 0.9375rem;
+  }
+
+  .modalityBtnDesc {
+    font-size: 0.75rem;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+  }
+
+  .input,
+  .textarea {
+    padding: 0.65rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .errorText {
+    margin: 0;
+  }
+
+  .submitButton {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 10;
+    margin: 0.25rem 0 0;
+    padding: 0.85rem;
+    font-size: 0.9375rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(233, 30, 140, 0.4);
   }
 }
