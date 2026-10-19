@@ -1,0 +1,17 @@
+# Pendientes
+
+## Funcionalidad
+- [ ] Página de detalle de producto (también resuelve variantes con nombre base idéntico, ej. sabores de Doritos).
+- [ ] Recordar la última modalidad (pickup/delivery) y pre-seleccionarla en checkout (`last_modality` ya existe en `customers`).
+- [ ] Aviso en el carrito: "te faltan $X para el mínimo de delivery" (`delivery_minimum_order`).
+- [ ] Badge "Nuevo" para productos recientes (vigencia temporal desde `created_at`).
+- [ ] Revisar que el buscador del header distinga productos con el mismo nombre y distinta variante en la descripción.
+
+## Técnico
+- [ ] Code-splitting del bundle de admin (>500 kB): `import()` dinámico o `manualChunks`.
+- [ ] Mover `OrderWithItemsSchema` a `shared`.
+- [ ] Unificar (o al menos mantener sincronizados) los schemas de pedido de `shared` y de la Edge Function; sumar `is_archived` si llegara a hacer falta.
+- [ ] Versionar el esquema base de la DB en `supabase/migrations/` (hoy solo hay migraciones desde sept 2026).
+
+## Estética
+- [ ] (a definir con Garel)
