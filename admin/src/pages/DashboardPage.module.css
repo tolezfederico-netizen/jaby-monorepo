@@ -371,6 +371,11 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* La tarjeta de ventas ocupa todo el ancho y no queda sola a medias */
+  .statRevenue {
+    grid-column: 1 / -1;
+  }
+
   .quickLinks {
     grid-template-columns: 1fr;
   }

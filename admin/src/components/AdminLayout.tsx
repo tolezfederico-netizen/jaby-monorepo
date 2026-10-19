@@ -34,6 +34,7 @@ function AdminLayout() {
 
   return (
     <div className={styles.shell}>
+      <div className={styles.mobileBar} aria-hidden="true" />
       <button
         className={styles.hamburger}
         onClick={() => setIsSidebarOpen(true)}

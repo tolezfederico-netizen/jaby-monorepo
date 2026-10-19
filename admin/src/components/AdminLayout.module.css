@@ -135,12 +135,30 @@
   display: none;
 }
 
+/* Franja fija detrás del botón del menú — solo mobile */
+.mobileBar {
+  display: none;
+}
+
 /* Overlay — solo mobile */
 .overlay {
   display: none;
 }
 
 @media (max-width: 768px) {
+  /* El contenido pasa por debajo de la franja en vez de verse a través del botón */
+  .mobileBar {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5rem;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    z-index: 190;
+  }
+
   .hamburger {
     display: flex;
     align-items: center;
@@ -188,4 +206,5 @@
     padding: 1rem;
     padding-top: 3.5rem;
   }
+
 }
