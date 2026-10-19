@@ -44,6 +44,11 @@
   .section + .section .form {
     border-left: none;
   }
+
+  /* Apiladas, cada sección lleva su botón de guardar al final, sin quedar fijo */
+  .formFooter {
+    position: static;
+  }
 }
 
 
@@ -114,6 +119,12 @@
 @media (max-width: 520px) {
   .fieldRow {
     grid-template-columns: 1fr;
+  }
+
+  /* Horarios, importes y barrio/municipio son cortos: siguen de a dos */
+  .fieldRow.fieldRowCompact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
   }
 }
 

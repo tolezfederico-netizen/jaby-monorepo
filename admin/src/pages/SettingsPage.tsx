@@ -122,7 +122,7 @@ function StoreInfoSection() {
               className={styles.input} required disabled={busy} />
           </div>
 
-          <div className={styles.fieldRow}>
+          <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
             <div className={styles.field}>
               <label className={styles.label}>Barrio</label>
               <input name="neighborhood" value={form.neighborhood} onChange={handleField}
@@ -137,7 +137,7 @@ function StoreInfoSection() {
 
           <div className={styles.group}>
             <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de atención</span>
-            <div className={styles.fieldRow}>
+            <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
               <div className={styles.field}>
                 <label className={styles.label}>Apertura</label>
                 <input name="business_hours_open" type="time" value={form.business_hours_open}
@@ -307,7 +307,7 @@ function DeliverySection() {
           <div className={`${styles.deliveryFields} ${form.is_enabled ? '' : styles.dimmed}`}>
             <div className={styles.group}>
               <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de delivery</span>
-              <div className={styles.fieldRow}>
+              <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
                 <div className={styles.field}>
                   <label className={styles.label}>Inicio</label>
                   <input name="delivery_hours_open" type="time" value={form.delivery_hours_open}
@@ -321,7 +321,7 @@ function DeliverySection() {
               </div>
             </div>
 
-            <div className={styles.fieldRow}>
+            <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
               <div className={styles.field}>
                 <label className={styles.label}>Costo de envío</label>
                 <div className={styles.moneyInput}>
