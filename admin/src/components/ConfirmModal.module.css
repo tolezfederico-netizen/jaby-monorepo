@@ -56,6 +56,11 @@
   color: var(--color-error);
 }
 
+.iconWarning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
 .title {
   font-size: 1.0625rem;
   font-weight: 700;
@@ -115,5 +120,15 @@
 
 .confirmButtonDanger:hover {
   background: var(--color-error);
+  opacity: 0.9;
+}
+
+.confirmButtonWarning {
+  background: var(--color-warning);
+  color: #fff;
+}
+
+.confirmButtonWarning:hover {
+  background: var(--color-warning);
   opacity: 0.9;
 }

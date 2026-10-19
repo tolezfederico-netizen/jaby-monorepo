@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useSearchParams } from 'react-router-dom'
 import {
   useProducts,
@@ -10,6 +11,17 @@ import {
 import { useCategories } from '../hooks/useCategories'
 import type { ProductType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
+import {
+  PauseIcon,
+  PlayIcon,
+  StarIcon,
+  PlusIcon,
+  CloseIcon,
+  EditIcon,
+  ImageIcon,
+  TrashIcon,
+  AlertIcon,
+} from '../components/icons'
 import styles from './ProductsPage.module.css'
 
 interface ProductFormData {
@@ -50,6 +62,13 @@ function productToForm(p: ProductType): ProductFormData {
   }
 }
 
+type StatusFilter = 'all' | 'active' | 'paused' | 'out_of_stock'
+
+const formatPrice = (price: number | null | undefined): string =>
+  price == null
+    ? ''
+    : `$${price.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`
+
 function ProductsPage() {
   const MAX_FEATURED_PRODUCTS = 4
 
@@ -66,12 +85,25 @@ function ProductsPage() {
   const [form, setForm] = useState<ProductFormData>(EMPTY_FORM)
   const [formError, setFormError] = useState<string | null>(null)
   const [productToDelete, setProductToDelete] = useState<ProductType | null>(null)
+  const [productToPause, setProductToPause] = useState<ProductType | null>(null)
+  const [confirmPauseOnSave, setConfirmPauseOnSave] = useState(false)
   const [searchName, setSearchName] = useState('')
   const [searchCategoryId, setSearchCategoryId] = useState('')
-  const isOutOfStockOnly = searchParams.get('filter') === 'out_of_stock'
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(
+    searchParams.get('filter') === 'out_of_stock' ? 'out_of_stock' : 'all'
+  )
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<number | undefined>(undefined)
 
-  const isPanelActive = isCreating || selected !== null
-  const isMobile = useIsMobile()
+  const isDialogOpen = isCreating || selected !== null
+
+  const showToast = (message: string) => {
+    setToast(message)
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(null), 3500)
+  }
+
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
   const openCreate = () => {
     setSelected(null)
@@ -87,12 +119,33 @@ function ProductsPage() {
     setSelected(product)
   }
 
-  const closePanel = () => {
+  const closeDialog = () => {
     setSelected(null)
     setIsCreating(false)
     setForm(EMPTY_FORM)
     setFormError(null)
+    setConfirmPauseOnSave(false)
   }
+
+  // Esc cierra la ventana (si no hay un modal de confirmación encima)
+  useEffect(() => {
+    if (!isDialogOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !productToDelete && !confirmPauseOnSave) closeDialog()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isDialogOpen, productToDelete, confirmPauseOnSave])
+
+  const imagePreview = useMemo(
+    () => (form.imageFile ? URL.createObjectURL(form.imageFile) : form.image_url),
+    [form.imageFile, form.image_url]
+  )
+  useEffect(() => {
+    return () => {
+      if (form.imageFile && imagePreview) URL.revokeObjectURL(imagePreview)
+    }
+  }, [form.imageFile, imagePreview])
 
   const handleField = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -116,25 +169,13 @@ function ProductsPage() {
     setFormError(null)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const featuredOthers = (products ?? []).filter(
+    (p) => p.is_featured && p.id !== selected?.id
+  ).length
+  const featuredLimitReached = featuredOthers >= MAX_FEATURED_PRODUCTS
+
+  const saveForm = async () => {
     setFormError(null)
-
-    if (!form.name.trim()) { setFormError('El nombre es obligatorio.'); return }
-    if (!form.category_id) { setFormError('Seleccioná una categoría.'); return }
-
-    if (form.is_featured) {
-      const featuredCount = (products ?? []).filter(
-        (p) => p.is_featured && p.id !== selected?.id
-      ).length
-      if (featuredCount >= MAX_FEATURED_PRODUCTS) {
-        setFormError(
-          `Solo podés tener hasta ${MAX_FEATURED_PRODUCTS} productos destacados en simultáneo.`
-        )
-        return
-      }
-    }
-
     try {
       let finalImageUrl = form.image_url || undefined
       if (form.imageFile) {
@@ -157,27 +198,87 @@ function ProductsPage() {
       } else if (selected) {
         await updateProduct.mutateAsync({ id: selected.id, payload })
       }
-      closePanel()
+      closeDialog()
     } catch {
       setFormError('Ocurrió un error al guardar. Intentá de nuevo.')
     }
   }
 
-  const handleToggleActive = async (product: ProductType, e: React.MouseEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormError(null)
+
+    if (!form.name.trim()) { setFormError('El nombre es obligatorio.'); return }
+    if (!form.category_id) { setFormError('Seleccioná una categoría.'); return }
+
+    if (form.is_featured && featuredLimitReached) {
+      setFormError(
+        `Solo podés tener hasta ${MAX_FEATURED_PRODUCTS} productos destacados en simultáneo.`
+      )
+      return
+    }
+
+    // Pausar un producto activo desde el formulario también pide confirmación
+    if (!isCreating && selected?.is_active && !form.is_active) {
+      setConfirmPauseOnSave(true)
+      return
+    }
+
+    void saveForm()
+  }
+
+  const handleToggleActive = (product: ProductType, e: React.MouseEvent) => {
     e.stopPropagation()
     if (updateProduct.isPending) return
+    if (product.is_active) {
+      // Pausar pide confirmación para evitar pausas accidentales
+      setProductToPause(product)
+      return
+    }
+    void setActive(product, true)
+  }
+
+  const setActive = async (product: ProductType, isActive: boolean) => {
     try {
       await updateProduct.mutateAsync({
         id: product.id,
-        payload: { is_active: !product.is_active },
+        payload: { is_active: isActive },
       })
+      showToast(isActive ? `"${product.name}" ya está activo.` : `"${product.name}" quedó pausado.`)
     } catch {
-      setFormError('Error al cambiar el estado del producto. Intentá de nuevo.')
+      showToast('No se pudo cambiar el estado del producto. Intentá de nuevo.')
     }
   }
 
-  const handleDeleteRequest = (product: ProductType, e: React.MouseEvent) => {
+  const handlePauseConfirm = async () => {
+    if (!productToPause) return
+    const product = productToPause
+    setProductToPause(null)
+    await setActive(product, false)
+  }
+
+  const handleToggleFeatured = async (product: ProductType, e: React.MouseEvent) => {
     e.stopPropagation()
+    if (updateProduct.isPending) return
+    if (!product.is_featured) {
+      const count = (products ?? []).filter((p) => p.is_featured).length
+      if (count >= MAX_FEATURED_PRODUCTS) {
+        showToast(`Solo podés tener hasta ${MAX_FEATURED_PRODUCTS} productos destacados en simultáneo.`)
+        return
+      }
+    }
+    try {
+      await updateProduct.mutateAsync({
+        id: product.id,
+        payload: { is_featured: !product.is_featured },
+      })
+    } catch {
+      showToast('No se pudo cambiar el destacado. Intentá de nuevo.')
+    }
+  }
+
+  const handleDeleteRequest = (product: ProductType, e?: React.MouseEvent) => {
+    e?.stopPropagation()
     setProductToDelete(product)
   }
 
@@ -185,305 +286,426 @@ function ProductsPage() {
     if (!productToDelete) return
     try {
       await deleteProduct.mutateAsync(productToDelete.id)
-      if (selected?.id === productToDelete.id) closePanel()
+      if (selected?.id === productToDelete.id) closeDialog()
       setProductToDelete(null)
     } catch {
-      setFormError('Error al eliminar el producto. Intentá de nuevo.')
+      showToast('Error al eliminar el producto. Intentá de nuevo.')
       setProductToDelete(null)
     }
   }
 
-  const handleDeleteCancel = () => setProductToDelete(null)
-
   const isSaving = createProduct.isPending || updateProduct.isPending || uploadImage.isPending
 
-  const filteredProducts = (products ?? []).filter((p) => {
+  const all = products ?? []
+  const counts = {
+    all: all.length,
+    active: all.filter((p) => p.is_active).length,
+    paused: all.filter((p) => !p.is_active).length,
+    out_of_stock: all.filter((p) => p.is_out_of_stock).length,
+  }
+
+  const statusOptions: { key: StatusFilter; label: string }[] = [
+    { key: 'all', label: 'Todos' },
+    { key: 'active', label: 'Activos' },
+    { key: 'paused', label: 'Pausados' },
+    { key: 'out_of_stock', label: 'Agotados' },
+  ]
+
+  const changeStatusFilter = (key: StatusFilter) => {
+    setStatusFilter(key)
+    if (searchParams.get('filter')) setSearchParams({})
+  }
+
+  const filteredProducts = all.filter((p) => {
     const matchesName = p.name.toLowerCase().includes(searchName.toLowerCase().trim())
     const matchesCategory = searchCategoryId === '' || p.category_id === searchCategoryId
-    return matchesName && matchesCategory && (!isOutOfStockOnly || p.is_out_of_stock)
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && p.is_active) ||
+      (statusFilter === 'paused' && !p.is_active) ||
+      (statusFilter === 'out_of_stock' && p.is_out_of_stock)
+    return matchesName && matchesCategory && matchesStatus
   })
+
+  const categoryName = (id: string) => categories?.find((c) => c.id === id)?.name ?? '—'
 
   return (
     <div className={styles.page}>
-      {/* Lista */}
-      <div className={styles.listColumn}>
-        <div className={styles.listHeader}>
-          <h1 className={styles.title}>Productos</h1>
-          {!isPanelActive && isMobile && (
-            <button className={styles.createButton} onClick={openCreate}>
-              + Nuevo producto
-            </button>
-          )}
-        </div>
+      {/* Barra superior fija */}
+      <div className={styles.filtersWrapper}>
+        <div className={styles.filtersTop}>
+          <label className={styles.searchBox}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Buscar por nombre..."
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+          </label>
 
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar por nombre..."
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <select
-            className={styles.searchSelect}
-            value={searchCategoryId}
-            onChange={(e) => setSearchCategoryId(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {categories?.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-          {isOutOfStockOnly && (
-            <button
-              type="button"
-              className={styles.outOfStockFilter}
-              onClick={() => setSearchParams({})}
-            >
-              Agotados ×
-            </button>
-          )}
-        </div>
-
-        {isLoading ? (
-          <p className={styles.loadingText}>Cargando productos...</p>
-        ) : !products?.length ? (
-          <p className={styles.emptyText}>No hay productos todavía.</p>
-        ) : filteredProducts.length === 0 ? (
-          <p className={styles.emptyText}>No hay productos que coincidan con la búsqueda.</p>
-        ) : (
-          <ul className={styles.list}>
-            {filteredProducts.map((product) => (
-              <li
-                key={product.id}
-                className={`${styles.item} ${
-                  selected?.id === product.id ? styles.itemSelected : ''
-                } ${!product.is_active ? styles.itemInactive : ''}`}
-                onClick={() => openEdit(product)}
+          <span className={styles.filterLabel}>Estado</span>
+          <div className={styles.statusGroup}>
+            {statusOptions.map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                className={`${styles.chip} ${statusFilter === o.key ? styles.chipActive : ''}`}
+                onClick={() => changeStatusFilter(o.key)}
               >
-                <div className={styles.itemMain}>
-                  {product.image_url && (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className={styles.itemThumb}
-                      loading="lazy"
-                    />
-                  )}
-                  <div className={styles.itemInfo}>
-                    <span className={styles.itemName}>{product.name}</span>
-                    <span className={styles.itemMeta}>
-                      {categories?.find((c) => c.id === product.category_id)?.name ?? '—'}
-                      {product.price != null && ` · $${product.price}`}
-                      {product.is_featured && (
-                        <span className={styles.featuredTag}>Destacado</span>
-                      )}
-                      {product.is_out_of_stock && (
-                        <span className={styles.outOfStockTag}>Agotado</span>
-                      )}
-                    </span>
-                  </div>
-                  <span
-                    className={`${styles.activeBadge} ${
-                      product.is_active ? styles.activeBadgeOn : styles.activeBadgeOff
-                    }`}
-                  >
-                    {product.is_active ? 'Activo' : 'Pausado'}
-                  </span>
-                </div>
-
-                <div className={styles.itemActions}>
-                  <button
-                    className={`${styles.actionBtn} ${
-                      product.is_active ? styles.actionBtnPause : styles.actionBtnActivate
-                    }`}
-                    onClick={(e) => handleToggleActive(product, e)}
-                    disabled={updateProduct.isPending}
-                  >
-                    {product.is_active ? 'Pausar' : 'Activar'}
-                  </button>
-                  <button
-                    className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
-                    onClick={(e) => handleDeleteRequest(product, e)}
-                    disabled={deleteProduct.isPending}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </li>
+                {o.label}
+                <span className={styles.chipCount}>{counts[o.key]}</span>
+              </button>
             ))}
-          </ul>
-        )}
+          </div>
+
+          <button className={styles.createButton} onClick={openCreate}>
+            <PlusIcon size={16} />
+            Nuevo producto
+          </button>
+        </div>
+
+        <div className={`${styles.chipRow} ${styles.categoryRow}`}>
+          <button
+            type="button"
+            className={`${styles.chip} ${searchCategoryId === '' ? styles.chipActive : ''}`}
+            onClick={() => setSearchCategoryId('')}
+          >
+            Todas las categorías
+          </button>
+          {categories?.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className={`${styles.chip} ${searchCategoryId === c.id ? styles.chipActive : ''}`}
+              onClick={() => setSearchCategoryId(searchCategoryId === c.id ? '' : c.id)}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Panel lateral — siempre visible */}
-      {isPanelActive && isMobile && (
-        <div
-          className={styles.overlay}
-          onClick={closePanel}
-        />
-      )}
-      <div className={`${styles.panel} ${isPanelActive && isMobile ? styles.panelVisible : ''}`}>
-        {!isPanelActive ? (
-          <div className={styles.panelEmpty}>
-            <span className={styles.panelEmptyIcon}>📦</span>
-            <p className={styles.panelEmptyTitle}>Ningún producto seleccionado</p>
-            <p className={styles.panelEmptyDesc}>
-              Seleccioná un producto de la lista para editarlo, o creá uno nuevo.
-            </p>
-            <button className={styles.createButton} onClick={openCreate}>
-              + Nuevo producto
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className={styles.panelHeader}>
-              <h2 className={styles.panelTitle}>
-                {isCreating ? 'Nuevo producto' : 'Editar producto'}
-              </h2>
-              <button className={styles.closeButton} onClick={closePanel}>✕</button>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.field}>
-                <label className={styles.label}>Nombre *</label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleField}
-                  className={styles.input}
-                  placeholder="Ej: Cerveza Quilmes 1L"
-                  disabled={isSaving}
-                  required
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label}>Descripción</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleField}
-                  className={styles.textarea}
-                  placeholder="Descripción breve del producto"
-                  rows={2}
-                  disabled={isSaving}
-                />
-              </div>
-
-              <div className={styles.fieldRow}>
-                <div className={styles.field}>
-                  <label className={styles.label}>Precio</label>
-                  <input
-                    name="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.price}
-                    onChange={handleField}
-                    className={styles.input}
-                    placeholder="0"
-                    disabled={isSaving}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label}>Categoría *</label>
-                  <select
-                    name="category_id"
-                    value={form.category_id}
-                    onChange={handleField}
-                    className={styles.select}
-                    disabled={isSaving}
-                    required
-                  >
-                    <option value="">Seleccionar</option>
-                    {categories?.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label}>Imagen del producto</label>
-                {(form.imageFile || form.image_url) && (
+      {/* Lista */}
+      {isLoading ? (
+        <p className={styles.loadingText}>Cargando productos...</p>
+      ) : !products?.length ? (
+        <p className={styles.emptyText}>No hay productos todavía.</p>
+      ) : filteredProducts.length === 0 ? (
+        <p className={styles.emptyText}>No hay productos que coincidan con los filtros.</p>
+      ) : (
+        <ul className={styles.list}>
+          {filteredProducts.map((product) => (
+            <li
+              key={product.id}
+              className={`${styles.card} ${!product.is_active ? styles.cardInactive : ''}`}
+              onClick={() => openEdit(product)}
+            >
+              <div className={styles.cardImageWrap}>
+                {product.image_url ? (
                   <img
-                    src={form.imageFile ? URL.createObjectURL(form.imageFile) : form.image_url}
-                    alt="Preview"
-                    className={styles.imagePreview}
+                    src={product.image_url}
+                    alt={product.name}
+                    className={styles.cardImage}
+                    loading="lazy"
                   />
+                ) : (
+                  <span className={styles.cardImagePlaceholder}>
+                    <ImageIcon size={32} />
+                  </span>
                 )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageFile}
-                  disabled={isSaving}
-                  className={styles.inputFile}
-                />
-                {uploadImage.isPending && (
-                  <p className={styles.uploadingText}>Subiendo imagen...</p>
-                )}
+                <button
+                  type="button"
+                  className={`${styles.starButton} ${product.is_featured ? styles.starButtonOn : ''}`}
+                  onClick={(e) => handleToggleFeatured(product, e)}
+                  title={product.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+                  aria-label={product.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+                >
+                  <StarIcon size={16} filled={product.is_featured} />
+                </button>
+                {!product.is_active && <span className={styles.pausedRibbon}>Pausado</span>}
               </div>
 
-              <div className={styles.checkboxGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    name="is_active"
-                    type="checkbox"
-                    checked={form.is_active}
-                    onChange={handleField}
-                    disabled={isSaving}
-                  />
-                  Producto activo
-                </label>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    name="is_featured"
-                    type="checkbox"
-                    checked={form.is_featured}
-                    onChange={handleField}
-                    disabled={isSaving}
-                  />
-                  Producto destacado
-                </label>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    name="is_out_of_stock"
-                    type="checkbox"
-                    checked={form.is_out_of_stock}
-                    onChange={handleField}
-                    disabled={isSaving}
-                  />
-                  Agotado
-                </label>
+              <div className={styles.cardBody}>
+                <span className={styles.cardName} title={product.name}>{product.name}</span>
+                <span className={styles.cardCategory}>{categoryName(product.category_id)}</span>
+                <div className={styles.cardTags}>
+                  <span className={styles.cardPrice}>
+                    {product.price != null ? formatPrice(product.price) : 'Sin precio'}
+                  </span>
+                  {product.is_out_of_stock && <span className={styles.tagOut}>Agotado</span>}
+                  {product.is_featured && <span className={styles.tagFeatured}>Destacado</span>}
+                </div>
               </div>
 
-              {formError && (
-                <p className={styles.formError} role="alert">{formError}</p>
-              )}
+              <div className={styles.cardFooter}>
+                <button
+                  className={`${styles.iconBtn} ${
+                    product.is_active ? styles.iconBtnPause : styles.iconBtnActivate
+                  }`}
+                  onClick={(e) => handleToggleActive(product, e)}
+                  disabled={updateProduct.isPending}
+                  title={product.is_active ? 'Pausar' : 'Activar'}
+                >
+                  {product.is_active ? <PauseIcon size={15} /> : <PlayIcon size={15} />}
+                  {product.is_active ? 'Pausar' : 'Activar'}
+                </button>
+                <button
+                  className={styles.iconBtn}
+                  onClick={(e) => { e.stopPropagation(); openEdit(product) }}
+                  title="Editar"
+                  aria-label="Editar"
+                >
+                  <EditIcon size={15} />
+                </button>
+                <button
+                  className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
+                  onClick={(e) => handleDeleteRequest(product, e)}
+                  disabled={deleteProduct.isPending}
+                  title="Eliminar"
+                  aria-label="Eliminar"
+                >
+                  <TrashIcon size={15} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-              <div className={styles.formActions}>
+      {/* Ventana centrada de edición / creación */}
+      {isDialogOpen &&
+        createPortal(
+          <>
+            <div className={styles.overlay} onClick={closeDialog} />
+            <form
+              className={styles.dialog}
+              onSubmit={handleSubmit}
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className={styles.dialogHeader}>
+                <h2 className={styles.dialogTitle}>
+                  {isCreating ? 'Nuevo producto' : 'Editar producto'}
+                </h2>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={closeDialog}
+                  aria-label="Cerrar"
+                >
+                  <CloseIcon size={18} />
+                </button>
+              </div>
+
+              <div className={styles.dialogBody}>
+                <div className={styles.imageCol}>
+                  <div className={styles.imageBox}>
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Vista previa" className={styles.imagePreview} />
+                    ) : (
+                      <span className={styles.imageEmpty}>
+                        <ImageIcon size={36} />
+                        Sin imagen
+                      </span>
+                    )}
+                  </div>
+                  <label className={styles.fileButton}>
+                    {imagePreview ? 'Cambiar imagen' : 'Subir imagen'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFile}
+                      disabled={isSaving}
+                      className={styles.fileInput}
+                    />
+                  </label>
+                  {form.imageFile && (
+                    <span className={styles.fileName}>{form.imageFile.name}</span>
+                  )}
+                  {uploadImage.isPending && (
+                    <p className={styles.uploadingText}>Subiendo imagen...</p>
+                  )}
+                </div>
+
+                <div className={styles.fieldsCol}>
+                  <div className={styles.field}>
+                    <label className={styles.label}>Nombre *</label>
+                    <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleField}
+                      className={styles.input}
+                      placeholder="Ej: Cerveza Quilmes 1L"
+                      disabled={isSaving}
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label className={styles.label}>Descripción</label>
+                    <textarea
+                      name="description"
+                      value={form.description}
+                      onChange={handleField}
+                      className={styles.textarea}
+                      placeholder="Descripción breve del producto"
+                      rows={2}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className={styles.fieldRow}>
+                    <div className={styles.field}>
+                      <label className={styles.label}>Precio</label>
+                      <input
+                        name="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={form.price}
+                        onChange={handleField}
+                        className={styles.input}
+                        placeholder="0"
+                        disabled={isSaving}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.label}>Categoría *</label>
+                      <select
+                        name="category_id"
+                        value={form.category_id}
+                        onChange={handleField}
+                        className={styles.select}
+                        disabled={isSaving}
+                        required
+                      >
+                        <option value="">Seleccionar</option>
+                        {categories?.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className={styles.toggleList}>
+                    <label className={styles.toggleRow}>
+                      <span>
+                        <strong>Producto activo</strong>
+                        <small>Si está pausado, no se muestra en la tienda.</small>
+                      </span>
+                      <input
+                        name="is_active"
+                        type="checkbox"
+                        className={styles.switch}
+                        checked={form.is_active}
+                        onChange={handleField}
+                        disabled={isSaving}
+                      />
+                    </label>
+                    <label className={styles.toggleRow}>
+                      <span>
+                        <strong>Destacado</strong>
+                        <small>
+                          Aparece en el carrusel de la tienda ({featuredOthers + (form.is_featured ? 1 : 0)}/
+                          {MAX_FEATURED_PRODUCTS}).
+                        </small>
+                      </span>
+                      <input
+                        name="is_featured"
+                        type="checkbox"
+                        className={styles.switch}
+                        checked={form.is_featured}
+                        onChange={handleField}
+                        disabled={isSaving || (featuredLimitReached && !form.is_featured)}
+                      />
+                    </label>
+                    <label className={styles.toggleRow}>
+                      <span>
+                        <strong>Agotado</strong>
+                        <small>Se muestra en la tienda pero no se puede pedir.</small>
+                      </span>
+                      <input
+                        name="is_out_of_stock"
+                        type="checkbox"
+                        className={styles.switch}
+                        checked={form.is_out_of_stock}
+                        onChange={handleField}
+                        disabled={isSaving}
+                      />
+                    </label>
+                    {featuredLimitReached && !form.is_featured && (
+                      <p className={styles.hintWarning}>
+                        Ya hay {MAX_FEATURED_PRODUCTS} productos destacados. Quitá uno para poder destacar este.
+                      </p>
+                    )}
+                  </div>
+
+                  {formError && (
+                    <p className={styles.formError} role="alert">
+                      <AlertIcon size={16} />
+                      {formError}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.dialogFooter}>
+                {!isCreating && selected && (
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteRequest(selected)}
+                    disabled={isSaving}
+                  >
+                    <TrashIcon size={16} />
+                    Eliminar
+                  </button>
+                )}
+                <span className={styles.footerSpacer} />
                 <button
                   type="button"
                   className={styles.cancelButton}
-                  onClick={closePanel}
+                  onClick={closeDialog}
                   disabled={isSaving}
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className={styles.saveButton}
-                  disabled={isSaving}
-                >
+                <button type="submit" className={styles.saveButton} disabled={isSaving}>
                   {isSaving ? 'Guardando...' : isCreating ? 'Crear producto' : 'Guardar cambios'}
                 </button>
               </div>
             </form>
-          </>
+          </>,
+          document.body
         )}
-      </div>
+
+      {toast && <div className={styles.toast} role="status">{toast}</div>}
+
+      {productToPause && (
+        <ConfirmModal
+          title="Pausar producto"
+          message={`¿Pausar "${productToPause.name}"? Dejará de verse en la tienda hasta que lo actives de nuevo.`}
+          confirmLabel="Pausar"
+          isWarning={true}
+          onConfirm={handlePauseConfirm}
+          onCancel={() => setProductToPause(null)}
+        />
+      )}
+
+      {confirmPauseOnSave && (
+        <ConfirmModal
+          title="Pausar producto"
+          message={`Vas a guardar "${form.name.trim() || selected?.name}" como pausado. Dejará de verse en la tienda hasta que lo actives de nuevo.`}
+          confirmLabel="Pausar y guardar"
+          isWarning={true}
+          onConfirm={() => {
+            setConfirmPauseOnSave(false)
+            void saveForm()
+          }}
+          onCancel={() => setConfirmPauseOnSave(false)}
+        />
+      )}
 
       {productToDelete && (
         <ConfirmModal
@@ -492,24 +714,11 @@ function ProductsPage() {
           confirmLabel="Eliminar"
           isDanger={true}
           onConfirm={handleDeleteConfirm}
-          onCancel={handleDeleteCancel}
+          onCancel={() => setProductToDelete(null)}
         />
       )}
     </div>
   )
-}
-
-function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)')
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
-
-  return isMobile
 }
 
 export default ProductsPage
