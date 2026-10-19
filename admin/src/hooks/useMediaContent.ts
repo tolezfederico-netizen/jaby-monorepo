@@ -24,19 +24,22 @@ export function useCreateMediaContent() {
 
   return useMutation({
     mutationFn: async (payload: CreateMediaContentPayload) => {
-      const thumbnail_url = payload.provider === 'tiktok'
-        ? await fetchAutoThumbnail(payload.url, payload.provider)
-        : payload.thumbnail_url ?? null
+      const isManual = payload.thumbnail_source === 'manual' && !!payload.thumbnail_url
+      const thumbnail_url = isManual
+        ? payload.thumbnail_url ?? null
+        : payload.provider === 'tiktok'
+          ? await fetchAutoThumbnail(payload.url, payload.provider)
+          : payload.thumbnail_url ?? null
 
       const item = await createMediaContent({
         ...payload,
         thumbnail_url,
-        thumbnail_source: payload.provider === 'tiktok' ? 'auto' : 'manual',
+        thumbnail_source: isManual || payload.provider !== 'tiktok' ? 'manual' : 'auto',
       })
       return {
         item,
         thumbnailWarning: payload.provider === 'tiktok' && !thumbnail_url
-          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok o la función de servidor. El contenido se guardó sin imagen; intentá reintentar más tarde.'
+          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. El contenido se guardó sin imagen: editalo y subí una captura del video.'
           : null,
       }
     },
@@ -49,19 +52,19 @@ export function useUpdateMediaContent() {
 
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: UpdateMediaContentPayload }) => {
-      const thumbnail_url = payload.provider === 'tiktok' && payload.url
-        ? await fetchAutoThumbnail(payload.url, payload.provider)
-        : undefined
-      const hasAutoThumbnail = payload.provider === 'tiktok' && payload.url
+      const isManual = payload.thumbnail_source === 'manual'
+      const tryAuto = !isManual && payload.provider === 'tiktok' && !!payload.url
+      const thumbnail_url = tryAuto ? await fetchAutoThumbnail(payload.url as string, payload.provider as MediaProvider) : undefined
 
+      // Si el automático falla no se pisa la imagen que ya tuviera cargada
       const item = await updateMediaContent(id, {
         ...payload,
-        ...(hasAutoThumbnail ? { thumbnail_url, thumbnail_source: 'auto' as const } : {}),
+        ...(tryAuto && thumbnail_url ? { thumbnail_url, thumbnail_source: 'auto' as const } : {}),
       })
       return {
         item,
-        thumbnailWarning: hasAutoThumbnail && !thumbnail_url
-          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok o la función de servidor. Los cambios se guardaron sin imagen; intentá reintentar más tarde.'
+        thumbnailWarning: tryAuto && !thumbnail_url
+          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. Los cambios se guardaron; si falta la imagen, subí una captura del video.'
           : null,
       }
     },

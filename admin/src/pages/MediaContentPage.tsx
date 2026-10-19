@@ -1,8 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { detectProvider, extractExternalId } from '@jaby/shared'
 import type { MediaContentType, MediaProvider } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
 import { useCreateMediaContent, useDeleteMediaContent, useMediaContent, useUpdateMediaContent, useUploadMediaThumbnail } from '../hooks/useMediaContent'
+import {
+  AlertIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CloseIcon,
+  ImageIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  TrashIcon,
+} from '../components/icons'
 import styles from './MediaContentPage.module.css'
 
 interface FormData {
@@ -28,19 +40,30 @@ function MediaContentPage() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<MediaContentType | null>(null)
-  const [mobile, setMobile] = useState(window.innerWidth <= 768)
+  const [toast, setToast] = useState<string | null>(null)
+  const toastTimer = useRef<number | undefined>(undefined)
   const list = [...(items ?? [])].sort((a, b) => a.order - b.order)
   const tiktokCount = list.filter((item) => item.provider === 'tiktok').length
   const instagramCount = list.filter((item) => item.provider === 'instagram').length
   const panelOpen = creating || selected !== null
   const saving = createItem.isPending || updateItem.isPending || uploadThumbnail.isPending
 
+  const showToast = (message: string) => {
+    setToast(message)
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(null), 4000)
+  }
+
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 768px)')
-    const onChange = (event: MediaQueryListEvent) => setMobile(event.matches)
-    query.addEventListener('change', onChange)
-    return () => query.removeEventListener('change', onChange)
-  }, [])
+    if (!panelOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !deleting) reset()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [panelOpen, deleting])
 
   const reset = () => {
     setSelected(null)
@@ -92,7 +115,7 @@ function MediaContentPage() {
     setError(null)
     try {
       let thumbnailUrl = form.thumbnail_url
-      if (form.provider === 'instagram' && form.thumbnailFile) {
+      if (form.thumbnailFile) {
         thumbnailUrl = await uploadThumbnail.mutateAsync({
           file: form.thumbnailFile,
           provider: form.provider,
@@ -105,8 +128,8 @@ function MediaContentPage() {
           url: form.url.trim(),
           order: items?.length ?? 0,
           is_active: form.is_active,
-          thumbnail_url: form.provider === 'instagram' ? thumbnailUrl : null,
-          thumbnail_source: form.provider === 'instagram' ? 'manual' : 'auto',
+          thumbnail_url: form.provider === 'instagram' || form.thumbnailFile ? thumbnailUrl : null,
+          thumbnail_source: form.provider === 'instagram' || form.thumbnailFile ? 'manual' : 'auto',
         })
         reset()
         setNotice(result.thumbnailWarning)
@@ -117,11 +140,14 @@ function MediaContentPage() {
             provider: form.provider,
             url: form.url.trim(),
             is_active: form.is_active,
-            ...(form.provider === 'instagram' ? { thumbnail_url: thumbnailUrl, thumbnail_source: 'manual' as const } : {}),
+            ...(form.provider === 'instagram' || form.thumbnailFile
+              ? { thumbnail_url: thumbnailUrl, thumbnail_source: 'manual' as const }
+              : {}),
           },
         })
         reset()
-        setNotice(result.thumbnailWarning)
+        // Si el contenido ya tenía imagen, no hace falta avisar
+        setNotice(selected.thumbnail_url ? null : result.thumbnailWarning)
       }
     } catch {
       setError('Error al guardar el contenido. Intentá de nuevo.')
@@ -133,7 +159,7 @@ function MediaContentPage() {
     try {
       await updateItem.mutateAsync({ id: item.id, payload: { is_active: !item.is_active } })
     } catch {
-      setError('Error al cambiar el estado. Intentá de nuevo.')
+      showToast('Error al cambiar el estado. Intentá de nuevo.')
     }
   }
 
@@ -149,7 +175,7 @@ function MediaContentPage() {
         updateItem.mutateAsync({ id: other.id, payload: { order: current.order } }),
       ])
     } catch {
-      setError('Error al reordenar el contenido. Intentá de nuevo.')
+      showToast('Error al reordenar el contenido. Intentá de nuevo.')
     }
   }
 
@@ -160,89 +186,277 @@ function MediaContentPage() {
       if (selected?.id === deleting.id) reset()
       setDeleting(null)
     } catch {
-      setError('Error al eliminar el contenido. Intentá de nuevo.')
+      showToast('Error al eliminar el contenido. Intentá de nuevo.')
       setDeleting(null)
     }
   }
 
   return (
     <div className={styles.page}>
-      <main className={styles.listColumn}>
-        <header className={styles.listHeader}>
-          <div>
-            <h1 className={styles.title}>Contenido Multimedia</h1>
-            <div className={styles.counters}>
-              <span className={styles.counter}>TikTok: {tiktokCount}/{LIMIT}</span>
-              <span className={styles.counterInstagram}>Instagram: {instagramCount}/{LIMIT}</span>
-            </div>
-          </div>
-          <button className={styles.createButton} onClick={openCreate}>+ Agregar contenido</button>
-        </header>
-        {notice && <p className={styles.formError} role="status">{notice}</p>}
-        {isLoading ? <p className={styles.emptyText}>Cargando contenido...</p> : !list.length ? (
-          <p className={styles.emptyText}>No hay contenido multimedia cargado todavía.</p>
-        ) : (
-          <ul className={styles.list}>
-            {list.map((item, index) => (
-              <li key={item.id} className={[styles.item, selected?.id === item.id ? styles.itemSelected : '', !item.is_active ? styles.itemInactive : ''].join(' ')} onClick={() => openEdit(item)}>
-                <div className={styles.itemMain}>
-                  <div className={styles.itemOrder}>
-                    <button className={styles.orderBtn} onClick={(event) => move(index, -1, event)} disabled={index === 0}>↑</button>
-                    <span>{index + 1}</span>
-                    <button className={styles.orderBtn} onClick={(event) => move(index, 1, event)} disabled={index === list.length - 1}>↓</button>
-                  </div>
-                  {item.thumbnail_url ? <img src={item.thumbnail_url} alt="" className={styles.itemThumb} /> : <div className={styles.itemThumbPlaceholder}>{item.provider === 'tiktok' ? 'TT' : 'IG'}</div>}
-                  <div className={styles.itemInfo}>
-                    <span className={styles.providerBadge}>{label(item.provider)}</span>
-                    <span className={styles.itemUrl}>{item.url}</span>
-                    <span className={styles.itemMeta}>Orden {item.order} · Thumbnail {item.thumbnail_source}</span>
-                  </div>
-                  <span className={[styles.activeBadge, item.is_active ? styles.activeBadgeOn : styles.activeBadgeOff].join(' ')}>{item.is_active ? 'Activo' : 'Inactivo'}</span>
-                </div>
-                <div className={styles.itemActions}>
-                  <button className={styles.actionBtn} onClick={(event) => toggleActive(item, event)} disabled={updateItem.isPending}>{item.is_active ? 'Desactivar' : 'Activar'}</button>
-                  <button className={styles.actionBtnDelete} onClick={(event) => { event.stopPropagation(); setDeleting(item) }} disabled={deleteItem.isPending}>Eliminar</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </main>
+      <div className={styles.topBar}>
+        <div className={styles.counters}>
+          <span className={styles.counter}>
+            TikTok <strong>{tiktokCount}/{LIMIT}</strong>
+          </span>
+          <span className={styles.counter}>
+            Instagram <strong>{instagramCount}/{LIMIT}</strong>
+          </span>
+        </div>
+        <button className={styles.createButton} onClick={openCreate}>
+          <PlusIcon size={16} />
+          Agregar contenido
+        </button>
+      </div>
 
-      {panelOpen && mobile && <div className={styles.overlay} onClick={reset} />}
-      <aside className={[styles.panel, panelOpen && mobile ? styles.panelVisible : ''].join(' ')}>
-        {!panelOpen ? <div className={styles.panelEmpty}><span className={styles.panelEmptyIcon}>◉</span><p className={styles.panelEmptyTitle}>Ningún contenido seleccionado</p><p className={styles.panelEmptyDesc}>Seleccioná un contenido para editarlo o agregá uno nuevo.</p><button className={styles.createButton} onClick={openCreate}>+ Agregar contenido</button></div> : (
+      {notice && (
+        <div className={styles.notice} role="status">
+          <AlertIcon size={18} />
+          <span>{notice}</span>
+          <button className={styles.noticeClose} onClick={() => setNotice(null)} aria-label="Cerrar aviso">
+            <CloseIcon size={16} />
+          </button>
+        </div>
+      )}
+
+      {isLoading ? (
+        <p className={styles.emptyText}>Cargando contenido...</p>
+      ) : !list.length ? (
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon}><ImageIcon size={28} /></span>
+          <p className={styles.emptyTitle}>Todavía no hay contenido</p>
+          <p className={styles.emptyText}>
+            Sumá videos de TikTok o reels de Instagram para que aparezcan en la tienda.
+          </p>
+          <button className={styles.createButton} onClick={openCreate}>
+            <PlusIcon size={16} />
+            Agregar contenido
+          </button>
+        </div>
+      ) : (
+        <ul className={styles.list}>
+          {list.map((item, index) => (
+            <li
+              key={item.id}
+              className={[styles.card, !item.is_active ? styles.cardInactive : ''].join(' ')}
+              onClick={() => openEdit(item)}
+            >
+              <div className={styles.thumbWrap}>
+                {item.thumbnail_url ? (
+                  <img src={item.thumbnail_url} alt="" className={styles.thumb} loading="lazy" />
+                ) : (
+                  <span className={styles.thumbPlaceholder}>
+                    <ImageIcon size={28} />
+                    <span>Sin imagen</span>
+                  </span>
+                )}
+                <span className={styles.orderBadge}>#{index + 1}</span>
+                <span className={styles.providerBadge}>{label(item.provider)}</span>
+                {!item.is_active && <span className={styles.inactiveBadge}>Inactivo</span>}
+              </div>
+
+              <div className={styles.cardBody}>
+                <span className={styles.cardUrl} title={item.url}>{shortUrl(item.url)}</span>
+                {!item.thumbnail_url && (
+                  <button
+                    type="button"
+                    className={styles.retryLink}
+                    onClick={(event) => { event.stopPropagation(); openEdit(item) }}
+                  >
+                    Subir imagen
+                  </button>
+                )}
+              </div>
+
+              <div className={styles.cardFooter}>
+                <button
+                  className={styles.iconBtn}
+                  onClick={(event) => move(index, -1, event)}
+                  disabled={index === 0 || updateItem.isPending}
+                  title="Mover antes"
+                  aria-label="Mover antes"
+                >
+                  <ChevronLeftIcon size={15} />
+                </button>
+                <button
+                  className={styles.iconBtn}
+                  onClick={(event) => move(index, 1, event)}
+                  disabled={index === list.length - 1 || updateItem.isPending}
+                  title="Mover después"
+                  aria-label="Mover después"
+                >
+                  <ChevronRightIcon size={15} />
+                </button>
+                <button
+                  className={[styles.iconBtn, styles.toggleBtn, item.is_active ? '' : styles.toggleBtnOn].join(' ')}
+                  onClick={(event) => toggleActive(item, event)}
+                  disabled={updateItem.isPending}
+                >
+                  {item.is_active ? <PauseIcon size={15} /> : <PlayIcon size={15} />}
+                  {item.is_active ? 'Desactivar' : 'Activar'}
+                </button>
+                <button
+                  className={[styles.iconBtn, styles.iconBtnDelete].join(' ')}
+                  onClick={(event) => { event.stopPropagation(); setDeleting(item) }}
+                  disabled={deleteItem.isPending}
+                  title="Eliminar"
+                  aria-label="Eliminar"
+                >
+                  <TrashIcon size={15} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {panelOpen &&
+        createPortal(
           <>
-            <div className={styles.panelHeader}><h2 className={styles.panelTitle}>{creating ? 'Nuevo contenido' : 'Editar contenido'}</h2><button className={styles.closeButton} onClick={reset} aria-label="Cerrar">x</button></div>
-            <form className={styles.form} onSubmit={submit}>
-              <label className={styles.label}>Proveedor
-                <select className={styles.input} value={form.provider} onChange={(event) => setForm((current) => ({ ...current, provider: event.target.value as MediaProvider }))} disabled={saving}><option value="tiktok">TikTok</option><option value="instagram">Instagram</option></select>
-              </label>
-              <label className={styles.label}>URL de TikTok o Instagram *
-                <input className={styles.input} type="url" value={form.url} onChange={(event) => updateUrl(event.target.value)} placeholder="https://www.tiktok.com/... o https://www.instagram.com/reel/..." disabled={saving} required />
-              </label>
-              {form.provider === 'instagram' && <label className={styles.label}>Thumbnail manual (opcional)
-                <input className={styles.inputFile} type="file" accept="image/*" onChange={(event) => { const file = event.target.files?.[0]; if (file && file.type.startsWith('image/')) setForm((current) => ({ ...current, thumbnailFile: file })); else if (file) setError('El archivo debe ser una imagen.') }} disabled={saving} />
-                {form.thumbnailFile && <span className={styles.fileHint}>{form.thumbnailFile.name}</span>}
-                {!form.thumbnailFile && form.thumbnail_url && <img className={styles.imagePreview} src={form.thumbnail_url} alt="Thumbnail actual" />}
-                <span className={styles.fieldHint}>Se redimensiona a 800px y se comprime a menos de 45KB.</span>
-              </label>}
-              {form.provider === 'tiktok' && <p className={styles.fieldHint}>El thumbnail se obtiene automáticamente desde TikTok.</p>}
-              <label className={styles.checkboxLabel}><input type="checkbox" checked={form.is_active} onChange={(event) => setForm((current) => ({ ...current, is_active: event.target.checked }))} disabled={saving} /> Contenido activo</label>
-              {error && <p className={styles.formError} role="alert">{error}</p>}
-              <div className={styles.formActions}><button type="button" className={styles.cancelButton} onClick={reset} disabled={saving}>Cancelar</button><button type="submit" className={styles.saveButton} disabled={saving}>{saving ? 'Guardando...' : creating ? 'Agregar' : 'Guardar cambios'}</button></div>
-              {!creating && selected && <button type="button" className={styles.deleteButton} onClick={() => setDeleting(selected)} disabled={deleteItem.isPending}>Eliminar contenido</button>}
+            <div className={styles.overlay} onClick={reset} />
+            <form className={styles.dialog} onSubmit={submit} role="dialog" aria-modal="true">
+              <div className={styles.dialogHeader}>
+                <h2 className={styles.dialogTitle}>{creating ? 'Nuevo contenido' : 'Editar contenido'}</h2>
+                <button type="button" className={styles.closeButton} onClick={reset} aria-label="Cerrar">
+                  <CloseIcon size={18} />
+                </button>
+              </div>
+
+              <div className={styles.dialogBody}>
+                <div className={styles.field}>
+                  <span className={styles.labelText}>Proveedor</span>
+                  <div className={styles.providerChoice}>
+                    {(['tiktok', 'instagram'] as MediaProvider[]).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className={[styles.chip, form.provider === p ? styles.chipActive : ''].join(' ')}
+                        onClick={() => setForm((current) => ({ ...current, provider: p }))}
+                        disabled={saving}
+                      >
+                        {label(p)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className={styles.field}>
+                  <span className={styles.labelText}>URL de TikTok o Instagram *</span>
+                  <input
+                    className={styles.input}
+                    type="url"
+                    value={form.url}
+                    onChange={(event) => updateUrl(event.target.value)}
+                    placeholder="https://www.tiktok.com/... o https://www.instagram.com/reel/..."
+                    disabled={saving}
+                    autoFocus
+                    required
+                  />
+                </label>
+
+                {(
+                  <div className={styles.field}>
+                    <span className={styles.labelText}>Thumbnail manual (opcional)</span>
+                    {!form.thumbnailFile && form.thumbnail_url && (
+                      <img className={styles.imagePreview} src={form.thumbnail_url} alt="Thumbnail actual" />
+                    )}
+                    <label className={styles.fileButton}>
+                      {form.thumbnailFile || form.thumbnail_url ? 'Cambiar imagen' : 'Subir imagen'}
+                      <input
+                        className={styles.fileInput}
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0]
+                          if (file && file.type.startsWith('image/')) setForm((current) => ({ ...current, thumbnailFile: file }))
+                          else if (file) setError('El archivo debe ser una imagen.')
+                        }}
+                        disabled={saving}
+                      />
+                    </label>
+                    {form.thumbnailFile && <span className={styles.hint}>{form.thumbnailFile.name}</span>}
+                    <span className={styles.hint}>
+                      {form.provider === 'tiktok'
+                        ? 'TikTok ya no entrega la miniatura automáticamente: subí una captura del video. Se redimensiona a 800px y se comprime a menos de 45KB.'
+                        : 'Se redimensiona a 800px y se comprime a menos de 45KB.'}
+                    </span>
+                  </div>
+                )}
+
+                <label className={styles.toggleRow}>
+                  <span>
+                    <strong>Contenido activo</strong>
+                    <small>Si está inactivo, no se muestra en la tienda.</small>
+                  </span>
+                  <input
+                    type="checkbox"
+                    className={styles.switch}
+                    checked={form.is_active}
+                    onChange={(event) => setForm((current) => ({ ...current, is_active: event.target.checked }))}
+                    disabled={saving}
+                  />
+                </label>
+
+                {error && (
+                  <p className={styles.formError} role="alert">
+                    <AlertIcon size={16} />
+                    {error}
+                  </p>
+                )}
+              </div>
+
+              <div className={styles.dialogFooter}>
+                {!creating && selected && (
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() => setDeleting(selected)}
+                    disabled={deleteItem.isPending || saving}
+                  >
+                    <TrashIcon size={16} />
+                    Eliminar
+                  </button>
+                )}
+                <span className={styles.footerSpacer} />
+                <button type="button" className={styles.cancelButton} onClick={reset} disabled={saving}>
+                  Cancelar
+                </button>
+                <button type="submit" className={styles.saveButton} disabled={saving}>
+                  {saving ? 'Guardando...' : creating ? 'Agregar' : 'Guardar cambios'}
+                </button>
+              </div>
             </form>
-          </>
+          </>,
+          document.body
         )}
-      </aside>
-      {deleting && <ConfirmModal title="Eliminar contenido" message={'¿Eliminar este contenido de ' + label(deleting.provider) + '? Esta acción no se puede deshacer.'} confirmLabel="Eliminar" isDanger onConfirm={confirmDelete} onCancel={() => setDeleting(null)} />}
+
+      {toast && <div className={styles.toast} role="status">{toast}</div>}
+
+      {deleting && (
+        <ConfirmModal
+          title="Eliminar contenido"
+          message={'¿Eliminar este contenido de ' + label(deleting.provider) + '? Esta acción no se puede deshacer.'}
+          confirmLabel="Eliminar"
+          isDanger
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleting(null)}
+        />
+      )}
     </div>
   )
 }
 
 function label(provider: MediaProvider): string {
   return provider === 'tiktok' ? 'TikTok' : 'Instagram'
+}
+
+// Muestra la URL sin parámetros de seguimiento (?_r=1&fbclid=...)
+function shortUrl(url: string): string {
+  try {
+    const u = new URL(url)
+    return (u.hostname.replace(/^www\./, '') + u.pathname).replace(/\/$/, '')
+  } catch {
+    return url
+  }
 }
 
 export default MediaContentPage
