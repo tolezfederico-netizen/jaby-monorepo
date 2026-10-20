@@ -12,6 +12,7 @@ const CustomerSchema = z.object({
   first_seen_at: z.string(),
   last_seen_at: z.string(),
   last_modality: z.string().nullable(),
+  marketing_consent: z.boolean().optional().default(false),
 })
 
 export type CustomerType = z.infer<typeof CustomerSchema>

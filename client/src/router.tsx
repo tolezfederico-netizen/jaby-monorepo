@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import CatalogPage from './pages/CatalogPage'
 import CheckoutPage from './pages/CheckoutPage'
+import PrivacyPage from './pages/PrivacyPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function ScrollToTop() {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: '/checkout',
         element: <CheckoutPage />,
+      },
+      {
+        path: '/privacidad',
+        element: <PrivacyPage />,
       },
       {
         path: '*',

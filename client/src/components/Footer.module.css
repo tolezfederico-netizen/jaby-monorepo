@@ -34,3 +34,13 @@
     padding: 0.7rem 2.5rem 0.65rem;
   }
 }
+
+.creditLink {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  text-decoration: underline;
+}
+
+.creditLink:hover {
+  color: #ffffff;
+}

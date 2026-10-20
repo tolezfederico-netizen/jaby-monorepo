@@ -44,4 +44,5 @@ export const OrderCreateSchema = z.object({
   items: z.array(OrderItemCreateSchema),
   total: z.number(),
   delivery_cost: z.number().optional(),
+  marketing_consent: z.boolean().optional(),
 })

@@ -1,0 +1,73 @@
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2.5rem;
+  min-height: 100vh;
+  background: #0D0D1A;
+  color: rgba(240, 235, 248, 0.85);
+  font-family: 'Nunito', sans-serif;
+  line-height: 1.55;
+}
+
+.backLink {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(240, 235, 248, 0.7);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover {
+  color: #ffffff;
+}
+
+.title {
+  margin: 1rem 0 0.15rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.updated {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  color: rgba(240, 235, 248, 0.5);
+}
+
+.page h2 {
+  margin: 1.4rem 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #E91E8C;
+}
+
+.page p,
+.page li {
+  font-size: 0.9rem;
+}
+
+.page p {
+  margin: 0 0 0.6rem;
+}
+
+.page ul {
+  margin: 0 0 0.6rem;
+  padding-left: 1.2rem;
+}
+
+.page a {
+  color: #E91E8C;
+}
+
+.legal {
+  margin-top: 1.6rem;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(240, 235, 248, 0.6);
+  border: 1px solid rgba(233, 30, 140, 0.25);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}

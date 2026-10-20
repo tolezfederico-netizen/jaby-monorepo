@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppStatus } from '../hooks/useAppStatus'
 import { useCart } from '../context/CartContext'
 import { useCreateOrder } from '../hooks/useCreateOrder'
@@ -182,6 +182,7 @@ function CheckoutPage() {
   const [address, setAddress] = useState('')
   const [notes, setNotes] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const deliveryCost = config?.delivery_cost ?? 0
@@ -267,6 +268,7 @@ function CheckoutPage() {
         items: orderItems,
         total,
         delivery_cost: finalDeliveryCost > 0 ? finalDeliveryCost : undefined,
+        marketing_consent: marketingConsent || undefined,
       })
 
       const message = buildWhatsAppMessage(
@@ -443,6 +445,26 @@ function CheckoutPage() {
             </div>
           </div>
         )}
+
+        <div className={styles.consentBlock}>
+          <label className={styles.consentLabel}>
+            <input
+              type="checkbox"
+              checked={marketingConsent}
+              onChange={(e) => setMarketingConsent(e.target.checked)}
+              disabled={createOrder.isPending}
+            />
+            <span>Quiero recibir novedades y promociones por WhatsApp (opcional)</span>
+          </label>
+          <p className={styles.consentText}>
+            Usamos tus datos (nombre, teléfono y dirección) para gestionar tu pedido y contactarte por
+            él. Más información en nuestra{' '}
+            <Link to="/privacidad" className={styles.consentLink}>
+              Política de privacidad
+            </Link>
+            .
+          </p>
+        </div>
 
         {error && (
           <p className={styles.errorText} role="alert">

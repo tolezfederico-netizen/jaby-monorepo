@@ -16,6 +16,7 @@ import {
 import styles from './CustomersPage.module.css'
 
 type SortKey = 'recent' | 'orders' | 'name'
+type PromoFilter = 'all' | 'accepted'
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -50,7 +51,7 @@ function timeAgo(iso: string | null | undefined): string {
   return `hace ${Math.floor(diff / 86400)} d`
 }
 
-function exportToExcel(customers: CustomerType[]) {
+function exportToExcel(customers: CustomerType[], fileName: string) {
   const headers = [
     'Nombre',
     'Teléfono',
@@ -60,9 +61,10 @@ function exportToExcel(customers: CustomerType[]) {
     'Historial de direcciones',
     'Primer pedido',
     'Último pedido',
+    'Acepta promociones',
   ]
 
-  const colWidths = [25, 18, 22, 20, 30, 45, 25, 25]
+  const colWidths = [25, 18, 22, 20, 30, 45, 25, 25, 20]
 
   const rows = customers.map((c) => [
     c.name,
@@ -87,6 +89,7 @@ function exportToExcel(customers: CustomerType[]) {
           hour: '2-digit', minute: '2-digit',
         })
       : '',
+    c.marketing_consent ? 'Sí' : 'No',
   ])
 
   const wsData = [headers, ...rows]
@@ -151,7 +154,7 @@ function exportToExcel(customers: CustomerType[]) {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Clientes')
 
-  XLSX.writeFile(wb, 'clientes-antojos-express.xlsx', { cellStyles: true })
+  XLSX.writeFile(wb, fileName, { cellStyles: true })
 }
 
 function ModalityIcon({ modality }: { modality: string | null }) {
@@ -272,6 +275,13 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
           )}
 
           <div className={styles.section}>
+            <span className={styles.label}>Promociones por WhatsApp</span>
+            <span className={styles.value}>
+              {customer.marketing_consent ? 'Aceptó recibir novedades y promociones' : 'No aceptó (solo contactar por sus pedidos)'}
+            </span>
+          </div>
+
+          <div className={styles.section}>
             <span className={styles.label}>Historial</span>
             <div className={styles.timestamps}>
               <div className={styles.timestampRow}>
@@ -305,6 +315,9 @@ function CustomersPage() {
   const deleteCustomer = useDeleteCustomer()
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('recent')
+  const [promoFilter, setPromoFilter] = useState<PromoFilter>('all')
+  const [exportOpen, setExportOpen] = useState(false)
+  const exportRef = useRef<HTMLDivElement>(null)
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
   const [customerToDelete, setCustomerToDelete] = useState<CustomerType | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -318,6 +331,24 @@ function CustomersPage() {
     toastTimer.current = window.setTimeout(() => setToast(null), 3500)
   }
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  useEffect(() => {
+    if (!exportOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setExportOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExportOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [exportOpen])
+
+  const acceptedCustomers = allCustomers.filter((c) => c.marketing_consent)
 
   useEffect(() => {
     if (!selectedCustomerId) return
@@ -340,6 +371,7 @@ function CustomersPage() {
   }
 
   const filtered = allCustomers
+    .filter((c) => promoFilter === 'all' || c.marketing_consent)
     .filter((c) => {
       if (!search.trim()) return true
       const q = search.toLowerCase()
@@ -384,13 +416,63 @@ function CustomersPage() {
             </button>
           ))}
         </div>
-        <button
-          className={styles.exportButton}
-          onClick={() => exportToExcel(allCustomers)}
-          disabled={allCustomers.length === 0}
-        >
-          Exportar Excel
-        </button>
+        <div className={styles.chipGroup}>
+          <span className={styles.filterLabel}>Promociones</span>
+          <button
+            type="button"
+            className={`${styles.chip} ${promoFilter === 'all' ? styles.chipActive : ''}`}
+            onClick={() => setPromoFilter('all')}
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            className={`${styles.chip} ${promoFilter === 'accepted' ? styles.chipActive : ''}`}
+            onClick={() => setPromoFilter('accepted')}
+          >
+            Aceptaron ({acceptedCustomers.length})
+          </button>
+        </div>
+        <div className={styles.exportWrap} ref={exportRef}>
+          <button
+            className={styles.exportButton}
+            onClick={() => setExportOpen((o) => !o)}
+            disabled={allCustomers.length === 0}
+            aria-haspopup="menu"
+            aria-expanded={exportOpen}
+          >
+            Exportar Excel
+          </button>
+          {exportOpen && (
+            <div className={styles.exportMenu} role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.exportOption}
+                onClick={() => {
+                  exportToExcel(allCustomers, 'clientes-antojos-ya.xlsx')
+                  setExportOpen(false)
+                }}
+              >
+                <span className={styles.exportOptionTitle}>Lista completa</span>
+                <span className={styles.exportOptionSub}>{allCustomers.length} clientes</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.exportOption}
+                disabled={acceptedCustomers.length === 0}
+                onClick={() => {
+                  exportToExcel(acceptedCustomers, 'clientes-aceptan-promociones.xlsx')
+                  setExportOpen(false)
+                }}
+              >
+                <span className={styles.exportOptionTitle}>Solo los que aceptaron promociones</span>
+                <span className={styles.exportOptionSub}>{acceptedCustomers.length} clientes</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <p className={styles.countText}>

@@ -35,13 +35,16 @@ Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-t
 - Estilos: **CSS Modules** (`*.module.css` junto a cada componente) + variables globales en `src/index.css` (`--color-primary: #E91E8C`, superficie `#1A1A2E`, fondo client `#0D0D1A`). Reutilizar variables, no hardcodear colores nuevos. Marca: rosa `#E91E8C` + azul oscuro `#1A1A2E`; el header usa degradé de ambos.
 - Carrito: Context API + reducer (`client/src/context/CartContext.tsx`). localStorage: `antojos-express-cart`, `antojos-express-last-order` (ítems con `product_id`; snapshots viejos resuelven por nombre normalizado), `antojos-express-favorites`. Envolver siempre lecturas/escrituras en try/catch.
 - Flujo de pedido: pending → confirmed → in_progress → completed; **pickup salta de confirmed a completed**. Pedidos con `is_archived` se excluyen de contadores y filtros activos.
-- Contenido multimedia (`media_content`): TikTok (thumbnail automático vía Edge Function `fetch-media-thumbnail`) e Instagram Reels (thumbnail manual). Máx. 10 por plataforma. Destacados: máx. 4.
+- Contenido multimedia (`media_content`): TikTok e Instagram Reels. El oEmbed de TikTok ya no devuelve miniatura: el thumbnail se sube a mano en ambos (`thumbnail_source: 'manual'`); la Edge Function `fetch-media-thumbnail` queda como intento que nunca pisa una miniatura existente. Máx. 10 por plataforma. Destacados: máx. 6 (`MAX_FEATURED_PRODUCTS` en admin; si falla el 5.º/6.º, revisar trigger/constraint en la DB).
+- Banner promocional: editable desde Configuración; el admin usa su propio `hooks/useBanner.ts` (el de la tienda filtra `is_active`).
+- Privacidad (Ley 25.326): checkout informa el uso de datos y tiene checkbox opcional `marketing_consent` (guardado en `customers` con fecha; solo se pone en true, nunca se revoca solo). Política en `/privacidad` (`PrivacyPage.tsx`). Si se agregan datos nuevos o usos nuevos (ej. envío de promociones), actualizar esa página.
 - No agregar librerías de gráficos: el gráfico del Dashboard es CSS/SVG propio.
 - Textos de UI en español rioplatense.
 
 ## Reglas de trabajo
 - Cambios chicos y enfocados; no refactorizar de paso. Antes de dar algo por hecho: `npm run build` (y lint si se tocó lógica).
 - Cambios visuales: revisar mobile y desktop (la tienda se usa sobre todo desde el celular).
+- Admin (patrón común a todas las pantallas): barra superior rosa pálida (`#fdf2f8`), chips blancos con activo rosa, cards, diálogos centrados con `createPortal` (bottom sheet en móvil), `ConfirmModal` para acciones destructivas/pausa, switches, toasts, íconos en `components/icons.tsx`. Móvil: `.mobileBar` fijo bajo la hamburguesa, barras no sticky, botones de guardar no flotantes. En CSS Modules, a igual especificidad gana la regla posterior: poner overrides al final o subir especificidad.
 - No commitear ni pushear sin que se pida. Repo: `tolezfederico-netizen/jaby-monorepo` (rama `master`); ambas apps se despliegan en Vercel (confirmar con Garel el detalle de la config de deploy del client).
 
 ## Pendientes

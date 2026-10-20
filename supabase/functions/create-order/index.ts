@@ -24,6 +24,7 @@ const OrderPayloadSchema = z.object({
   items: z.array(OrderItemPayloadSchema).min(1),
   total: z.number().nonnegative(),
   delivery_cost: z.number().nonnegative().optional(),
+  marketing_consent: z.boolean().optional(),
 })
 
 serve(async (req) => {
@@ -227,6 +228,11 @@ serve(async (req) => {
         if (address) {
           updatePayload.last_address = address
         }
+        // Solo se registra el consentimiento cuando se otorga; nunca se revoca automáticamente
+        if (payload.marketing_consent) {
+          updatePayload.marketing_consent = true
+          updatePayload.marketing_consent_at = now
+        }
 
         const { error: updateError } = await supabase
           .from('customers')
@@ -246,6 +252,8 @@ serve(async (req) => {
             last_address: address,
             address_history: address ? [address] : [],
             last_modality: modality,
+            marketing_consent: payload.marketing_consent === true,
+            marketing_consent_at: payload.marketing_consent === true ? now : null,
           })
 
         if (insertError) {
