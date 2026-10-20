@@ -70,7 +70,7 @@ const formatPrice = (price: number | null | undefined): string =>
     : `$${price.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`
 
 function ProductsPage() {
-  const MAX_FEATURED_PRODUCTS = 4
+  const MAX_FEATURED_PRODUCTS = 6
 
   const { data: products, isLoading } = useProducts()
   const { data: categories } = useCategories()
