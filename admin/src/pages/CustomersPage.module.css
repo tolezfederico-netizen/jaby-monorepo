@@ -605,3 +605,12 @@
     }
   }
 }
+
+/* Carga de más clientes */
+.loadMoreRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0 0.5rem;
+}

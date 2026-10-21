@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as XLSX from 'xlsx-js-style'
-import { useCustomers, useDeleteCustomer } from '../hooks/useCustomers'
-import type { CustomerType } from '../hooks/useCustomers'
+import {
+  fetchAllCustomers,
+  useCustomerCounts,
+  useCustomers,
+  useDeleteCustomer,
+} from '../hooks/useCustomers'
+import type { CustomerSort, CustomerType } from '../hooks/useCustomers'
 import ConfirmModal from '../components/ConfirmModal'
 import {
   AlertIcon,
@@ -16,7 +21,7 @@ import {
 import { toWhatsAppNumber } from '@jaby/shared'
 import styles from './CustomersPage.module.css'
 
-type SortKey = 'recent' | 'orders' | 'name'
+type SortKey = CustomerSort
 type PromoFilter = 'all' | 'accepted'
 
 function initials(name: string): string {
@@ -324,11 +329,26 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
 }
 
 function CustomersPage() {
-  const { data: customers, isLoading } = useCustomers()
   const deleteCustomer = useDeleteCustomer()
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('recent')
   const [promoFilter, setPromoFilter] = useState<PromoFilter>('all')
+  const [isExporting, setIsExporting] = useState(false)
+
+  // La búsqueda se hace en la base: se espera a que se deje de tipear
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedSearch(search), 300)
+    return () => window.clearTimeout(timer)
+  }, [search])
+
+  const customersQuery = useCustomers({
+    search: debouncedSearch,
+    sort,
+    acceptedOnly: promoFilter === 'accepted',
+  })
+  const { data: counts } = useCustomerCounts()
+  const isLoading = customersQuery.isLoading
   const [exportOpen, setExportOpen] = useState(false)
   const exportRef = useRef<HTMLDivElement>(null)
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
@@ -336,7 +356,11 @@ function CustomersPage() {
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<number | undefined>(undefined)
 
-  const allCustomers = customers ?? []
+  const loadedCustomers = customersQuery.data?.pages.flatMap((page) => page.rows) ?? []
+  const filteredCount = customersQuery.data?.pages[0]?.count ?? 0
+  const totalCount = counts?.total ?? 0
+  const acceptedCount = counts?.accepted ?? 0
+  const hasFilters = !!debouncedSearch.trim() || promoFilter === 'accepted'
 
   const showToast = (message: string) => {
     setToast(message)
@@ -361,7 +385,21 @@ function CustomersPage() {
     }
   }, [exportOpen])
 
-  const acceptedCustomers = allCustomers.filter((c) => c.marketing_consent)
+  const handleExport = async (acceptedOnly: boolean) => {
+    setExportOpen(false)
+    setIsExporting(true)
+    try {
+      const rows = await fetchAllCustomers(acceptedOnly)
+      exportToExcel(
+        rows,
+        acceptedOnly ? 'clientes-aceptan-promociones.xlsx' : 'clientes-antojos-ya.xlsx'
+      )
+    } catch {
+      showToast('No se pudo exportar. Intentá de nuevo.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   useEffect(() => {
     if (!selectedCustomerId) return
@@ -383,21 +421,11 @@ function CustomersPage() {
     setCustomerToDelete(null)
   }
 
-  const filtered = allCustomers
-    .filter((c) => promoFilter === 'all' || c.marketing_consent)
-    .filter((c) => {
-      if (!search.trim()) return true
-      const q = search.toLowerCase()
-      return c.name.toLowerCase().includes(q) || c.phone.includes(q)
-    })
-    .sort((a, b) => {
-      if (sort === 'orders') return b.total_orders - a.total_orders
-      if (sort === 'name') return a.name.localeCompare(b.name, 'es')
-      return new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime()
-    })
+  // Filtro, búsqueda y orden ya vienen resueltos desde la base
+  const filtered = loadedCustomers
 
   const selectedCustomer = selectedCustomerId
-    ? (allCustomers.find((c) => c.id === selectedCustomerId) ?? null)
+    ? (loadedCustomers.find((c) => c.id === selectedCustomerId) ?? null)
     : null
 
   const sortOptions: { key: SortKey; label: string }[] = [
@@ -443,18 +471,18 @@ function CustomersPage() {
             className={`${styles.chip} ${promoFilter === 'accepted' ? styles.chipActive : ''}`}
             onClick={() => setPromoFilter('accepted')}
           >
-            Aceptaron ({acceptedCustomers.length})
+            Aceptaron ({acceptedCount})
           </button>
         </div>
         <div className={styles.exportWrap} ref={exportRef}>
           <button
             className={styles.exportButton}
             onClick={() => setExportOpen((o) => !o)}
-            disabled={allCustomers.length === 0}
+            disabled={totalCount === 0 || isExporting}
             aria-haspopup="menu"
             aria-expanded={exportOpen}
           >
-            Exportar Excel
+            {isExporting ? 'Exportando...' : 'Exportar Excel'}
           </button>
           {exportOpen && (
             <div className={styles.exportMenu} role="menu">
@@ -462,26 +490,20 @@ function CustomersPage() {
                 type="button"
                 role="menuitem"
                 className={styles.exportOption}
-                onClick={() => {
-                  exportToExcel(allCustomers, 'clientes-antojos-ya.xlsx')
-                  setExportOpen(false)
-                }}
+                onClick={() => handleExport(false)}
               >
                 <span className={styles.exportOptionTitle}>Lista completa</span>
-                <span className={styles.exportOptionSub}>{allCustomers.length} clientes</span>
+                <span className={styles.exportOptionSub}>{totalCount} clientes</span>
               </button>
               <button
                 type="button"
                 role="menuitem"
                 className={styles.exportOption}
-                disabled={acceptedCustomers.length === 0}
-                onClick={() => {
-                  exportToExcel(acceptedCustomers, 'clientes-aceptan-promociones.xlsx')
-                  setExportOpen(false)
-                }}
+                disabled={acceptedCount === 0}
+                onClick={() => handleExport(true)}
               >
                 <span className={styles.exportOptionTitle}>Solo los que aceptaron promociones</span>
-                <span className={styles.exportOptionSub}>{acceptedCustomers.length} clientes</span>
+                <span className={styles.exportOptionSub}>{acceptedCount} clientes</span>
               </button>
             </div>
           )}
@@ -489,9 +511,9 @@ function CustomersPage() {
       </div>
 
       <p className={styles.countText}>
-        {filtered.length === allCustomers.length
-          ? `${allCustomers.length} cliente${allCustomers.length !== 1 ? 's' : ''} registrados`
-          : `${filtered.length} de ${allCustomers.length} clientes`}
+        {hasFilters
+          ? `${filteredCount} de ${totalCount} clientes`
+          : `${totalCount} cliente${totalCount !== 1 ? 's' : ''} registrados`}
       </p>
 
       {isLoading ? (
@@ -507,6 +529,22 @@ function CustomersPage() {
               onClick={() => setSelectedCustomerId(customer.id)}
             />
           ))}
+        </div>
+      )}
+
+      {customersQuery.hasNextPage && (
+        <div className={styles.loadMoreRow}>
+          <span className={styles.countText}>
+            Mostrando {loadedCustomers.length} de {filteredCount}
+          </span>
+          <button
+            type="button"
+            className={styles.chip}
+            onClick={() => customersQuery.fetchNextPage()}
+            disabled={customersQuery.isFetchingNextPage}
+          >
+            {customersQuery.isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+          </button>
         </div>
       )}
 
