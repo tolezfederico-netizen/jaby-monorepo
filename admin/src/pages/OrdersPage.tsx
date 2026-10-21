@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
+  RECENT_ORDERS_DAYS,
+  useArchivedOrders,
+  useOlderOrders,
+  useOrderCounts,
   useOrders,
   useUpdateOrderStatus,
   useDeleteOrder,
@@ -593,6 +597,10 @@ function OrdersPage() {
   const [searchCustomer, setSearchCustomer] = useState("");
   const [showTodayOnly, setShowTodayOnly] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showOlder, setShowOlder] = useState(false);
+  const { data: counts } = useOrderCounts();
+  const olderOrders = useOlderOrders(showOlder);
+  const archivedQuery = useArchivedOrders(filterStatus === "archived");
 
   useEffect(() => {
     const orderId = searchParams.get("orderId");
@@ -602,12 +610,14 @@ function OrdersPage() {
     }
   }, [searchParams]);
 
-  const allOrders = orders ?? [];
-  const activeOrders = allOrders.filter((o) => !o.is_archived);
-  const archivedOrders = allOrders.filter((o) => !!o.is_archived);
+  // Recientes + abiertos, más los completados antiguos si se pidieron; los archivados van aparte
+  const activeOrders = [...(orders ?? []), ...(olderOrders.data?.pages.flat() ?? [])];
+  const archivedOrders = archivedQuery.data?.pages.flat() ?? [];
+  const pagedQuery = filterStatus === "archived" ? archivedQuery : olderOrders;
+  const isListLoading = filterStatus === "archived" ? archivedQuery.isLoading : isLoading;
 
   const countByStatus = (status: OrderStatusType) =>
-    activeOrders.filter((o) => o.status === status).length;
+    counts?.[status] ?? activeOrders.filter((o) => o.status === status).length;
 
   const ordersToFilter = filterStatus === "archived" ? archivedOrders : activeOrders;
 
@@ -656,7 +666,7 @@ function OrdersPage() {
   });
 
   const selectedOrder = selectedOrderId
-    ? ((orders ?? []).find((o) => o.id === selectedOrderId) ?? null)
+    ? ([...activeOrders, ...archivedOrders].find((o) => o.id === selectedOrderId) ?? null)
     : null;
 
   const handleStatusChange = (
@@ -795,7 +805,7 @@ function OrdersPage() {
               onClick={() => handleStatusFilterChange("all")}
             >
               Todos
-              <span className={`${styles.filterCount} ${styles.filterCount_all}`}>{activeOrders.length}</span>
+              <span className={`${styles.filterCount} ${styles.filterCount_all}`}>{counts?.active ?? activeOrders.length}</span>
             </button>
             {ORDER_STATUSES.map((s) => (
               <button
@@ -812,14 +822,14 @@ function OrdersPage() {
               onClick={() => handleStatusFilterChange("archived")}
             >
               Archivados
-              <span className={`${styles.filterCount} ${styles.filterCount_archived}`}>{archivedOrders.length}</span>
+              <span className={`${styles.filterCount} ${styles.filterCount_archived}`}>{counts?.archived ?? archivedOrders.length}</span>
             </button>
           </div>
         </div>
 
         {successMessage && <p className={styles.successToast} role="status">{successMessage}</p>}
 
-        {isLoading ? (
+        {isListLoading ? (
           <p className={styles.loadingText}>Cargando pedidos...</p>
         ) : filtered.length === 0 ? (
           <p className={styles.emptyText}>No hay pedidos con estos filtros.</p>
@@ -851,6 +861,34 @@ function OrdersPage() {
                 </section>
               );
             })}
+          </div>
+        )}
+
+        {!isListLoading && (
+          <div className={styles.loadMoreRow}>
+            {filterStatus !== "archived" && !showOlder && (
+              <>
+                <p className={styles.loadMoreHint}>
+                  Se muestran los pedidos de los últimos {RECENT_ORDERS_DAYS} días y los que siguen abiertos.
+                </p>
+                <button type="button" className={styles.filterBtn} onClick={() => setShowOlder(true)}>
+                  Ver completados más antiguos
+                </button>
+              </>
+            )}
+            {(filterStatus === "archived" || showOlder) && pagedQuery.hasNextPage && (
+              <button
+                type="button"
+                className={styles.filterBtn}
+                onClick={() => pagedQuery.fetchNextPage()}
+                disabled={pagedQuery.isFetchingNextPage}
+              >
+                {pagedQuery.isFetchingNextPage ? "Cargando..." : "Cargar más"}
+              </button>
+            )}
+            {showOlder && filterStatus !== "archived" && olderOrders.isFetching && !olderOrders.isFetchingNextPage && (
+              <p className={styles.loadMoreHint}>Cargando pedidos antiguos...</p>
+            )}
           </div>
         )}
       </div>
