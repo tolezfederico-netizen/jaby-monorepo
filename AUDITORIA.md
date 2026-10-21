@@ -16,7 +16,8 @@ Decidido sin cambios: **E2** — los pausados siguen visibles como "No disponibl
 
 Pendiente:
 
-- **S1** — Dashboard de Supabase (registro de usuarios y políticas RLS).
+- **S1** — Dashboard de Supabase: desactivar el registro de usuarios y revisar políticas RLS / tablas con RLS.
+  Ya resuelto: `next_order_number` solo ejecutable por `service_role` (migración `20261021000000`, aplicada).
 - **R4** (`config.toml`/esquema base), **R6** (Node 20 local), **R5 client** (confirmar con Garel la config de Vercel del client).
 - **S5** — quedan `vite`/`esbuild` (solo dev server; requiere versión mayor).
 - **E1** — falta paginar Clientes (mismo límite de 1000 filas).
