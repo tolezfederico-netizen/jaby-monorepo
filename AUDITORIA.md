@@ -21,7 +21,7 @@ Pendiente:
   (`next_order_number` solo `service_role`) y `20261021010000` (políticas del bucket `Productos`, que
   impedían subir imágenes, y baja de las políticas viejas de `tiktok-thumbnails`).
   Pendiente menor: 5 productos con la imagen embebida en la base (data URI); volver a subirlas.
-- **R4** ✅ `supabase/config.toml` agregado (verify_jwt de las funciones; auth igual a producción). Falta versionar el esquema base (requiere Docker o `pg_dump` con la clave de la base). **R6** ✅ Node 24 (Vercel dejó de construir con Node 20 el 30/09/2026): `.nvmrc`, `engines` y nvm. **R5 client**: revisar la config de Vercel del client.
+- **R4** ✅ `supabase/config.toml` agregado (verify_jwt de las funciones; auth igual a producción). Esquema `public` exportado a `supabase/schema.sql` con `pg_dump`. Historial reparado (las seis versiones `20240001…` del esquema base marcadas como revertidas): `supabase db push` vuelve a funcionar. **R6** ✅ Node 24 (Vercel dejó de construir con Node 20 el 30/09/2026): `.nvmrc`, `engines` y nvm. **R5 client**: revisar la config de Vercel del client.
 - **S5** — quedan `vite`/`esbuild` (solo dev server; requiere versión mayor).
 - **E1** ✅ Clientes paginado: búsqueda, orden y filtro en la base; de a 100 con "Cargar más"; el Excel trae todos en tandas.
 

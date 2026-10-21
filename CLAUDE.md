@@ -25,8 +25,8 @@ Rutas: client `/`, `/checkout`. Admin: Dashboard, Pedidos, Productos, Categoría
 
 Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-thumbnails`), Realtime, Edge Functions. El plan gratuito pausa el proyecto por inactividad.
 
-- Las migraciones versionadas en `supabase/migrations/` arrancan en septiembre 2026; el esquema base (products, categories, orders, etc.) no está en el repo.
-- **Cambios de DB siempre como migración nueva + `supabase db push`. Nunca SQL directo contra producción** (ya causó una desincronización de historial).
+- Las migraciones versionadas en `supabase/migrations/` arrancan en septiembre 2026. Foto del esquema `public` completo (tablas, funciones, triggers, RLS, grants) en `supabase/schema.sql`: es referencia, no una migración. Regenerarla con `pg_dump --schema-only --schema=public --no-owner` (PostgreSQL 17, session pooler) después de cambios de DB.
+- **Cambios de DB siempre como migración nueva + `supabase db push`. Nunca SQL directo contra producción** (ya causó una desincronización de historial). El historial está reconciliado desde el 21/10/2026: `db push` funciona; antes de aplicar, `supabase db push --dry-run`.
 - `products.out_of_stock_since` lo mantiene un trigger BEFORE UPDATE: **nunca setearlo desde el frontend**.
 - El pedido se crea solo vía Edge Function `create-order`, que recalcula precios y valida stock server-side. El frontend nunca es fuente de verdad de precios.
 - DELETEs: confirmar filas afectadas (patrón existente). Respetar RLS: lectura pública donde corresponde, escritura solo autenticados.
