@@ -14,7 +14,7 @@ Rutas: client `/`, `/checkout`. Admin: Dashboard, Pedidos, Productos, Categoría
 
 ## Comandos (desde la raíz)
 
-- `npm install` (Node 20: ver `.nvmrc`; engines `>=18 <21`)
+- `npm install` (Node 24: ver `.nvmrc`; engines `24.x`. Vercel ya no construye con Node 20)
 - `npm run dev` levanta client + admin. `npm run build:client` / `build:admin` / `build`.
 - El build de admin corre `tsc && vite build` (falla ante errores de tipos); el de client es solo `vite build`.
 - `npm run lint`, `npm run format:check`, `npm run format`. Prettier: sin punto y coma, comillas simples, 2 espacios, 100 columnas.
