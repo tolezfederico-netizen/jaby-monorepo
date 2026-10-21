@@ -5,23 +5,21 @@ Cada ítem tiene un ID para elegir qué se hace. Orden sugerido: de arriba hacia
 
 ## Avance (21/10/2026)
 
-Hecho en código, sin commitear: **S2, S3, S5, B1, B2, B3 (mínimo), B4, E3, M1, M2, R2, R5 (admin), R7.**
-Build OK, lint 0 errores, `npm audit --omit=dev` sin vulnerabilidades. Probado en el navegador: links de
-WhatsApp, corrección de precio viejo en el carrito y tope de 99 por producto (sin enviar pedidos).
+Hecho, commiteado y pusheado: **S2, S3, S5, B1, B2, B3 (mínimo), B4, E3, M1, M2, R1, R2, R5 (admin), R7**,
+más la validación de altura en la dirección de delivery. Edge Functions desplegadas.
 
-**Para que S2/S3/B2/B3 rijan en producción hay que desplegar las Edge Functions:**
-`supabase functions deploy create-order` y `supabase functions deploy fetch-media-thumbnail`.
-Desplegar el client antes que las funciones es seguro: el checkout tolera la respuesta vieja.
+Hecho y commiteado, **sin pushear**: **S4** (no se pisa el nombre de clientes existentes), **E1** (pedidos
+de 30 días + abiertos; antiguos y archivados bajo demanda; contadores exactos) y **R3** (Prettier sin punto
+y coma). **S4 requiere volver a desplegar `create-order`.**
 
-Pendiente (requiere una decisión tuya o acceso que no tengo desde acá):
+Decidido sin cambios: **E2** — los pausados siguen visibles como "No disponible".
 
-- **S1** — Dashboard de Supabase.
-- **S4** — decidir el criterio de consentimiento/datos por teléfono.
-- **E1** — paginación: decidir qué se ve por defecto (p. ej. últimos 30 días + archivados aparte).
-- **E2** — el catálogo muestra los pausados como "No disponible" a propósito: decidir si se ocultan.
-- **R1** (push), **R3** (estilo de Prettier), **R4** (`config.toml`/esquema base), **R6** (Node 20 local),
-  **R5 client** (confirmar con Garel la config de Vercel del client).
+Pendiente:
+
+- **S1** — Dashboard de Supabase (registro de usuarios y políticas RLS).
+- **R4** (`config.toml`/esquema base), **R6** (Node 20 local), **R5 client** (confirmar con Garel la config de Vercel del client).
 - **S5** — quedan `vite`/`esbuild` (solo dev server; requiere versión mayor).
+- **E1** — falta paginar Clientes (mismo límite de 1000 filas).
 
 **Estado general:** build OK, lint 0 errores, tipos OK. En el historial de git solo aparece la clave
 `anon` (pública); no hay claves `service_role` filtradas. Lo que está bien hecho: precios recalculados
