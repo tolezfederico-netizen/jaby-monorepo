@@ -8,7 +8,7 @@ Nombre comercial actual: **Antojos Ya**. El repo, los paquetes npm y las claves 
 - `client/` tienda pública (React 18 + Vite 5 + TS). Tema **oscuro**. Puerto dev por defecto de Vite.
 - `admin/` panel de administración (mismo stack). Tema **claro**. Dev en puerto 5174. Deploy en Vercel (`admin/vercel.json`, rewrite SPA).
 - `shared/` paquete `@jaby/shared`: schemas Zod, tipos, utils, `lib/media-*`, `supabase.ts`. Se consume como TypeScript fuente (sin build); los subpaths expuestos están en `shared/package.json` (`exports`): si agregás un archivo importable por ruta, agregalo ahí.
-- `supabase/` migraciones SQL y Edge Functions (`create-order`, `fetch-media-thumbnail`, Deno).
+- `supabase/` migraciones SQL y Edge Functions (`create-order`, `fetch-media-thumbnail`, Deno). `supabase/config.toml`: `verify_jwt` de las funciones (afecta al deploy); el resto es solo local. **Nunca `supabase config push`.**
 
 Rutas: client `/`, `/checkout`. Admin: Dashboard, Pedidos, Productos, Categorías, Contenido Multimedia (`/contenido-multimedia`), Clientes, Configuración, Login.
 
@@ -51,7 +51,7 @@ Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-t
 - Cambios chicos y enfocados; no refactorizar de paso. Antes de dar algo por hecho: `npm run build` (y lint si se tocó lógica).
 - Cambios visuales: revisar mobile y desktop (la tienda se usa sobre todo desde el celular).
 - Admin (patrón común a todas las pantallas): barra superior rosa pálida (`#fdf2f8`), chips blancos con activo rosa, cards, diálogos centrados con `createPortal` (bottom sheet en móvil), `ConfirmModal` para acciones destructivas/pausa, switches, toasts, íconos en `components/icons.tsx`. Móvil: `.mobileBar` fijo bajo la hamburguesa, barras no sticky, botones de guardar no flotantes. En CSS Modules, a igual especificidad gana la regla posterior: poner overrides al final o subir especificidad.
-- No commitear ni pushear sin que se pida. Repo: `tolezfederico-netizen/jaby-monorepo` (rama `master`); ambas apps se despliegan en Vercel (confirmar con Garel el detalle de la config de deploy del client).
+- No commitear ni pushear sin que se pida. Repo: `tolezfederico-netizen/jaby-monorepo` (rama `master`); ambas apps se despliegan en Vercel (el client no tiene `vercel.json`: su config está en el panel de Vercel).
 
 ## Pendientes
 

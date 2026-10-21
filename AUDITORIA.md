@@ -21,9 +21,9 @@ Pendiente:
   (`next_order_number` solo `service_role`) y `20261021010000` (políticas del bucket `Productos`, que
   impedían subir imágenes, y baja de las políticas viejas de `tiktok-thumbnails`).
   Pendiente menor: 5 productos con la imagen embebida en la base (data URI); volver a subirlas.
-- **R4** (`config.toml`/esquema base), **R6** (Node 20 local), **R5 client** (confirmar con Garel la config de Vercel del client).
+- **R4** ✅ `supabase/config.toml` agregado (verify_jwt de las funciones; auth igual a producción). Falta versionar el esquema base (requiere Docker o `pg_dump` con la clave de la base). **R6** ✅ Node 20 activo con nvm. **R5 client**: revisar la config de Vercel del client.
 - **S5** — quedan `vite`/`esbuild` (solo dev server; requiere versión mayor).
-- **E1** — falta paginar Clientes (mismo límite de 1000 filas).
+- **E1** ✅ Clientes paginado: búsqueda, orden y filtro en la base; de a 100 con "Cargar más"; el Excel trae todos en tandas.
 
 **Estado general:** build OK, lint 0 errores, tipos OK. En el historial de git solo aparece la clave
 `anon` (pública); no hay claves `service_role` filtradas. Lo que está bien hecho: precios recalculados
