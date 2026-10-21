@@ -38,7 +38,9 @@
   outline: none;
 }
 
-.searchInput:focus { border-color: var(--color-primary); }
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
 
 /* Filters */
 .filtersWrapper {
@@ -201,8 +203,16 @@
   }
 }
 
-.groupedList { display: flex; flex-direction: column; gap: 1.25rem; }
-.orderGroup { display: flex; flex-direction: column; gap: 0.5rem; }
+.groupedList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.orderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 .groupTitle {
   font-size: 0.75rem;
   font-weight: 600;
@@ -225,7 +235,9 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.1s ease, background-color 0.1s ease;
+  transition:
+    border-color 0.1s ease,
+    background-color 0.1s ease;
 }
 
 .card:hover {
@@ -286,13 +298,27 @@
 }
 
 /* Tintes muy suaves por estado: solo en lo que está activo */
-.card_pending { background-color: #fffcf3; }
-.card_confirmed { background-color: #f4fbf7; }
-.card_in_progress { background-color: #f4f8ff; }
-.card.cardUnattended_warning { background-color: #fff8e8; }
-.card.cardUnattended_critical { background-color: #fff5f5; }
-.card.cardUnattended_abandoned { background-color: var(--color-surface); }
-.card.cardSelected { background-color: #fdf0f7; }
+.card_pending {
+  background-color: #fffcf3;
+}
+.card_confirmed {
+  background-color: #f4fbf7;
+}
+.card_in_progress {
+  background-color: #f4f8ff;
+}
+.card.cardUnattended_warning {
+  background-color: #fff8e8;
+}
+.card.cardUnattended_critical {
+  background-color: #fff5f5;
+}
+.card.cardUnattended_abandoned {
+  background-color: var(--color-surface);
+}
+.card.cardSelected {
+  background-color: #fdf0f7;
+}
 
 .cardHeader {
   display: flex;
@@ -333,7 +359,10 @@
   color: var(--color-button-text);
 }
 
-.quickConfirmButton:disabled { opacity: 0.5; cursor: not-allowed; }
+.quickConfirmButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .archiveButton {
   padding: 0.3rem 0.65rem;
@@ -527,7 +556,9 @@
   transform: translate(-50%, -48%) scale(0.98);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.15s ease;
   z-index: 400;
 }
 

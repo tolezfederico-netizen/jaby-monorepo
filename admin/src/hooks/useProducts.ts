@@ -51,11 +51,7 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: async (payload: ProductCreateType) => {
       const validated = ProductCreateSchema.parse(payload)
-      const { data, error } = await supabase
-        .from('products')
-        .insert(validated)
-        .select()
-        .single()
+      const { data, error } = await supabase.from('products').insert(validated).select().single()
 
       if (error) throw new Error(error.message)
       return ProductSchema.parse(data)
@@ -93,15 +89,13 @@ export function useDeleteProduct() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id)
-        .select()
+      const { data, error } = await supabase.from('products').delete().eq('id', id).select()
 
       if (error) throw new Error(error.message)
       if (!data || data.length === 0) {
-        throw new Error('No se encontró el registro a eliminar, o no tenés permisos para eliminarlo')
+        throw new Error(
+          'No se encontró el registro a eliminar, o no tenés permisos para eliminarlo'
+        )
       }
     },
     onSuccess: () => {

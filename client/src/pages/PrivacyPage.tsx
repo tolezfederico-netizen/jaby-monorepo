@@ -48,8 +48,8 @@ function PrivacyPage() {
           <li>Gestionar, preparar y entregar tu pedido, y contactarte por él.</li>
           <li>Llevar un registro de clientes y pedidos del Local.</li>
           <li>
-            Solo si lo aceptás de forma expresa y opcional al confirmar el pedido: enviarte novedades
-            y promociones por WhatsApp.
+            Solo si lo aceptás de forma expresa y opcional al confirmar el pedido: enviarte
+            novedades y promociones por WhatsApp.
           </li>
         </ul>
         <p>No vendemos tus datos ni los cedemos a terceros con fines propios de ellos.</p>
@@ -57,8 +57,8 @@ function PrivacyPage() {
         <h2>Con quién se comparten</h2>
         <p>
           Usamos proveedores tecnológicos para operar el sitio (alojamiento y base de datos) y
-          WhatsApp para comunicarnos con vos. Estos proveedores tratan los datos solo para prestarnos
-          el servicio.
+          WhatsApp para comunicarnos con vos. Estos proveedores tratan los datos solo para
+          prestarnos el servicio.
         </p>
 
         <h2>Cuánto tiempo los conservamos</h2>
@@ -69,8 +69,8 @@ function PrivacyPage() {
 
         <h2>Tus derechos</h2>
         <p>
-          Podés acceder a tus datos, rectificarlos o actualizarlos, y solicitar su supresión, así como
-          retirar en cualquier momento el consentimiento para recibir promociones. Escribinos
+          Podés acceder a tus datos, rectificarlos o actualizarlos, y solicitar su supresión, así
+          como retirar en cualquier momento el consentimiento para recibir promociones. Escribinos
           {contactUrl ? ' por WhatsApp' : ''} indicando el teléfono con el que hiciste el pedido.
         </p>
 
@@ -79,8 +79,8 @@ function PrivacyPage() {
           mismos en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un
           interés legítimo al efecto, conforme lo establecido en el artículo 14, inciso 3 de la Ley
           N° 25.326. La Agencia de Acceso a la Información Pública, en su carácter de Órgano de
-          Control de la Ley N° 25.326, tiene la atribución de atender las denuncias y reclamos que se
-          interpongan con relación al incumplimiento de las normas sobre protección de datos
+          Control de la Ley N° 25.326, tiene la atribución de atender las denuncias y reclamos que
+          se interpongan con relación al incumplimiento de las normas sobre protección de datos
           personales.
         </div>
       </div>

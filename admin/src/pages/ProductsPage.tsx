@@ -65,9 +65,7 @@ function productToForm(p: ProductType): ProductFormData {
 type StatusFilter = 'all' | 'active' | 'paused' | 'out_of_stock'
 
 const formatPrice = (price: number | null | undefined): string =>
-  price == null
-    ? ''
-    : `$${price.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`
+  price == null ? '' : `$${price.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`
 
 function ProductsPage() {
   const MAX_FEATURED_PRODUCTS = 6
@@ -208,8 +206,14 @@ function ProductsPage() {
     e.preventDefault()
     setFormError(null)
 
-    if (!form.name.trim()) { setFormError('El nombre es obligatorio.'); return }
-    if (!form.category_id) { setFormError('Seleccioná una categoría.'); return }
+    if (!form.name.trim()) {
+      setFormError('El nombre es obligatorio.')
+      return
+    }
+    if (!form.category_id) {
+      setFormError('Seleccioná una categoría.')
+      return
+    }
 
     if (form.is_featured && featuredLimitReached) {
       setFormError(
@@ -263,7 +267,9 @@ function ProductsPage() {
     if (!product.is_featured) {
       const count = (products ?? []).filter((p) => p.is_featured).length
       if (count >= MAX_FEATURED_PRODUCTS) {
-        showToast(`Solo podés tener hasta ${MAX_FEATURED_PRODUCTS} productos destacados en simultáneo.`)
+        showToast(
+          `Solo podés tener hasta ${MAX_FEATURED_PRODUCTS} productos destacados en simultáneo.`
+        )
         return
       }
     }
@@ -419,7 +425,9 @@ function ProductsPage() {
                   className={`${styles.starButton} ${product.is_featured ? styles.starButtonOn : ''}`}
                   onClick={(e) => handleToggleFeatured(product, e)}
                   title={product.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
-                  aria-label={product.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'}
+                  aria-label={
+                    product.is_featured ? 'Quitar de destacados' : 'Marcar como destacado'
+                  }
                 >
                   <StarIcon size={16} filled={product.is_featured} />
                 </button>
@@ -427,7 +435,9 @@ function ProductsPage() {
               </div>
 
               <div className={styles.cardBody}>
-                <span className={styles.cardName} title={product.name}>{product.name}</span>
+                <span className={styles.cardName} title={product.name}>
+                  {product.name}
+                </span>
                 <span className={styles.cardCategory}>{categoryName(product.category_id)}</span>
                 <div className={styles.cardTags}>
                   <span className={styles.cardPrice}>
@@ -452,7 +462,10 @@ function ProductsPage() {
                 </button>
                 <button
                   className={styles.iconBtn}
-                  onClick={(e) => { e.stopPropagation(); openEdit(product) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    openEdit(product)
+                  }}
                   title="Editar"
                   aria-label="Editar"
                 >
@@ -478,12 +491,7 @@ function ProductsPage() {
         createPortal(
           <>
             <div className={styles.overlay} onClick={closeDialog} />
-            <form
-              className={styles.dialog}
-              onSubmit={handleSubmit}
-              role="dialog"
-              aria-modal="true"
-            >
+            <form className={styles.dialog} onSubmit={handleSubmit} role="dialog" aria-modal="true">
               <div className={styles.dialogHeader}>
                 <h2 className={styles.dialogTitle}>
                   {isCreating ? 'Nuevo producto' : 'Editar producto'}
@@ -520,9 +528,7 @@ function ProductsPage() {
                       className={styles.fileInput}
                     />
                   </label>
-                  {form.imageFile && (
-                    <span className={styles.fileName}>{form.imageFile.name}</span>
-                  )}
+                  {form.imageFile && <span className={styles.fileName}>{form.imageFile.name}</span>}
                   {uploadImage.isPending && (
                     <p className={styles.uploadingText}>Subiendo imagen...</p>
                   )}
@@ -582,7 +588,9 @@ function ProductsPage() {
                       >
                         <option value="">Seleccionar</option>
                         {categories?.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -607,8 +615,8 @@ function ProductsPage() {
                       <span>
                         <strong>Destacado</strong>
                         <small>
-                          Aparece en el carrusel de la tienda ({featuredOthers + (form.is_featured ? 1 : 0)}/
-                          {MAX_FEATURED_PRODUCTS}).
+                          Aparece en el carrusel de la tienda (
+                          {featuredOthers + (form.is_featured ? 1 : 0)}/{MAX_FEATURED_PRODUCTS}).
                         </small>
                       </span>
                       <input
@@ -636,7 +644,8 @@ function ProductsPage() {
                     </label>
                     {featuredLimitReached && !form.is_featured && (
                       <p className={styles.hintWarning}>
-                        Ya hay {MAX_FEATURED_PRODUCTS} productos destacados. Quitá uno para poder destacar este.
+                        Ya hay {MAX_FEATURED_PRODUCTS} productos destacados. Quitá uno para poder
+                        destacar este.
                       </p>
                     )}
                   </div>
@@ -681,7 +690,11 @@ function ProductsPage() {
           document.body
         )}
 
-      {toast && <div className={styles.toast} role="status">{toast}</div>}
+      {toast && (
+        <div className={styles.toast} role="status">
+          {toast}
+        </div>
+      )}
 
       {productToPause && (
         <ConfirmModal

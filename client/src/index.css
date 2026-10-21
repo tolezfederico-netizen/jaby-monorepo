@@ -1,20 +1,20 @@
 :root {
-  --color-bg: #0D0D1A;
-  --color-surface: #1A1A2E;
+  --color-bg: #0d0d1a;
+  --color-surface: #1a1a2e;
   --color-border: rgba(233, 30, 140, 0.2);
 
-  --color-primary: #E91E8C;
-  --color-primary-hover: #C4187A;
+  --color-primary: #e91e8c;
+  --color-primary-hover: #c4187a;
   --color-button-text: #ffffff;
 
-  --color-text-primary: #F0F0F0;
+  --color-text-primary: #f0f0f0;
   --color-text-secondary: rgba(240, 240, 240, 0.6);
 
   --color-error: #b91c1c;
   --color-error-bg: rgba(233, 30, 140, 0.12);
   --color-error-border: rgba(233, 30, 140, 0.35);
 
-  --color-warning: #F0F0F0;
+  --color-warning: #f0f0f0;
   --color-warning-bg: rgba(233, 30, 140, 0.1);
   --color-warning-border: rgba(233, 30, 140, 0.3);
 
@@ -22,7 +22,9 @@
   --radius-lg: 12px;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -30,8 +32,14 @@
 
 body {
   overflow-x: hidden;
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #0D0D1A;
+  font-family:
+    'Nunito',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background-color: #0d0d1a;
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;

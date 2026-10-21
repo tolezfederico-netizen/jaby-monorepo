@@ -23,27 +23,25 @@ type CartAction =
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existing = state.items.find(i => i.product.id === action.product.id)
+      const existing = state.items.find((i) => i.product.id === action.product.id)
       if (existing) {
         if (existing.quantity >= MAX_ITEM_QUANTITY) return state
         return {
-          items: state.items.map(i =>
-            i.product.id === action.product.id
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
+          items: state.items.map((i) =>
+            i.product.id === action.product.id ? { ...i, quantity: i.quantity + 1 } : i
           ),
         }
       }
       return { items: [...state.items, { product: action.product, quantity: 1 }] }
     }
     case 'REMOVE_ITEM':
-      return { items: state.items.filter(i => i.product.id !== action.productId) }
+      return { items: state.items.filter((i) => i.product.id !== action.productId) }
     case 'UPDATE_QUANTITY':
       if (action.quantity <= 0) {
-        return { items: state.items.filter(i => i.product.id !== action.productId) }
+        return { items: state.items.filter((i) => i.product.id !== action.productId) }
       }
       return {
-        items: state.items.map(i =>
+        items: state.items.map((i) =>
           i.product.id === action.productId
             ? { ...i, quantity: Math.min(action.quantity, MAX_ITEM_QUANTITY) }
             : i
@@ -74,16 +72,17 @@ function isPersistedCartState(value: unknown): value is CartState {
     return false
   }
 
-  return (value as CartState).items.every((item) => (
-    item &&
-    typeof item === 'object' &&
-    item.product &&
-    typeof item.product === 'object' &&
-    typeof item.product.id === 'string' &&
-    typeof item.product.name === 'string' &&
-    Number.isInteger(item.quantity) &&
-    item.quantity > 0
-  ))
+  return (value as CartState).items.every(
+    (item) =>
+      item &&
+      typeof item === 'object' &&
+      item.product &&
+      typeof item.product === 'object' &&
+      typeof item.product.id === 'string' &&
+      typeof item.product.name === 'string' &&
+      Number.isInteger(item.quantity) &&
+      item.quantity > 0
+  )
 }
 
 function getInitialCartState(): CartState {
@@ -131,10 +130,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [state])
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0)
-  const totalPrice = state.items.reduce(
-    (sum, i) => sum + (i.product.price ?? 0) * i.quantity,
-    0
-  )
+  const totalPrice = state.items.reduce((sum, i) => sum + (i.product.price ?? 0) * i.quantity, 0)
 
   return (
     <CartContext.Provider

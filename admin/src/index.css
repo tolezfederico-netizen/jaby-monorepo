@@ -4,8 +4,8 @@
   --color-surface: #ffffff;
   --color-border: rgba(0, 0, 0, 0.12);
 
-  --color-primary: #E91E8C;
-  --color-primary-hover: #C4187A;
+  --color-primary: #e91e8c;
+  --color-primary-hover: #c4187a;
   --color-button-text: #ffffff;
 
   --color-text-primary: #1a1025;
@@ -32,7 +32,9 @@
 }
 
 /* Reset base */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;

@@ -22,14 +22,15 @@ function isLastOrderSnapshot(value: unknown): value is LastOrderSnapshot {
   const snapshot = value as LastOrderSnapshot
   return (
     Array.isArray(snapshot.items) &&
-    snapshot.items.every((item) => (
-      item &&
-      typeof item.name === 'string' &&
-      (item.product_id === undefined || typeof item.product_id === 'string') &&
-      Number.isInteger(item.quantity) &&
-      item.quantity > 0 &&
-      (item.price === null || typeof item.price === 'number')
-    )) &&
+    snapshot.items.every(
+      (item) =>
+        item &&
+        typeof item.name === 'string' &&
+        (item.product_id === undefined || typeof item.product_id === 'string') &&
+        Number.isInteger(item.quantity) &&
+        item.quantity > 0 &&
+        (item.price === null || typeof item.price === 'number')
+    ) &&
     typeof snapshot.total === 'number' &&
     (snapshot.modality === 'pickup' || snapshot.modality === 'delivery') &&
     typeof snapshot.confirmedAt === 'string'

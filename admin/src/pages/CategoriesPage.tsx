@@ -1,10 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from '../hooks/useCategories'
+import {
+  useCategories,
+  useCreateCategory,
+  useDeleteCategory,
+  useUpdateCategory,
+} from '../hooks/useCategories'
 import { useProducts } from '../hooks/useProducts'
 import type { CategoryType } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
-import { CategoriesIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon, AlertIcon } from '../components/icons'
+import {
+  CategoriesIcon,
+  CloseIcon,
+  EditIcon,
+  PlusIcon,
+  TrashIcon,
+  AlertIcon,
+} from '../components/icons'
 import styles from './CategoriesPage.module.css'
 
 function CategoriesPage() {
@@ -72,11 +84,17 @@ function CategoriesPage() {
     setFormError(null)
 
     const trimmed = name.trim()
-    if (!trimmed) { setFormError('El nombre es obligatorio.'); return }
+    if (!trimmed) {
+      setFormError('El nombre es obligatorio.')
+      return
+    }
     const duplicated = (categories ?? []).some(
       (c) => c.id !== selected?.id && c.name.toLowerCase() === trimmed.toLowerCase()
     )
-    if (duplicated) { setFormError('Ya existe una categoría con ese nombre.'); return }
+    if (duplicated) {
+      setFormError('Ya existe una categoría con ese nombre.')
+      return
+    }
 
     try {
       if (isCreating) {
@@ -140,7 +158,9 @@ function CategoriesPage() {
                   <CategoriesIcon size={20} />
                 </span>
                 <div className={styles.cardInfo}>
-                  <span className={styles.cardName} title={category.name}>{category.name}</span>
+                  <span className={styles.cardName} title={category.name}>
+                    {category.name}
+                  </span>
                   <span className={styles.cardMeta}>
                     {count === 0
                       ? 'Sin productos'
@@ -152,7 +172,10 @@ function CategoriesPage() {
                 <div className={styles.cardActions}>
                   <button
                     className={styles.iconBtn}
-                    onClick={(e) => { e.stopPropagation(); openEdit(category) }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openEdit(category)
+                    }}
                     title="Editar"
                     aria-label="Editar"
                   >
@@ -160,7 +183,10 @@ function CategoriesPage() {
                   </button>
                   <button
                     className={`${styles.iconBtn} ${styles.iconBtnDelete}`}
-                    onClick={(e) => { e.stopPropagation(); handleDeleteRequest(category) }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteRequest(category)
+                    }}
                     disabled={deleteCategory.isPending}
                     title="Eliminar"
                     aria-label="Eliminar"
@@ -194,7 +220,9 @@ function CategoriesPage() {
               </div>
 
               <div className={styles.dialogBody}>
-                <label className={styles.label} htmlFor="category-name">Nombre *</label>
+                <label className={styles.label} htmlFor="category-name">
+                  Nombre *
+                </label>
                 <input
                   id="category-name"
                   name="name"
@@ -232,7 +260,11 @@ function CategoriesPage() {
           document.body
         )}
 
-      {toast && <div className={styles.toast} role="status">{toast}</div>}
+      {toast && (
+        <div className={styles.toast} role="status">
+          {toast}
+        </div>
+      )}
 
       {categoryToDelete && (
         <ConfirmModal

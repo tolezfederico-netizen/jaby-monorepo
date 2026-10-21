@@ -51,8 +51,6 @@
   }
 }
 
-
-
 .sectionHeader {
   display: flex;
   align-items: center;
@@ -417,7 +415,7 @@
   line-height: 1.4;
   text-align: center;
   color: #ffffff;
-  background: linear-gradient(135deg, #E91E8C 0%, #1A1A2E 100%);
+  background: linear-gradient(135deg, #e91e8c 0%, #1a1a2e 100%);
   border-radius: var(--radius-md);
   overflow-wrap: anywhere;
 }

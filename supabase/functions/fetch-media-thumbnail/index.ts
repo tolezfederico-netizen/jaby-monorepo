@@ -92,7 +92,12 @@ serve(async (req) => {
     try {
       oembedResponse = await fetchWithTimeout(oembedUrl)
     } catch (error) {
-      console.error('[fetch-media-thumbnail] Error de red o timeout en oEmbed', { url, normalizedUrl: normalized.url, oembedUrl, error })
+      console.error('[fetch-media-thumbnail] Error de red o timeout en oEmbed', {
+        url,
+        normalizedUrl: normalized.url,
+        oembedUrl,
+        error,
+      })
       return jsonResponse({ error: 'TikTok no respondio a tiempo o no esta disponible' }, 502)
     }
 
@@ -112,13 +117,21 @@ serve(async (req) => {
     try {
       oembed = await oembedResponse.json()
     } catch (error) {
-      console.error('[fetch-media-thumbnail] Respuesta oEmbed no valida como JSON', { url, normalizedUrl: normalized.url, error })
+      console.error('[fetch-media-thumbnail] Respuesta oEmbed no valida como JSON', {
+        url,
+        normalizedUrl: normalized.url,
+        error,
+      })
       return jsonResponse({ error: 'TikTok devolvio una respuesta JSON invalida' }, 502)
     }
 
     const thumbnailUrl = typeof oembed.thumbnail_url === 'string' ? oembed.thumbnail_url : ''
     if (!thumbnailUrl) {
-      console.error('[fetch-media-thumbnail] oEmbed no contiene thumbnail_url', { url, normalizedUrl: normalized.url, oembed })
+      console.error('[fetch-media-thumbnail] oEmbed no contiene thumbnail_url', {
+        url,
+        normalizedUrl: normalized.url,
+        oembed,
+      })
       return jsonResponse({ error: 'TikTok no devolvio thumbnail_url' }, 502)
     }
 
@@ -126,7 +139,11 @@ serve(async (req) => {
     try {
       imageResponse = await fetchWithTimeout(thumbnailUrl)
     } catch (error) {
-      console.error('[fetch-media-thumbnail] Error de red o timeout descargando thumbnail', { url, thumbnailUrl, error })
+      console.error('[fetch-media-thumbnail] Error de red o timeout descargando thumbnail', {
+        url,
+        thumbnailUrl,
+        error,
+      })
       return jsonResponse({ error: 'No se pudo descargar el thumbnail de TikTok' }, 502)
     }
     if (!imageResponse.ok) {
@@ -155,7 +172,11 @@ serve(async (req) => {
       .from('media-thumbnails')
       .upload(path, imageBlob, { upsert: true, contentType: 'image/jpeg' })
     if (uploadError) {
-      console.error('[fetch-media-thumbnail] Error subiendo thumbnail a Storage', { url, path, error: uploadError })
+      console.error('[fetch-media-thumbnail] Error subiendo thumbnail a Storage', {
+        url,
+        path,
+        error: uploadError,
+      })
       return jsonResponse({ error: 'No se pudo guardar el thumbnail en Storage' }, 500)
     }
 

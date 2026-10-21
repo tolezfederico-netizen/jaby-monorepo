@@ -11,10 +11,12 @@ export type CreateMediaContentPayload = {
   thumbnail_source?: 'auto' | 'manual'
 }
 
-export type UpdateMediaContentPayload = Partial<Pick<
-  MediaContentType,
-  'provider' | 'url' | 'order' | 'is_active' | 'thumbnail_url' | 'thumbnail_source'
->>
+export type UpdateMediaContentPayload = Partial<
+  Pick<
+    MediaContentType,
+    'provider' | 'url' | 'order' | 'is_active' | 'thumbnail_url' | 'thumbnail_source'
+  >
+>
 
 export async function getMediaContent(): Promise<MediaContentType[]> {
   const { data, error } = await supabase
@@ -25,19 +27,17 @@ export async function getMediaContent(): Promise<MediaContentType[]> {
   return data as MediaContentType[]
 }
 
-export async function createMediaContent(payload: CreateMediaContentPayload): Promise<MediaContentType> {
-  const { data, error } = await supabase
-    .from('media_content')
-    .insert(payload)
-    .select()
-    .single()
+export async function createMediaContent(
+  payload: CreateMediaContentPayload
+): Promise<MediaContentType> {
+  const { data, error } = await supabase.from('media_content').insert(payload).select().single()
   if (error) throw error
   return data as MediaContentType
 }
 
 export async function updateMediaContent(
   id: string,
-  payload: UpdateMediaContentPayload,
+  payload: UpdateMediaContentPayload
 ): Promise<MediaContentType> {
   const { data, error } = await supabase
     .from('media_content')
@@ -78,6 +78,9 @@ export async function deleteMediaContent(id: string): Promise<void> {
   }
 
   if (paths.length > 0) {
-    await supabase.storage.from('media-thumbnails').remove(paths).catch(() => {})
+    await supabase.storage
+      .from('media-thumbnails')
+      .remove(paths)
+      .catch(() => {})
   }
 }

@@ -9,7 +9,12 @@ interface CoverageZoneModalProps {
   onClose: () => void
 }
 
-function CoverageZoneModal({ existingZones, isSaving = false, onConfirm, onClose }: CoverageZoneModalProps) {
+function CoverageZoneModal({
+  existingZones,
+  isSaving = false,
+  onConfirm,
+  onClose,
+}: CoverageZoneModalProps) {
   const [zone, setZone] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -43,11 +48,15 @@ function CoverageZoneModal({ existingZones, isSaving = false, onConfirm, onClose
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(event) => event.stopPropagation()}>
         <div className={styles.header}>
-          <span className={styles.icon}><ScooterIcon size={20} /></span>
+          <span className={styles.icon}>
+            <ScooterIcon size={20} />
+          </span>
           <h3 className={styles.title}>Agregar zona de cobertura</h3>
         </div>
         <form onSubmit={handleSubmit}>
-          <label className={styles.label} htmlFor="coverage-zone-name">Nombre de la zona</label>
+          <label className={styles.label} htmlFor="coverage-zone-name">
+            Nombre de la zona
+          </label>
           <input
             id="coverage-zone-name"
             value={zone}
@@ -60,10 +69,23 @@ function CoverageZoneModal({ existingZones, isSaving = false, onConfirm, onClose
             autoFocus
             disabled={isSaving}
           />
-          {error && <p className={styles.error} role="alert">{error}</p>}
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
           <div className={styles.actions}>
-            <button type="button" className={styles.cancelButton} onClick={onClose} disabled={isSaving}>Cancelar</button>
-            <button type="submit" className={styles.confirmButton} disabled={isSaving}>Agregar</button>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={onClose}
+              disabled={isSaving}
+            >
+              Cancelar
+            </button>
+            <button type="submit" className={styles.confirmButton} disabled={isSaving}>
+              Agregar
+            </button>
           </div>
         </form>
       </div>

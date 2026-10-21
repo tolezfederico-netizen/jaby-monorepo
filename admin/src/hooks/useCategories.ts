@@ -26,11 +26,7 @@ export function useCreateCategory() {
   return useMutation({
     mutationFn: async (payload: CategoryCreateType) => {
       const validated = CategoryCreateSchema.parse(payload)
-      const { data, error } = await supabase
-        .from('categories')
-        .insert(validated)
-        .select()
-        .single()
+      const { data, error } = await supabase.from('categories').insert(validated).select().single()
 
       if (error) throw error
       return CategorySchema.parse(data)
@@ -46,15 +42,13 @@ export function useDeleteCategory() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', id)
-        .select()
+      const { data, error } = await supabase.from('categories').delete().eq('id', id).select()
 
       if (error) throw error
       if (!data || data.length === 0) {
-        throw new Error('No se encontró el registro a eliminar, o no tenés permisos para eliminarlo')
+        throw new Error(
+          'No se encontró el registro a eliminar, o no tenés permisos para eliminarlo'
+        )
       }
     },
     onSuccess: () => {

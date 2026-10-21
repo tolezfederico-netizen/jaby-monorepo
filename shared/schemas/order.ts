@@ -1,11 +1,6 @@
 import { z } from 'zod'
 
-export const OrderStatusSchema = z.enum([
-  'pending',
-  'confirmed',
-  'in_progress',
-  'completed',
-])
+export const OrderStatusSchema = z.enum(['pending', 'confirmed', 'in_progress', 'completed'])
 
 export const OrderModalitySchema = z.enum(['pickup', 'delivery'])
 

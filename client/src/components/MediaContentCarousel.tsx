@@ -24,7 +24,9 @@ function MediaContentModal({ item, onClose }: { item: MediaContentType; onClose:
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(event) => event.stopPropagation()}>
-        <button className={styles.modalClose} onClick={onClose} aria-label="Cerrar">x</button>
+        <button className={styles.modalClose} onClick={onClose} aria-label="Cerrar">
+          x
+        </button>
         <iframe
           src={embedUrl}
           className={styles.modalIframe}
@@ -74,8 +76,9 @@ function MediaContentCarousel() {
 
   if (isLoading || total === 0) return null
 
-  const visibleItems = Array.from({ length: Math.min(visibleCount, total) }, (_, index) =>
-    activeItems[(current + index) % total],
+  const visibleItems = Array.from(
+    { length: Math.min(visibleCount, total) },
+    (_, index) => activeItems[(current + index) % total]
   )
 
   return (
@@ -83,13 +86,16 @@ function MediaContentCarousel() {
       <div className={styles.carouselContainer}>
         <h2 className={styles.title}>Lo último que subimos</h2>
         <div className={styles.carouselWrapper}>
-          <button className={styles.arrow} onClick={handlePrev} aria-label="Anterior">&lt;</button>
+          <button className={styles.arrow} onClick={handlePrev} aria-label="Anterior">
+            &lt;
+          </button>
           <div className={styles.track}>
             {visibleItems.map((item, index) => {
               const externalId = extractExternalId(item.url, item.provider)
-              const fallbackThumbnail = item.provider === 'tiktok' && externalId
-                ? `https://www.tiktok.com/api/img/?itemId=${externalId}&location=1`
-                : null
+              const fallbackThumbnail =
+                item.provider === 'tiktok' && externalId
+                  ? `https://www.tiktok.com/api/img/?itemId=${externalId}&location=1`
+                  : null
               const thumbnail = item.thumbnail_url || fallbackThumbnail
 
               return (
@@ -112,19 +118,35 @@ function MediaContentCarousel() {
                           return
                         }
                         image.style.display = 'none'
-                        const placeholder = image.closest('[data-slide]')?.querySelector('[data-placeholder]') as HTMLElement | null
+                        const placeholder = image
+                          .closest('[data-slide]')
+                          ?.querySelector('[data-placeholder]') as HTMLElement | null
                         if (placeholder) placeholder.style.display = 'flex'
                       }}
                     />
                   ) : null}
-                  <div data-placeholder="true" className={styles.placeholder} style={{ display: thumbnail ? 'none' : 'flex' }}>
-                    <svg className={styles.placeholderIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <div
+                    data-placeholder="true"
+                    className={styles.placeholder}
+                    style={{ display: thumbnail ? 'none' : 'flex' }}
+                  >
+                    <svg
+                      className={styles.placeholderIcon}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="12" cy="12" r="10" />
                       <path d="M15 12l-5-3v6z" />
                     </svg>
                     <span className={styles.placeholderLabel}>Contenido</span>
                   </div>
-                  <span className={styles.providerBadge}>{item.provider === 'instagram' ? 'Instagram' : 'TikTok'}</span>
+                  <span className={styles.providerBadge}>
+                    {item.provider === 'instagram' ? 'Instagram' : 'TikTok'}
+                  </span>
                   {getEmbedUrl(item.url, item.provider) ? (
                     <div className={styles.playOverlay}>
                       <div className={styles.playButton}>&gt;</div>
@@ -144,7 +166,9 @@ function MediaContentCarousel() {
               )
             })}
           </div>
-          <button className={styles.arrow} onClick={handleNext} aria-label="Siguiente">&gt;</button>
+          <button className={styles.arrow} onClick={handleNext} aria-label="Siguiente">
+            &gt;
+          </button>
         </div>
         <div className={styles.dots}>
           {activeItems.map((_, index) => (

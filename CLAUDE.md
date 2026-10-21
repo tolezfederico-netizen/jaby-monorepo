@@ -4,6 +4,7 @@ Tienda online de bebidas y antojos (negocio local argentino). El cliente arma el
 Nombre comercial actual: **Antojos Ya**. El repo, los paquetes npm y las claves de localStorage conservan los nombres viejos (`jaby`, `antojos-express-*`): no renombrar sin pedirlo.
 
 ## Estructura (monorepo, npm workspaces)
+
 - `client/` tienda pública (React 18 + Vite 5 + TS). Tema **oscuro**. Puerto dev por defecto de Vite.
 - `admin/` panel de administración (mismo stack). Tema **claro**. Dev en puerto 5174. Deploy en Vercel (`admin/vercel.json`, rewrite SPA).
 - `shared/` paquete `@jaby/shared`: schemas Zod, tipos, utils, `lib/media-*`, `supabase.ts`. Se consume como TypeScript fuente (sin build); los subpaths expuestos están en `shared/package.json` (`exports`): si agregás un archivo importable por ruta, agregalo ahí.
@@ -12,15 +13,18 @@ Nombre comercial actual: **Antojos Ya**. El repo, los paquetes npm y las claves 
 Rutas: client `/`, `/checkout`. Admin: Dashboard, Pedidos, Productos, Categorías, Contenido Multimedia (`/contenido-multimedia`), Clientes, Configuración, Login.
 
 ## Comandos (desde la raíz)
+
 - `npm install` (Node 20: ver `.nvmrc`; engines `>=18 <21`)
 - `npm run dev` levanta client + admin. `npm run build:client` / `build:admin` / `build`.
 - El build de admin corre `tsc && vite build` (falla ante errores de tipos); el de client es solo `vite build`.
-- `npm run lint`, `npm run format:check`, `npm run format`. Prettier: con punto y coma, comillas simples, 2 espacios, 100 columnas.
+- `npm run lint`, `npm run format:check`, `npm run format`. Prettier: sin punto y coma, comillas simples, 2 espacios, 100 columnas.
 - **No hay tests automatizados.** Validar con build + lint + probar a mano en el navegador.
 - Variables: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en `admin/.env.local` y `client/.env.local` (ignorados por git; ver `.env.example`). Nunca leer, imprimir ni commitear `.env*`.
 
 ## Backend (Supabase, plan gratuito, sa-east-1)
+
 Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-thumbnails`), Realtime, Edge Functions. El plan gratuito pausa el proyecto por inactividad.
+
 - Las migraciones versionadas en `supabase/migrations/` arrancan en septiembre 2026; el esquema base (products, categories, orders, etc.) no está en el repo.
 - **Cambios de DB siempre como migración nueva + `supabase db push`. Nunca SQL directo contra producción** (ya causó una desincronización de historial).
 - `products.out_of_stock_since` lo mantiene un trigger BEFORE UPDATE: **nunca setearlo desde el frontend**.
@@ -29,6 +33,7 @@ Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-t
 - Los schemas de pedido están duplicados a mano: `shared/schemas/order.ts` (npm/Zod) y `supabase/functions/create-order/index.ts` (Deno/esm.sh). **Si cambia uno, revisar el otro.**
 
 ## Patrones de código
+
 - Datos: React Query. Client: `staleTime: Infinity` + invalidación por Realtime (`postgres_changes`) para productos y config. Admin: pedidos con polling de 60 s + invalidación manual tras cada acción.
 - Respuestas de Supabase se validan con Zod (`Schema.parse`) en los hooks.
 - Cada app tiene sus hooks en `src/hooks/` y su `lib/supabase.ts`/`queryClient.ts`; la lógica compartida va en `shared/`.
@@ -42,10 +47,12 @@ Postgres, Auth (email/clave para admin), Storage (buckets `Productos` y `media-t
 - Textos de UI en español rioplatense.
 
 ## Reglas de trabajo
+
 - Cambios chicos y enfocados; no refactorizar de paso. Antes de dar algo por hecho: `npm run build` (y lint si se tocó lógica).
 - Cambios visuales: revisar mobile y desktop (la tienda se usa sobre todo desde el celular).
 - Admin (patrón común a todas las pantallas): barra superior rosa pálida (`#fdf2f8`), chips blancos con activo rosa, cards, diálogos centrados con `createPortal` (bottom sheet en móvil), `ConfirmModal` para acciones destructivas/pausa, switches, toasts, íconos en `components/icons.tsx`. Móvil: `.mobileBar` fijo bajo la hamburguesa, barras no sticky, botones de guardar no flotantes. En CSS Modules, a igual especificidad gana la regla posterior: poner overrides al final o subir especificidad.
 - No commitear ni pushear sin que se pida. Repo: `tolezfederico-netizen/jaby-monorepo` (rama `master`); ambas apps se despliegan en Vercel (confirmar con Garel el detalle de la config de deploy del client).
 
 ## Pendientes
+
 Ver `TODO.md`.

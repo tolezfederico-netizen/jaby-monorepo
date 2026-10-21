@@ -43,12 +43,7 @@ function AdminLayout() {
         ☰
       </button>
 
-      {isSidebarOpen && (
-        <div
-          className={styles.overlay}
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {isSidebarOpen && <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)} />}
 
       <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.brand}>
@@ -75,10 +70,7 @@ function AdminLayout() {
 
         <div className={styles.footer}>
           <span className={styles.userEmail}>{user?.email}</span>
-          <button
-            className={styles.signOutButton}
-            onClick={handleSignOut}
-          >
+          <button className={styles.signOutButton} onClick={handleSignOut}>
             Salir
           </button>
         </div>

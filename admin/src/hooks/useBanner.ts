@@ -11,11 +11,7 @@ export function useBanner() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banners')
-        .select('*')
-        .limit(1)
-        .maybeSingle()
+      const { data, error } = await supabase.from('banners').select('*').limit(1).maybeSingle()
 
       if (error) throw new Error(error.message)
       return data ? BannerSchema.parse(data) : null

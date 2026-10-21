@@ -7,16 +7,19 @@ import type { OrderStatusType } from '@jaby/shared'
 // TODO: mover a shared/schemas/order.ts y exportar desde @jaby/shared
 const OrderWithItemsSchema = OrderSchema.extend({
   customer_phone: z.string().nullable().optional(),
-  order_items: z.array(
-    z.object({
-      id: z.string().uuid(),
-      product_id: z.string().uuid().nullable(),
-      product_name: z.string(),
-      quantity: z.number(),
-      unit_price: z.number(),
-      subtotal: z.number(),
-    })
-  ).optional().default([]),
+  order_items: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        product_id: z.string().uuid().nullable(),
+        product_name: z.string(),
+        quantity: z.number(),
+        unit_price: z.number(),
+        subtotal: z.number(),
+      })
+    )
+    .optional()
+    .default([]),
 })
 
 export type OrderWithItemsType = z.infer<typeof OrderWithItemsSchema>
@@ -158,15 +161,13 @@ export function useDeleteOrder() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from('orders')
-        .delete()
-        .eq('id', id)
-        .select()
+      const { data, error } = await supabase.from('orders').delete().eq('id', id).select()
 
       if (error) throw new Error(error.message)
       if (!data || data.length === 0) {
-        throw new Error('No se encontró el registro a eliminar, o no tenés permisos para eliminarlo')
+        throw new Error(
+          'No se encontró el registro a eliminar, o no tenés permisos para eliminarlo'
+        )
       }
     },
     onSuccess: () => {
@@ -195,4 +196,3 @@ export function useArchiveOrder() {
     },
   })
 }
-

@@ -40,15 +40,13 @@ export function useDeleteCustomer() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from('customers')
-        .delete()
-        .eq('id', id)
-        .select()
+      const { data, error } = await supabase.from('customers').delete().eq('id', id).select()
 
       if (error) throw new Error(error.message)
       if (!data || data.length === 0) {
-        throw new Error('No se encontró el registro a eliminar, o no tenés permisos para eliminarlo')
+        throw new Error(
+          'No se encontró el registro a eliminar, o no tenés permisos para eliminarlo'
+        )
       }
     },
     onSuccess: () => {

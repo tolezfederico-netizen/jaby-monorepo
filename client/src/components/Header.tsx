@@ -106,12 +106,15 @@ function Header({
 
   const scrollToProduct = (productId: string) => {
     onProductSelect?.(productId)
-    window.setTimeout(() => {
-      document.getElementById(`product-${productId}`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    }, onProductSelect ? 50 : 0)
+    window.setTimeout(
+      () => {
+        document.getElementById(`product-${productId}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      },
+      onProductSelect ? 50 : 0
+    )
     setIsSearchFocused(false)
   }
 
@@ -143,7 +146,9 @@ function Header({
           <div className={styles.storeText}>
             <h1 className={styles.storeName}>{storeName}</h1>
             <div className={styles.status}>
-              <span className={`${styles.statusDot} ${isDeliveryAvailable ? styles.statusOpen : styles.statusClosed}`} />
+              <span
+                className={`${styles.statusDot} ${isDeliveryAvailable ? styles.statusOpen : styles.statusClosed}`}
+              />
               <span className={styles.statusText}>
                 {isDeliveryAvailable ? (
                   <>
@@ -165,7 +170,18 @@ function Header({
 
         <div className={styles.searchArea} ref={searchRef}>
           <div className={styles.searchWrapper}>
-            <svg className={styles.searchIcon} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              className={styles.searchIcon}
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -182,29 +198,31 @@ function Header({
 
           {showSearchResults && (
             <div className={styles.searchResults} role="listbox">
-              {matchingProducts.length > 0 ? matchingProducts.map((product) => (
-                <button
-                  key={product.id}
-                  type="button"
-                  className={styles.resultCard}
-                  onClick={() => scrollToProduct(product.id)}
-                >
-                  {product.image_url ? (
-                    <img src={product.image_url} alt="" className={styles.resultImage} />
-                  ) : (
-                    <div className={styles.resultImagePlaceholder} />
-                  )}
-                  <span className={styles.resultInfo}>
-                    <span className={styles.resultName}>{product.name}</span>
-                    {product.description && (
-                      <span className={styles.resultDesc}>{product.description}</span>
+              {matchingProducts.length > 0 ? (
+                matchingProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    className={styles.resultCard}
+                    onClick={() => scrollToProduct(product.id)}
+                  >
+                    {product.image_url ? (
+                      <img src={product.image_url} alt="" className={styles.resultImage} />
+                    ) : (
+                      <div className={styles.resultImagePlaceholder} />
                     )}
-                    {showPrices && product.price != null && (
-                      <span className={styles.resultPrice}>{formatPrice(product.price)}</span>
-                    )}
-                  </span>
-                </button>
-              )) : (
+                    <span className={styles.resultInfo}>
+                      <span className={styles.resultName}>{product.name}</span>
+                      {product.description && (
+                        <span className={styles.resultDesc}>{product.description}</span>
+                      )}
+                      {showPrices && product.price != null && (
+                        <span className={styles.resultPrice}>{formatPrice(product.price)}</span>
+                      )}
+                    </span>
+                  </button>
+                ))
+              ) : (
                 <p className={styles.noResults}>No se encontraron productos</p>
               )}
             </div>
@@ -222,32 +240,79 @@ function Header({
                 onClick={() => setIsContactOpen((open) => !open)}
               >
                 <span className={styles.actionIcon} aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                 </span>
                 <span className={styles.actionText}>Contactar</span>
-                <svg className={`${styles.contactChevron} ${isContactOpen ? styles.contactChevronOpen : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg
+                  className={`${styles.contactChevron} ${isContactOpen ? styles.contactChevronOpen : ''}`}
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <polyline points="2.5 4.5 6 8 9.5 4.5" />
                 </svg>
               </button>
               {isContactOpen && (
                 <div className={styles.contactMenu} role="menu" aria-label="Opciones de contacto">
                   {contactWhatsappUrl && (
-                    <a href={contactWhatsappUrl} target="_blank" rel="noopener noreferrer" className={styles.contactMenuItem} role="menuitem" onClick={() => setIsContactOpen(false)}>
-                      <span className={styles.contactMenuIcon} aria-hidden="true"><WhatsAppIcon size={16} /></span>
+                    <a
+                      href={contactWhatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactMenuItem}
+                      role="menuitem"
+                      onClick={() => setIsContactOpen(false)}
+                    >
+                      <span className={styles.contactMenuIcon} aria-hidden="true">
+                        <WhatsAppIcon size={16} />
+                      </span>
                       WhatsApp
                     </a>
                   )}
                   {instagramUrl && (
-                    <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className={styles.contactMenuItem} role="menuitem" onClick={() => setIsContactOpen(false)}>
-                      <span className={styles.contactMenuIcon} aria-hidden="true">IG</span>
+                    <a
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactMenuItem}
+                      role="menuitem"
+                      onClick={() => setIsContactOpen(false)}
+                    >
+                      <span className={styles.contactMenuIcon} aria-hidden="true">
+                        IG
+                      </span>
                       Instagram
                     </a>
                   )}
                   {mapsUrl && (
-                    <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.contactMenuItem} role="menuitem" onClick={() => setIsContactOpen(false)}>
-                      <span className={styles.contactMenuIcon} aria-hidden="true">MAP</span>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.contactMenuItem}
+                      role="menuitem"
+                      onClick={() => setIsContactOpen(false)}
+                    >
+                      <span className={styles.contactMenuIcon} aria-hidden="true">
+                        MAP
+                      </span>
                       Ver ubicación
                     </a>
                   )}
@@ -257,7 +322,16 @@ function Header({
           )}
           <button type="button" className={styles.actionButton} onClick={shareCatalog}>
             <span className={styles.actionIcon} aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <circle cx="18" cy="5" r="3" />
                 <circle cx="6" cy="12" r="3" />
                 <circle cx="18" cy="19" r="3" />

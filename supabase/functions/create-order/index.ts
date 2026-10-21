@@ -217,8 +217,7 @@ serve(async (req) => {
     // --- FIN VALIDACIÓN SERVER-SIDE ---
 
     // Obtener el siguiente número de pedido de forma atómica
-    const { data: seqData, error: seqError } = await supabase
-      .rpc('next_order_number')
+    const { data: seqData, error: seqError } = await supabase.rpc('next_order_number')
 
     if (seqError || seqData === null) {
       throw new Error('No se pudo obtener el número de pedido')
@@ -257,9 +256,7 @@ serve(async (req) => {
       subtotal: item.subtotal,
     }))
 
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(items)
+    const { error: itemsError } = await supabase.from('order_items').insert(items)
 
     if (itemsError) {
       // Sin transacción: deshacer el pedido para no dejarlo huérfano, sin ítems
@@ -321,17 +318,15 @@ serve(async (req) => {
         }
       } else {
         // Cliente nuevo — insertar
-        const { error: insertError } = await supabase
-          .from('customers')
-          .insert({
-            phone,
-            name,
-            last_address: address,
-            address_history: address ? [address] : [],
-            last_modality: modality,
-            marketing_consent: payload.marketing_consent === true,
-            marketing_consent_at: payload.marketing_consent === true ? now : null,
-          })
+        const { error: insertError } = await supabase.from('customers').insert({
+          phone,
+          name,
+          last_address: address,
+          address_history: address ? [address] : [],
+          last_modality: modality,
+          marketing_consent: payload.marketing_consent === true,
+          marketing_consent_at: payload.marketing_consent === true ? now : null,
+        })
 
         if (insertError) {
           console.error('Error al insertar cliente:', insertError.message)
@@ -355,12 +350,11 @@ serve(async (req) => {
       }),
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
-
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error interno'
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

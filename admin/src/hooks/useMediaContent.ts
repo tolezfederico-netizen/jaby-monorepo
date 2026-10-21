@@ -6,7 +6,10 @@ import {
   getMediaContent,
   updateMediaContent,
 } from '@jaby/shared'
-import type { CreateMediaContentPayload, UpdateMediaContentPayload } from '@jaby/shared/lib/media-content'
+import type {
+  CreateMediaContentPayload,
+  UpdateMediaContentPayload,
+} from '@jaby/shared/lib/media-content'
 import type { MediaProvider } from '@jaby/shared'
 import { supabase } from '../lib/supabase'
 import { compressImage } from '../lib/compressImage'
@@ -27,10 +30,10 @@ export function useCreateMediaContent() {
     mutationFn: async (payload: CreateMediaContentPayload) => {
       const isManual = payload.thumbnail_source === 'manual' && !!payload.thumbnail_url
       const thumbnail_url = isManual
-        ? payload.thumbnail_url ?? null
+        ? (payload.thumbnail_url ?? null)
         : payload.provider === 'tiktok'
           ? await fetchAutoThumbnail(payload.url, payload.provider)
-          : payload.thumbnail_url ?? null
+          : (payload.thumbnail_url ?? null)
 
       const item = await createMediaContent({
         ...payload,
@@ -39,9 +42,10 @@ export function useCreateMediaContent() {
       })
       return {
         item,
-        thumbnailWarning: payload.provider === 'tiktok' && !thumbnail_url
-          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. El contenido se guardó sin imagen: editalo y subí una captura del video.'
-          : null,
+        thumbnailWarning:
+          payload.provider === 'tiktok' && !thumbnail_url
+            ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. El contenido se guardó sin imagen: editalo y subí una captura del video.'
+            : null,
       }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
@@ -55,7 +59,9 @@ export function useUpdateMediaContent() {
     mutationFn: async ({ id, payload }: { id: string; payload: UpdateMediaContentPayload }) => {
       const isManual = payload.thumbnail_source === 'manual'
       const tryAuto = !isManual && payload.provider === 'tiktok' && !!payload.url
-      const thumbnail_url = tryAuto ? await fetchAutoThumbnail(payload.url as string, payload.provider as MediaProvider) : undefined
+      const thumbnail_url = tryAuto
+        ? await fetchAutoThumbnail(payload.url as string, payload.provider as MediaProvider)
+        : undefined
 
       // Si el automático falla no se pisa la imagen que ya tuviera cargada
       const item = await updateMediaContent(id, {
@@ -64,9 +70,10 @@ export function useUpdateMediaContent() {
       })
       return {
         item,
-        thumbnailWarning: tryAuto && !thumbnail_url
-          ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. Los cambios se guardaron; si falta la imagen, subí una captura del video.'
-          : null,
+        thumbnailWarning:
+          tryAuto && !thumbnail_url
+            ? 'No se pudo obtener el thumbnail automáticamente desde TikTok. Los cambios se guardaron; si falta la imagen, subí una captura del video.'
+            : null,
       }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
@@ -84,7 +91,11 @@ export function useDeleteMediaContent() {
 
 export function useUploadMediaThumbnail() {
   return useMutation({
-    mutationFn: async ({ file, provider, externalId }: {
+    mutationFn: async ({
+      file,
+      provider,
+      externalId,
+    }: {
       file: File
       provider: MediaProvider
       externalId: string | null

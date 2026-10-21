@@ -199,8 +199,13 @@
 }
 
 /* Colores de estado: los mismos que usa la pantalla de Pedidos */
-.statPending { border-left-color: var(--color-warning); }
-.statPending .statIcon { background-color: var(--color-warning-bg); color: var(--color-warning); }
+.statPending {
+  border-left-color: var(--color-warning);
+}
+.statPending .statIcon {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
 
 .statPendingAlert {
   background-color: var(--color-warning-bg);
@@ -208,23 +213,43 @@
   border-left-color: var(--color-warning);
 }
 
-.statPendingAlert .statIcon { background-color: #ffffff; }
+.statPendingAlert .statIcon {
+  background-color: #ffffff;
+}
 
-.statConfirmed { border-left-color: var(--color-success); }
-.statConfirmed .statIcon { background-color: var(--color-success-bg); color: var(--color-success); }
+.statConfirmed {
+  border-left-color: var(--color-success);
+}
+.statConfirmed .statIcon {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
 
-.statInProgress { border-left-color: #3b82f6; }
-.statInProgress .statIcon { background-color: #eff6ff; color: #1d4ed8; }
+.statInProgress {
+  border-left-color: #3b82f6;
+}
+.statInProgress .statIcon {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
 
-.statCompleted { border-left-color: var(--color-border); }
-.statCompleted .statIcon { background-color: rgba(0, 0, 0, 0.06); color: var(--color-text-secondary); }
+.statCompleted {
+  border-left-color: var(--color-border);
+}
+.statCompleted .statIcon {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-secondary);
+}
 
 .statRevenue {
   border-left-color: var(--color-primary);
   cursor: default;
 }
 
-.statRevenue .statIcon { background-color: rgba(233, 30, 140, 0.1); color: var(--color-primary); }
+.statRevenue .statIcon {
+  background-color: rgba(233, 30, 140, 0.1);
+  color: var(--color-primary);
+}
 
 .dashboardGrid {
   display: grid;
@@ -247,7 +272,8 @@
   gap: 1rem;
 }
 
-.textLink, .ordersFooterLink {
+.textLink,
+.ordersFooterLink {
   border: 0;
   background: none;
   color: var(--color-primary);
@@ -276,17 +302,58 @@
   cursor: pointer;
 }
 
-.recentOrder:hover .recentOrderName { color: var(--color-primary); }
-.recentOrderMain, .recentOrderMeta { display: flex; flex-direction: column; gap: 0.2rem; }
-.recentOrderMeta { align-items: flex-end; font-size: 0.8125rem; font-weight: 600; }
-.recentOrderName { font-size: 0.875rem; font-weight: 600; color: var(--color-text-primary); }
-.recentOrderTime { font-size: 0.75rem; color: var(--color-text-secondary); }
-.orderStatus { font-size: 0.6875rem; font-weight: 600; padding: 0.125rem 0.5rem; border-radius: 999px; background-color: rgba(0, 0, 0, 0.06); color: var(--color-text-secondary); }
-.orderStatus_pending { background-color: var(--color-warning-bg); color: var(--color-warning); }
-.orderStatus_confirmed { background-color: var(--color-success-bg); color: var(--color-success); }
-.orderStatus_in_progress { background-color: #eff6ff; color: #1d4ed8; }
-.orderStatus_completed { background-color: rgba(0, 0, 0, 0.06); color: var(--color-text-secondary); }
-.ordersFooterLink { align-self: flex-start; margin-top: 0.25rem; padding: 0.5rem 0 0; }
+.recentOrder:hover .recentOrderName {
+  color: var(--color-primary);
+}
+.recentOrderMain,
+.recentOrderMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.recentOrderMeta {
+  align-items: flex-end;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.recentOrderName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.recentOrderTime {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+.orderStatus {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background-color: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-secondary);
+}
+.orderStatus_pending {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+.orderStatus_confirmed {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+.orderStatus_in_progress {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+.orderStatus_completed {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-secondary);
+}
+.ordersFooterLink {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0 0;
+}
 
 .chart {
   height: 150px;
@@ -296,11 +363,42 @@
   gap: 0.5rem;
 }
 
-.chartColumn { height: 100%; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
-.chartValue { height: 1rem; font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary); }
-.chartTrack { flex: 1; width: 100%; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.03); border-radius: 3px 3px 0 0; overflow: hidden; }
-.chartBar { width: 100%; min-height: 2px; background: var(--color-primary); border-radius: 3px 3px 0 0; transition: height 0.2s ease; }
-.chartLabel { font-size: 0.6875rem; color: var(--color-text-secondary); text-transform: capitalize; }
+.chartColumn {
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.chartValue {
+  height: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.chartTrack {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+}
+.chartBar {
+  width: 100%;
+  min-height: 2px;
+  background: var(--color-primary);
+  border-radius: 3px 3px 0 0;
+  transition: height 0.2s ease;
+}
+.chartLabel {
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
 
 /* Loading */
 .loadingText {
@@ -380,10 +478,17 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboardGrid { grid-template-columns: 1fr; }
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
 
-  .header { align-items: flex-start; flex-direction: column; }
-  .appStatusChip { width: fit-content; }
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .appStatusChip {
+    width: fit-content;
+  }
 }
 
 .devTip {
@@ -457,6 +562,13 @@
 }
 
 @media (max-width: 480px) {
-  .stockAlert { align-items: flex-start; flex-wrap: wrap; }
-  .stockAlert button { width: 100%; margin-left: 1.875rem; text-align: left; }
+  .stockAlert {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .stockAlert button {
+    width: 100%;
+    margin-left: 1.875rem;
+    text-align: left;
+  }
 }

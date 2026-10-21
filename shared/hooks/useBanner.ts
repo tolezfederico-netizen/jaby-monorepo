@@ -14,7 +14,7 @@ export function createUseBanner(queryKey: string[]) {
           .single()
         if (error) throw error
         return BannerSchema.parse(data)
-      }
+      },
     })
   }
 }

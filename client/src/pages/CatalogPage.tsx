@@ -80,7 +80,10 @@ function ProductCard({
   const canIncreaseQuantity = canOrder && isAvailable && !isOutOfStock
 
   return (
-    <div id={cardId} className={`${styles.productCard} ${!isAvailable ? styles.productCardUnavailable : ''} ${isOutOfStock ? styles.productCardOutOfStock : ''} ${featured ? styles.featuredCard : ''}`}>
+    <div
+      id={cardId}
+      className={`${styles.productCard} ${!isAvailable ? styles.productCardUnavailable : ''} ${isOutOfStock ? styles.productCardOutOfStock : ''} ${featured ? styles.featuredCard : ''}`}
+    >
       <button
         type="button"
         className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
@@ -88,16 +91,26 @@ function ProductCard({
           event.stopPropagation()
           onToggleFavorite(product.id)
         }}
-        aria-label={isFavorite ? `Quitar ${product.name} de favoritos` : `Agregar ${product.name} a favoritos`}
+        aria-label={
+          isFavorite ? `Quitar ${product.name} de favoritos` : `Agregar ${product.name} a favoritos`
+        }
         aria-pressed={isFavorite}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill={isFavorite ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
         </svg>
       </button>
-      {isOutOfStock && (
-        <span className={styles.stockBadge}>Agotado</span>
-      )}
+      {isOutOfStock && <span className={styles.stockBadge}>Agotado</span>}
       {product.image_url && (
         <div className={styles.productImageWrapper}>
           <img
@@ -110,14 +123,10 @@ function ProductCard({
       )}
       <div className={styles.productInfo}>
         <span className={styles.productName}>{product.name}</span>
-        {product.description && (
-          <span className={styles.productDesc}>{product.description}</span>
-        )}
+        {product.description && <span className={styles.productDesc}>{product.description}</span>}
         <div className={styles.productFooter}>
           {showPrice && product.price != null && (
-            <span className={styles.productPrice}>
-              {formatPrice(product.price)}
-            </span>
+            <span className={styles.productPrice}>{formatPrice(product.price)}</span>
           )}
           {!isAvailable && !isOutOfStock ? (
             <span className={styles.unavailableTag}>No disponible</span>
@@ -135,7 +144,10 @@ function ProductCard({
                 <WhatsAppIcon size={16} />
               </button>
               {quantity > 0 ? (
-                <div className={styles.quantityStepper} aria-label={`Cantidad de ${product.name}: ${quantity}`}>
+                <div
+                  className={styles.quantityStepper}
+                  aria-label={`Cantidad de ${product.name}: ${quantity}`}
+                >
                   <button
                     type="button"
                     className={styles.quantityButton}
@@ -144,7 +156,9 @@ function ProductCard({
                   >
                     −
                   </button>
-                  <span className={styles.quantityValue} aria-live="polite">{quantity}</span>
+                  <span className={styles.quantityValue} aria-live="polite">
+                    {quantity}
+                  </span>
                   <button
                     type="button"
                     className={`${styles.quantityButton} ${!canIncreaseQuantity ? styles.quantityButtonDisabled : ''}`}
@@ -152,7 +166,11 @@ function ProductCard({
                       if (canIncreaseQuantity) updateQuantity(product.id, quantity + 1)
                     }}
                     disabled={!canIncreaseQuantity}
-                    aria-label={isOutOfStock ? `${product.name} agotado` : `Agregar una unidad de ${product.name}`}
+                    aria-label={
+                      isOutOfStock
+                        ? `${product.name} agotado`
+                        : `Agregar una unidad de ${product.name}`
+                    }
                   >
                     +
                   </button>
@@ -170,7 +188,17 @@ function ProductCard({
                   aria-label={isOutOfStock ? `${product.name} agotado` : `Agregar ${product.name}`}
                 >
                   <span className={styles.addButtonLabelMobile}>Agregar</span>
-                  <svg className={styles.addButtonLabelDesktop} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className={styles.addButtonLabelDesktop}
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
@@ -197,19 +225,22 @@ function CartDesktopButton({ isBumped }: { isBumped: boolean }) {
       disabled={totalItems === 0}
       aria-label="Ver carrito"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="9" cy="21" r="1"/>
-        <circle cx="20" cy="21" r="1"/>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="9" cy="21" r="1" />
+        <circle cx="20" cy="21" r="1" />
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
-      {totalItems > 0 && (
-        <span className={styles.cartDesktopBadge}>{totalItems}</span>
-      )}
-      {totalItems > 0 && (
-        <span className={styles.cartDesktopPrice}>
-          {formatPrice(totalPrice)}
-        </span>
-      )}
+      {totalItems > 0 && <span className={styles.cartDesktopBadge}>{totalItems}</span>}
+      {totalItems > 0 && <span className={styles.cartDesktopPrice}>{formatPrice(totalPrice)}</span>}
     </button>
   )
 }
@@ -289,13 +320,19 @@ function StoreInfoBanner() {
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
       >
-        <span className={styles.storeInfoIcon}><PinIcon /></span>
+        <span className={styles.storeInfoIcon}>
+          <PinIcon />
+        </span>
         <span className={styles.storeInfoToggleText}>
           <span className={styles.storeInfoLabel}>Horarios y ubicación</span>
           {config?.delivery_enabled && (
             <span className={styles.storeInfoSub}>
               Delivery{' '}
-              <span className={isDeliveryAvailable ? styles.storeInfoStatusOpen : styles.storeInfoStatusClosed}>
+              <span
+                className={
+                  isDeliveryAvailable ? styles.storeInfoStatusOpen : styles.storeInfoStatusClosed
+                }
+              >
                 {isDeliveryAvailable ? 'abierto ahora' : 'cerrado ahora'}
               </span>
             </span>
@@ -317,10 +354,11 @@ function StoreInfoBanner() {
         </svg>
       </button>
       <div className={styles.storeInfoGrid}>
-
         <div className={styles.storeInfoItems}>
           <div className={styles.storeInfoItem}>
-            <span className={styles.storeInfoIcon}><PinIcon /></span>
+            <span className={styles.storeInfoIcon}>
+              <PinIcon />
+            </span>
             <div className={styles.storeInfoText}>
               <span className={styles.storeInfoLabel}>{address}</span>
               {(neighborhood || municipality) && (
@@ -332,7 +370,9 @@ function StoreInfoBanner() {
           </div>
 
           <div className={styles.storeInfoItem}>
-            <span className={styles.storeInfoIcon}><ScooterIcon /></span>
+            <span className={styles.storeInfoIcon}>
+              <ScooterIcon />
+            </span>
             <div className={styles.storeInfoText}>
               <div className={styles.storeInfoTitleRow}>
                 <span className={styles.storeInfoLabel}>Delivery</span>
@@ -348,8 +388,15 @@ function StoreInfoBanner() {
               </div>
               {config?.delivery_enabled ? (
                 <span className={styles.storeInfoSub}>
-                  {formatHour(config.delivery_hours_open)} — {formatHour(config.delivery_hours_close)}hs ·{' '}
-                  <span className={isDeliveryAvailable ? styles.storeInfoStatusOpen : styles.storeInfoStatusClosed}>
+                  {formatHour(config.delivery_hours_open)} —{' '}
+                  {formatHour(config.delivery_hours_close)}hs ·{' '}
+                  <span
+                    className={
+                      isDeliveryAvailable
+                        ? styles.storeInfoStatusOpen
+                        : styles.storeInfoStatusClosed
+                    }
+                  >
                     {isDeliveryAvailable ? 'Abierto ahora' : 'Cerrado ahora'}
                   </span>
                 </span>
@@ -360,12 +407,15 @@ function StoreInfoBanner() {
           </div>
 
           <div className={styles.storeInfoItem}>
-            <span className={styles.storeInfoIcon}><StoreIcon /></span>
+            <span className={styles.storeInfoIcon}>
+              <StoreIcon />
+            </span>
             <div className={styles.storeInfoText}>
               <span className={styles.storeInfoLabel}>Retiro en local</span>
               {config ? (
                 <span className={styles.storeInfoSub}>
-                  {formatHour(config.business_hours_open)} — {formatHour(config.business_hours_close)}hs · Sin costo adicional
+                  {formatHour(config.business_hours_open)} —{' '}
+                  {formatHour(config.business_hours_close)}hs · Sin costo adicional
                 </span>
               ) : (
                 <span className={styles.storeInfoSub}>Sin costo adicional</span>
@@ -409,7 +459,6 @@ function StoreInfoBanner() {
             </div>
           </a>
         )}
-
       </div>
       {showCoverageZones && config && (
         <CoverageZonesModal
@@ -446,7 +495,16 @@ function ScrollToTopBtn() {
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Volver al inicio"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polyline points="18 15 12 9 6 15" />
       </svg>
     </button>
@@ -485,7 +543,15 @@ function CatalogLoadingState() {
 
 function CatalogPage() {
   useProductsRealtime()
-  const { isAppActive, isStoreOpen, isDeliveryAvailable, reopenTime, showPrices, config, isLoading } = useAppStatus()
+  const {
+    isAppActive,
+    isStoreOpen,
+    isDeliveryAvailable,
+    reopenTime,
+    showPrices,
+    config,
+    isLoading,
+  } = useAppStatus()
   const { data: categories, isLoading: categoriesLoading } = useCategories()
   const { data: featured, isLoading: featuredLoading } = useFeaturedProducts()
   const { addItem } = useCart()
@@ -502,10 +568,13 @@ function CatalogPage() {
   const toastTimeoutRef = useRef<number | null>(null)
   const bumpTimeoutRef = useRef<number | null>(null)
 
-  useEffect(() => () => {
-    if (toastTimeoutRef.current !== null) window.clearTimeout(toastTimeoutRef.current)
-    if (bumpTimeoutRef.current !== null) window.clearTimeout(bumpTimeoutRef.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (toastTimeoutRef.current !== null) window.clearTimeout(toastTimeoutRef.current)
+      if (bumpTimeoutRef.current !== null) window.clearTimeout(bumpTimeoutRef.current)
+    },
+    []
+  )
 
   const showCartFeedback = (message: string, secondaryMessage?: string) => {
     setToastProduct(message)
@@ -524,7 +593,9 @@ function CatalogPage() {
   }
 
   const handleRepeatedOrder = (productCount: number) => {
-    showCartFeedback(`${productCount} ${productCount === 1 ? 'producto agregado' : 'productos agregados'}`)
+    showCartFeedback(
+      `${productCount} ${productCount === 1 ? 'producto agregado' : 'productos agregados'}`
+    )
   }
 
   const handleToggleFavorite = (productId: string) => {
@@ -536,9 +607,8 @@ function CatalogPage() {
   }
 
   const handleShareProduct = async (product: ProductType) => {
-    const priceText = showPrices && product.price != null
-      ? ` Precio: ${formatPrice(product.price)}.`
-      : ''
+    const priceText =
+      showPrices && product.price != null ? ` Precio: ${formatPrice(product.price)}.` : ''
     const text = `Mirá ${product.name}.${priceText}`
     const url = window.location.origin
 
@@ -571,24 +641,27 @@ function CatalogPage() {
 
   const scrollCategories = (direction: 'left' | 'right') => {
     if (categoryScrollRef.current) {
-      categoryScrollRef.current.scrollBy({ left: direction === 'right' ? 150 : -150, behavior: 'smooth' })
+      categoryScrollRef.current.scrollBy({
+        left: direction === 'right' ? 150 : -150,
+        behavior: 'smooth',
+      })
     }
   }
 
   const { data: allProducts, isLoading: productsLoading } = useProducts()
-  const products = allProducts?.filter((product) => (
+  const products = allProducts?.filter((product) =>
     selectedCategory === FAVORITES_FILTER
       ? favoriteIds.includes(product.id)
       : selectedCategory === null || product.category_id === selectedCategory
-  ))
-  const availableFavoriteProducts = (allProducts ?? []).filter((product) => (
-    favoriteIds.includes(product.id) && product.is_active && !product.is_out_of_stock
-  ))
+  )
+  const availableFavoriteProducts = (allProducts ?? []).filter(
+    (product) => favoriteIds.includes(product.id) && product.is_active && !product.is_out_of_stock
+  )
 
   const handleAddAllFavorites = () => {
-    const availableProducts = (allProducts ?? []).filter((product) => (
-      favoriteIds.includes(product.id) && product.is_active && !product.is_out_of_stock
-    ))
+    const availableProducts = (allProducts ?? []).filter(
+      (product) => favoriteIds.includes(product.id) && product.is_active && !product.is_out_of_stock
+    )
     const skippedCount = favoriteIds.length - availableProducts.length
 
     if (availableProducts.length === 0) {
@@ -601,7 +674,7 @@ function CatalogPage() {
       `${availableProducts.length} ${availableProducts.length === 1 ? 'producto agregado' : 'productos agregados'}`,
       skippedCount > 0
         ? `${skippedCount} favorito${skippedCount === 1 ? '' : 's'} no disponible${skippedCount === 1 ? '' : 's'}`
-        : undefined,
+        : undefined
     )
   }
 
@@ -626,7 +699,6 @@ function CatalogPage() {
         onProductSelect={() => setSelectedCategory(null)}
       />
       <div className={styles.page}>
-
         {/* Banner promocional (antes quedaba oculto detras del header fijo) */}
         <BannerStrip />
 
@@ -640,8 +712,14 @@ function CatalogPage() {
           <section className={`${styles.section} ${styles.featuredSection}`}>
             <h2 className={styles.sectionTitle}>Destacados</h2>
             {featuredLoading ? (
-              <div className={styles.featuredGrid} aria-label="Cargando productos destacados" aria-busy="true">
-                {Array.from({ length: 3 }, (_, index) => <ProductCardSkeleton key={index} />)}
+              <div
+                className={styles.featuredGrid}
+                aria-label="Cargando productos destacados"
+                aria-busy="true"
+              >
+                {Array.from({ length: 3 }, (_, index) => (
+                  <ProductCardSkeleton key={index} />
+                ))}
               </div>
             ) : (
               <div className={styles.featuredGrid}>
@@ -689,17 +767,19 @@ function CatalogPage() {
               >
                 <span aria-hidden="true">♥</span> Favoritos
               </button>
-              {categoriesLoading ? (
-                Array.from({ length: 4 }, (_, index) => <span key={index} className={styles.categorySkeleton} />)
-              ) : categories?.map((cat) => (
-                <button
-                  key={cat.id}
-                  className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.categoryBtnActive : ''}`}
-                  onClick={() => selectCategory(cat.id)}
-                >
-                  {cat.name}
-                </button>
-              ))}
+              {categoriesLoading
+                ? Array.from({ length: 4 }, (_, index) => (
+                    <span key={index} className={styles.categorySkeleton} />
+                  ))
+                : categories?.map((cat) => (
+                    <button
+                      key={cat.id}
+                      className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.categoryBtnActive : ''}`}
+                      onClick={() => selectCategory(cat.id)}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
             </div>
             <button
               className={styles.categoryScrollBtn}
@@ -771,7 +851,7 @@ function CatalogPage() {
           </span>
         </div>
       )}
-        <MediaContentCarousel />
+      <MediaContentCarousel />
       <Footer />
       <WhatsAppFloatButton
         whatsappNumber={config?.whatsapp_number}

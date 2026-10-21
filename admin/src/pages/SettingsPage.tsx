@@ -3,7 +3,16 @@ import { useStoreConfig, useUpdateStoreConfig } from '../hooks/useStoreConfig'
 import { useBanner, useUpdateBanner } from '../hooks/useBanner'
 import ConfirmModal from '../components/ConfirmModal'
 import CoverageZoneModal from '../components/CoverageZoneModal'
-import { CheckCircleIcon, ChatIcon, ClockIcon, CloseIcon, PlusIcon, ScooterIcon, StoreIcon, AlertIcon } from '../components/icons'
+import {
+  CheckCircleIcon,
+  ChatIcon,
+  ClockIcon,
+  CloseIcon,
+  PlusIcon,
+  ScooterIcon,
+  StoreIcon,
+  AlertIcon,
+} from '../components/icons'
 import styles from './SettingsPage.module.css'
 
 // ─── Store Info Section ───────────────────────────────────────────────────────
@@ -96,10 +105,14 @@ function StoreInfoSection() {
   return (
     <section className={styles.section}>
       <header className={styles.sectionHeader}>
-        <span className={styles.sectionIcon}><StoreIcon size={20} /></span>
+        <span className={styles.sectionIcon}>
+          <StoreIcon size={20} />
+        </span>
         <div>
           <h2 className={styles.sectionTitle}>Información del local</h2>
-          <p className={styles.sectionDesc}>Se muestra en la tienda y en el banner de información.</p>
+          <p className={styles.sectionDesc}>
+            Se muestra en la tienda y en el banner de información.
+          </p>
         </div>
       </header>
 
@@ -108,47 +121,92 @@ function StoreInfoSection() {
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label className={styles.label}>Nombre del local</label>
-              <input name="store_name" value={form.store_name} onChange={handleField}
-                className={styles.input} required disabled={busy} />
+              <input
+                name="store_name"
+                value={form.store_name}
+                onChange={handleField}
+                className={styles.input}
+                required
+                disabled={busy}
+              />
             </div>
             <div className={styles.field}>
               <label className={styles.label}>WhatsApp</label>
-              <input name="whatsapp_number" value={form.whatsapp_number} onChange={handleField}
-                className={styles.input} placeholder="1122334455" required disabled={busy} />
+              <input
+                name="whatsapp_number"
+                value={form.whatsapp_number}
+                onChange={handleField}
+                className={styles.input}
+                placeholder="1122334455"
+                required
+                disabled={busy}
+              />
             </div>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label}>Dirección</label>
-            <input name="address" value={form.address} onChange={handleField}
-              className={styles.input} required disabled={busy} />
+            <input
+              name="address"
+              value={form.address}
+              onChange={handleField}
+              className={styles.input}
+              required
+              disabled={busy}
+            />
           </div>
 
           <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
             <div className={styles.field}>
               <label className={styles.label}>Barrio</label>
-              <input name="neighborhood" value={form.neighborhood} onChange={handleField}
-                className={styles.input} disabled={busy} />
+              <input
+                name="neighborhood"
+                value={form.neighborhood}
+                onChange={handleField}
+                className={styles.input}
+                disabled={busy}
+              />
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Municipio</label>
-              <input name="municipality" value={form.municipality} onChange={handleField}
-                className={styles.input} disabled={busy} />
+              <input
+                name="municipality"
+                value={form.municipality}
+                onChange={handleField}
+                className={styles.input}
+                disabled={busy}
+              />
             </div>
           </div>
 
           <div className={styles.group}>
-            <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de atención</span>
+            <span className={styles.groupTitle}>
+              <ClockIcon size={14} /> Horario de atención
+            </span>
             <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
               <div className={styles.field}>
                 <label className={styles.label}>Apertura</label>
-                <input name="business_hours_open" type="time" value={form.business_hours_open}
-                  onChange={handleField} className={styles.input} required disabled={busy} />
+                <input
+                  name="business_hours_open"
+                  type="time"
+                  value={form.business_hours_open}
+                  onChange={handleField}
+                  className={styles.input}
+                  required
+                  disabled={busy}
+                />
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Cierre</label>
-                <input name="business_hours_close" type="time" value={form.business_hours_close}
-                  onChange={handleField} className={styles.input} required disabled={busy} />
+                <input
+                  name="business_hours_close"
+                  type="time"
+                  value={form.business_hours_close}
+                  onChange={handleField}
+                  className={styles.input}
+                  required
+                  disabled={busy}
+                />
               </div>
             </div>
           </div>
@@ -156,14 +214,27 @@ function StoreInfoSection() {
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label className={styles.label}>Instagram</label>
-              <input name="instagram_url" type="url" value={form.instagram_url}
-                onChange={handleField} className={styles.input}
-                placeholder="https://instagram.com/tulocal" required disabled={busy} />
+              <input
+                name="instagram_url"
+                type="url"
+                value={form.instagram_url}
+                onChange={handleField}
+                className={styles.input}
+                placeholder="https://instagram.com/tulocal"
+                required
+                disabled={busy}
+              />
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Usuario de TikTok</label>
-              <input name="tiktok_username" value={form.tiktok_username}
-                onChange={handleField} className={styles.input} placeholder="@tulocal" disabled={busy} />
+              <input
+                name="tiktok_username"
+                value={form.tiktok_username}
+                onChange={handleField}
+                className={styles.input}
+                placeholder="@tulocal"
+                disabled={busy}
+              />
             </div>
           </div>
 
@@ -172,18 +243,30 @@ function StoreInfoSection() {
               <strong>Mostrar precios en el catálogo público</strong>
               <small>Si lo desactivás, los clientes no ven los precios.</small>
             </span>
-            <input name="show_prices" type="checkbox" className={styles.switch}
-              checked={form.show_prices} onChange={handleField} disabled={busy} />
+            <input
+              name="show_prices"
+              type="checkbox"
+              className={styles.switch}
+              checked={form.show_prices}
+              onChange={handleField}
+              disabled={busy}
+            />
           </label>
         </div>
 
         <div className={`${styles.formFooter} ${styles.footerLeft}`}>
           <div className={styles.status}>
             {error && (
-              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+              <span className={styles.errorText} role="alert">
+                <AlertIcon size={16} />
+                {error}
+              </span>
             )}
             {saved && (
-              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+              <span className={styles.successText}>
+                <CheckCircleIcon size={16} />
+                Cambios guardados
+              </span>
             )}
           </div>
           <button type="submit" className={styles.saveButton} disabled={busy}>
@@ -288,7 +371,9 @@ function DeliverySection() {
   return (
     <section className={styles.section}>
       <header className={styles.sectionHeader}>
-        <span className={styles.sectionIcon}><ScooterIcon size={20} /></span>
+        <span className={styles.sectionIcon}>
+          <ScooterIcon size={20} />
+        </span>
         <div>
           <h2 className={styles.sectionTitle}>Delivery</h2>
           <p className={styles.sectionDesc}>Horarios, costos y zonas donde llegás.</p>
@@ -302,23 +387,45 @@ function DeliverySection() {
               <strong>Habilitar delivery</strong>
               <small>Si está apagado, la tienda solo ofrece retiro en el local.</small>
             </span>
-            <input name="is_enabled" type="checkbox" className={styles.switch}
-              checked={form.is_enabled} onChange={handleField} disabled={busy} />
+            <input
+              name="is_enabled"
+              type="checkbox"
+              className={styles.switch}
+              checked={form.is_enabled}
+              onChange={handleField}
+              disabled={busy}
+            />
           </label>
 
           <div className={`${styles.deliveryFields} ${form.is_enabled ? '' : styles.dimmed}`}>
             <div className={styles.group}>
-              <span className={styles.groupTitle}><ClockIcon size={14} /> Horario de delivery</span>
+              <span className={styles.groupTitle}>
+                <ClockIcon size={14} /> Horario de delivery
+              </span>
               <div className={`${styles.fieldRow} ${styles.fieldRowCompact}`}>
                 <div className={styles.field}>
                   <label className={styles.label}>Inicio</label>
-                  <input name="delivery_hours_open" type="time" value={form.delivery_hours_open}
-                    onChange={handleField} className={styles.input} required disabled={busy} />
+                  <input
+                    name="delivery_hours_open"
+                    type="time"
+                    value={form.delivery_hours_open}
+                    onChange={handleField}
+                    className={styles.input}
+                    required
+                    disabled={busy}
+                  />
                 </div>
                 <div className={styles.field}>
                   <label className={styles.label}>Fin</label>
-                  <input name="delivery_hours_close" type="time" value={form.delivery_hours_close}
-                    onChange={handleField} className={styles.input} required disabled={busy} />
+                  <input
+                    name="delivery_hours_close"
+                    type="time"
+                    value={form.delivery_hours_close}
+                    onChange={handleField}
+                    className={styles.input}
+                    required
+                    disabled={busy}
+                  />
                 </div>
               </div>
             </div>
@@ -328,16 +435,30 @@ function DeliverySection() {
                 <label className={styles.label}>Costo de envío</label>
                 <div className={styles.moneyInput}>
                   <span>$</span>
-                  <input name="cost" type="number" min="0" value={form.cost}
-                    onChange={handleField} required disabled={busy} />
+                  <input
+                    name="cost"
+                    type="number"
+                    min="0"
+                    value={form.cost}
+                    onChange={handleField}
+                    required
+                    disabled={busy}
+                  />
                 </div>
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Monto mínimo</label>
                 <div className={styles.moneyInput}>
                   <span>$</span>
-                  <input name="minimum_order" type="number" min="0" value={form.minimum_order}
-                    onChange={handleField} required disabled={busy} />
+                  <input
+                    name="minimum_order"
+                    type="number"
+                    min="0"
+                    value={form.minimum_order}
+                    onChange={handleField}
+                    required
+                    disabled={busy}
+                  />
                 </div>
               </div>
             </div>
@@ -380,10 +501,16 @@ function DeliverySection() {
         <div className={`${styles.formFooter} ${styles.footerRight}`}>
           <div className={styles.status}>
             {error && (
-              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+              <span className={styles.errorText} role="alert">
+                <AlertIcon size={16} />
+                {error}
+              </span>
             )}
             {saved && (
-              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+              <span className={styles.successText}>
+                <CheckCircleIcon size={16} />
+                Cambios guardados
+              </span>
             )}
           </div>
           <button type="submit" className={styles.saveButton} disabled={busy}>
@@ -461,7 +588,9 @@ function BannerSection() {
   return (
     <section className={`${styles.section} ${styles.sectionWide}`}>
       <header className={`${styles.sectionHeader} ${styles.headerCenter}`}>
-        <span className={styles.sectionIcon}><ChatIcon size={20} /></span>
+        <span className={styles.sectionIcon}>
+          <ChatIcon size={20} />
+        </span>
         <div>
           <h2 className={styles.sectionTitle}>Banner promocional</h2>
           <p className={styles.sectionDesc}>Mensaje destacado arriba del catálogo de la tienda.</p>
@@ -471,38 +600,50 @@ function BannerSection() {
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={`${styles.formBody} ${styles.bannerBody}`}>
           <div className={styles.bannerControls}>
-          <label className={styles.toggleRow}>
-            <span>
-              <strong>Mostrar banner</strong>
-              <small>Si está apagado, la tienda no muestra ningún mensaje.</small>
-            </span>
-            <input
-              type="checkbox"
-              className={styles.switch}
-              checked={isActive}
-              onChange={(e) => { setIsActive(e.target.checked); setSaved(false) }}
-              disabled={busy}
-            />
-          </label>
+            <label className={styles.toggleRow}>
+              <span>
+                <strong>Mostrar banner</strong>
+                <small>Si está apagado, la tienda no muestra ningún mensaje.</small>
+              </span>
+              <input
+                type="checkbox"
+                className={styles.switch}
+                checked={isActive}
+                onChange={(e) => {
+                  setIsActive(e.target.checked)
+                  setSaved(false)
+                }}
+                disabled={busy}
+              />
+            </label>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="banner-text">Mensaje</label>
-            <input
-              id="banner-text"
-              className={styles.input}
-              value={text}
-              maxLength={BANNER_MAX_LENGTH}
-              onChange={(e) => { setText(e.target.value); setSaved(false) }}
-              placeholder="Ej: ¡2x1 en cervezas hasta las 12!"
-              disabled={busy}
-            />
-            <span className={styles.hint}>{text.length}/{BANNER_MAX_LENGTH} caracteres</span>
-          </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="banner-text">
+                Mensaje
+              </label>
+              <input
+                id="banner-text"
+                className={styles.input}
+                value={text}
+                maxLength={BANNER_MAX_LENGTH}
+                onChange={(e) => {
+                  setText(e.target.value)
+                  setSaved(false)
+                }}
+                placeholder="Ej: ¡2x1 en cervezas hasta las 12!"
+                disabled={busy}
+              />
+              <span className={styles.hint}>
+                {text.length}/{BANNER_MAX_LENGTH} caracteres
+              </span>
+            </div>
           </div>
 
           <div className={styles.field}>
             <span className={styles.label}>Así se ve en la tienda</span>
-            <div className={`${styles.bannerPreview} ${isActive && previewText ? '' : styles.bannerPreviewOff}`}>
+            <div
+              className={`${styles.bannerPreview} ${isActive && previewText ? '' : styles.bannerPreviewOff}`}
+            >
               {previewText || 'Tu mensaje va a aparecer acá'}
             </div>
             {!isActive && (
@@ -514,10 +655,16 @@ function BannerSection() {
         <div className={`${styles.formFooter} ${styles.footerCenter}`}>
           <div className={styles.status}>
             {error && (
-              <span className={styles.errorText} role="alert"><AlertIcon size={16} />{error}</span>
+              <span className={styles.errorText} role="alert">
+                <AlertIcon size={16} />
+                {error}
+              </span>
             )}
             {saved && (
-              <span className={styles.successText}><CheckCircleIcon size={16} />Cambios guardados</span>
+              <span className={styles.successText}>
+                <CheckCircleIcon size={16} />
+                Cambios guardados
+              </span>
             )}
           </div>
           <button type="submit" className={styles.saveButton} disabled={busy}>

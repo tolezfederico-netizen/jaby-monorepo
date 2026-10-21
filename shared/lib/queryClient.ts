@@ -5,8 +5,8 @@ export function createBaseQueryClient(overrides = {}) {
     defaultOptions: {
       queries: {
         retry: 1,
-        ...overrides
-      }
-    }
+        ...overrides,
+      },
+    },
   })
 }

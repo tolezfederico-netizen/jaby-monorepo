@@ -168,22 +168,30 @@ function DashboardPage() {
             {toggleApp.isPending
               ? 'Guardando...'
               : config?.is_app_active
-              ? 'Desactivar'
-              : 'Activar'}
+                ? 'Desactivar'
+                : 'Activar'}
           </button>
         </div>
       </div>
 
       {toggleError && (
-        <p className={styles.toggleError} role="alert">{toggleError}</p>
+        <p className={styles.toggleError} role="alert">
+          {toggleError}
+        </p>
       )}
 
       {!tipHidden && (
         <div className={styles.devTip}>
           <span>
-            Para notificar clientes con más comodidad, se recomienda usar <strong>WhatsApp Desktop</strong>.
+            Para notificar clientes con más comodidad, se recomienda usar{' '}
+            <strong>WhatsApp Desktop</strong>.
           </span>
-          <button type="button" className={styles.devTipClose} onClick={hideTip} aria-label="Ocultar aviso">
+          <button
+            type="button"
+            className={styles.devTipClose}
+            onClick={hideTip}
+            aria-label="Ocultar aviso"
+          >
             ✕
           </button>
         </div>
@@ -191,13 +199,15 @@ function DashboardPage() {
 
       {longOutOfStockCount > 0 && (
         <div className={styles.stockAlert} role="status">
-          <span className={styles.stockAlertIcon} aria-hidden="true">!</span>
-          <span>
-            {longOutOfStockCount} {longOutOfStockCount === 1 ? 'producto lleva' : 'productos llevan'} agotado{longOutOfStockCount === 1 ? '' : 's'} más de una semana.
+          <span className={styles.stockAlertIcon} aria-hidden="true">
+            !
           </span>
-          <button onClick={() => navigate('/products?filter=out_of_stock')}>
-            Ver productos
-          </button>
+          <span>
+            {longOutOfStockCount}{' '}
+            {longOutOfStockCount === 1 ? 'producto lleva' : 'productos llevan'} agotado
+            {longOutOfStockCount === 1 ? '' : 's'} más de una semana.
+          </span>
+          <button onClick={() => navigate('/products?filter=out_of_stock')}>Ver productos</button>
         </div>
       )}
 
@@ -217,7 +227,9 @@ function DashboardPage() {
               className={`${styles.statCard} ${styles.statPending} ${counts.pending > 0 ? styles.statPendingAlert : ''}`}
               onClick={() => navigate('/orders?status=pending')}
             >
-              <span className={styles.statIcon}><ClockIcon size={20} /></span>
+              <span className={styles.statIcon}>
+                <ClockIcon size={20} />
+              </span>
               <span className={styles.statBody}>
                 <span className={styles.statNumber}>{counts.pending}</span>
                 <span className={styles.statLabel}>Pendientes</span>
@@ -228,7 +240,9 @@ function DashboardPage() {
               className={`${styles.statCard} ${styles.statConfirmed}`}
               onClick={() => navigate('/orders?status=confirmed')}
             >
-              <span className={styles.statIcon}><CheckCircleIcon size={20} /></span>
+              <span className={styles.statIcon}>
+                <CheckCircleIcon size={20} />
+              </span>
               <span className={styles.statBody}>
                 <span className={styles.statNumber}>{counts.confirmed}</span>
                 <span className={styles.statLabel}>Confirmados</span>
@@ -239,7 +253,9 @@ function DashboardPage() {
               className={`${styles.statCard} ${styles.statInProgress}`}
               onClick={() => navigate('/orders?status=in_progress')}
             >
-              <span className={styles.statIcon}><BagIcon size={20} /></span>
+              <span className={styles.statIcon}>
+                <BagIcon size={20} />
+              </span>
               <span className={styles.statBody}>
                 <span className={styles.statNumber}>{counts.in_progress}</span>
                 <span className={styles.statLabel}>En curso</span>
@@ -250,7 +266,9 @@ function DashboardPage() {
               className={`${styles.statCard} ${styles.statCompleted}`}
               onClick={() => navigate('/orders?status=completed')}
             >
-              <span className={styles.statIcon}><FlagIcon size={20} /></span>
+              <span className={styles.statIcon}>
+                <FlagIcon size={20} />
+              </span>
               <span className={styles.statBody}>
                 <span className={styles.statNumber}>{counts.completed}</span>
                 <span className={styles.statLabel}>Completados</span>
@@ -260,7 +278,9 @@ function DashboardPage() {
               className={`${styles.statCard} ${styles.statRevenue}`}
               title="Suma de pedidos confirmados, en curso y completados"
             >
-              <span className={styles.statIcon}><CashIcon size={20} /></span>
+              <span className={styles.statIcon}>
+                <CashIcon size={20} />
+              </span>
               <span className={styles.statBody}>
                 <span className={styles.statNumber}>{formatPrice(todayRevenue)}</span>
                 <span className={styles.statLabel}>Vendido hoy</span>
@@ -296,7 +316,9 @@ function DashboardPage() {
                   </span>
                   <span className={styles.recentOrderMeta}>
                     <span>{formatPrice(order.total + (order.delivery_cost ?? 0))}</span>
-                    <span className={`${styles.orderStatus} ${styles[`orderStatus_${order.status}`]}`}>
+                    <span
+                      className={`${styles.orderStatus} ${styles[`orderStatus_${order.status}`]}`}
+                    >
                       {STATUS_LABELS[order.status]}
                     </span>
                   </span>
@@ -311,12 +333,18 @@ function DashboardPage() {
 
         <section className={`${styles.section} ${styles.dashboardCard}`}>
           <h2 className={styles.sectionTitle}>Pedidos de los últimos 7 días</h2>
-          <div className={styles.chart} aria-label="Cantidad de pedidos por día durante los últimos siete días">
+          <div
+            className={styles.chart}
+            aria-label="Cantidad de pedidos por día durante los últimos siete días"
+          >
             {weeklyOrders.map((day) => (
               <div key={day.key} className={styles.chartColumn}>
                 <span className={styles.chartValue}>{day.count}</span>
                 <div className={styles.chartTrack}>
-                  <div className={styles.chartBar} style={{ height: `${(day.count / weeklyMax) * 100}%` }} />
+                  <div
+                    className={styles.chartBar}
+                    style={{ height: `${(day.count / weeklyMax) * 100}%` }}
+                  />
                 </div>
                 <span className={styles.chartLabel}>{day.label}</span>
               </div>
@@ -329,27 +357,24 @@ function DashboardPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Accesos rápidos</h2>
         <div className={styles.quickLinks}>
-          <button
-            className={styles.quickLink}
-            onClick={() => navigate('/orders')}
-          >
-            <span className={styles.quickLinkIcon} aria-hidden="true"><OrdersIcon size={20} /></span>
+          <button className={styles.quickLink} onClick={() => navigate('/orders')}>
+            <span className={styles.quickLinkIcon} aria-hidden="true">
+              <OrdersIcon size={20} />
+            </span>
             <span className={styles.quickLinkTitle}>Pedidos</span>
             <span className={styles.quickLinkDesc}>Ver y gestionar todos los pedidos</span>
           </button>
-          <button
-            className={styles.quickLink}
-            onClick={() => navigate('/products')}
-          >
-            <span className={styles.quickLinkIcon} aria-hidden="true"><ProductsIcon size={20} /></span>
+          <button className={styles.quickLink} onClick={() => navigate('/products')}>
+            <span className={styles.quickLinkIcon} aria-hidden="true">
+              <ProductsIcon size={20} />
+            </span>
             <span className={styles.quickLinkTitle}>Productos</span>
             <span className={styles.quickLinkDesc}>Agregar, editar y pausar productos</span>
           </button>
-          <button
-            className={styles.quickLink}
-            onClick={() => navigate('/settings')}
-          >
-            <span className={styles.quickLinkIcon} aria-hidden="true"><SettingsIcon size={20} /></span>
+          <button className={styles.quickLink} onClick={() => navigate('/settings')}>
+            <span className={styles.quickLinkIcon} aria-hidden="true">
+              <SettingsIcon size={20} />
+            </span>
             <span className={styles.quickLinkTitle}>Configuración</span>
             <span className={styles.quickLinkDesc}>Horarios, delivery y banner</span>
           </button>

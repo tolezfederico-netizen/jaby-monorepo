@@ -3,7 +3,13 @@ import { createPortal } from 'react-dom'
 import { detectProvider, extractExternalId } from '@jaby/shared'
 import type { MediaContentType, MediaProvider } from '@jaby/shared'
 import ConfirmModal from '../components/ConfirmModal'
-import { useCreateMediaContent, useDeleteMediaContent, useMediaContent, useUpdateMediaContent, useUploadMediaThumbnail } from '../hooks/useMediaContent'
+import {
+  useCreateMediaContent,
+  useDeleteMediaContent,
+  useMediaContent,
+  useUpdateMediaContent,
+  useUploadMediaThumbnail,
+} from '../hooks/useMediaContent'
 import {
   AlertIcon,
   ChevronLeftIcon,
@@ -25,7 +31,13 @@ interface FormData {
   thumbnailFile: File | null
 }
 
-const EMPTY_FORM: FormData = { provider: 'tiktok', url: '', is_active: true, thumbnail_url: null, thumbnailFile: null }
+const EMPTY_FORM: FormData = {
+  provider: 'tiktok',
+  url: '',
+  is_active: true,
+  thumbnail_url: null,
+  thumbnailFile: null,
+}
 const LIMIT = 10
 
 function MediaContentPage() {
@@ -83,7 +95,13 @@ function MediaContentPage() {
   const openEdit = (item: MediaContentType) => {
     setSelected(item)
     setCreating(false)
-    setForm({ provider: item.provider, url: item.url, is_active: item.is_active, thumbnail_url: item.thumbnail_url, thumbnailFile: null })
+    setForm({
+      provider: item.provider,
+      url: item.url,
+      is_active: item.is_active,
+      thumbnail_url: item.thumbnail_url,
+      thumbnailFile: null,
+    })
     setError(null)
     setNotice(null)
   }
@@ -101,7 +119,8 @@ function MediaContentPage() {
     if (!detected) return 'La URL debe pertenecer a TikTok o Instagram.'
     if (detected !== form.provider) return 'El proveedor seleccionado no coincide con la URL.'
     const count = form.provider === 'tiktok' ? tiktokCount : instagramCount
-    if (creating && count >= LIMIT) return 'Límite de ' + LIMIT + ' contenidos de ' + label(form.provider) + ' alcanzado.'
+    if (creating && count >= LIMIT)
+      return 'Límite de ' + LIMIT + ' contenidos de ' + label(form.provider) + ' alcanzado.'
     return null
   }
 
@@ -196,10 +215,16 @@ function MediaContentPage() {
       <div className={styles.topBar}>
         <div className={styles.counters}>
           <span className={styles.counter}>
-            TikTok <strong>{tiktokCount}/{LIMIT}</strong>
+            TikTok{' '}
+            <strong>
+              {tiktokCount}/{LIMIT}
+            </strong>
           </span>
           <span className={styles.counter}>
-            Instagram <strong>{instagramCount}/{LIMIT}</strong>
+            Instagram{' '}
+            <strong>
+              {instagramCount}/{LIMIT}
+            </strong>
           </span>
         </div>
         <button className={styles.createButton} onClick={openCreate}>
@@ -212,7 +237,11 @@ function MediaContentPage() {
         <div className={styles.notice} role="status">
           <AlertIcon size={18} />
           <span>{notice}</span>
-          <button className={styles.noticeClose} onClick={() => setNotice(null)} aria-label="Cerrar aviso">
+          <button
+            className={styles.noticeClose}
+            onClick={() => setNotice(null)}
+            aria-label="Cerrar aviso"
+          >
             <CloseIcon size={16} />
           </button>
         </div>
@@ -222,7 +251,9 @@ function MediaContentPage() {
         <p className={styles.emptyText}>Cargando contenido...</p>
       ) : !list.length ? (
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}><ImageIcon size={28} /></span>
+          <span className={styles.emptyIcon}>
+            <ImageIcon size={28} />
+          </span>
           <p className={styles.emptyTitle}>Todavía no hay contenido</p>
           <p className={styles.emptyText}>
             Sumá videos de TikTok o reels de Instagram para que aparezcan en la tienda.
@@ -255,12 +286,17 @@ function MediaContentPage() {
               </div>
 
               <div className={styles.cardBody}>
-                <span className={styles.cardUrl} title={item.url}>{shortUrl(item.url)}</span>
+                <span className={styles.cardUrl} title={item.url}>
+                  {shortUrl(item.url)}
+                </span>
                 {!item.thumbnail_url && (
                   <button
                     type="button"
                     className={styles.retryLink}
-                    onClick={(event) => { event.stopPropagation(); openEdit(item) }}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      openEdit(item)
+                    }}
                   >
                     Subir imagen
                   </button>
@@ -287,7 +323,11 @@ function MediaContentPage() {
                   <ChevronRightIcon size={15} />
                 </button>
                 <button
-                  className={[styles.iconBtn, styles.toggleBtn, item.is_active ? '' : styles.toggleBtnOn].join(' ')}
+                  className={[
+                    styles.iconBtn,
+                    styles.toggleBtn,
+                    item.is_active ? '' : styles.toggleBtnOn,
+                  ].join(' ')}
                   onClick={(event) => toggleActive(item, event)}
                   disabled={updateItem.isPending}
                 >
@@ -296,7 +336,10 @@ function MediaContentPage() {
                 </button>
                 <button
                   className={[styles.iconBtn, styles.iconBtnDelete].join(' ')}
-                  onClick={(event) => { event.stopPropagation(); setDeleting(item) }}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setDeleting(item)
+                  }}
                   disabled={deleteItem.isPending}
                   title="Eliminar"
                   aria-label="Eliminar"
@@ -315,8 +358,15 @@ function MediaContentPage() {
             <div className={styles.overlay} onClick={reset} />
             <form className={styles.dialog} onSubmit={submit} role="dialog" aria-modal="true">
               <div className={styles.dialogHeader}>
-                <h2 className={styles.dialogTitle}>{creating ? 'Nuevo contenido' : 'Editar contenido'}</h2>
-                <button type="button" className={styles.closeButton} onClick={reset} aria-label="Cerrar">
+                <h2 className={styles.dialogTitle}>
+                  {creating ? 'Nuevo contenido' : 'Editar contenido'}
+                </h2>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={reset}
+                  aria-label="Cerrar"
+                >
                   <CloseIcon size={18} />
                 </button>
               </div>
@@ -329,7 +379,9 @@ function MediaContentPage() {
                       <button
                         key={p}
                         type="button"
-                        className={[styles.chip, form.provider === p ? styles.chipActive : ''].join(' ')}
+                        className={[styles.chip, form.provider === p ? styles.chipActive : ''].join(
+                          ' '
+                        )}
                         onClick={() => setForm((current) => ({ ...current, provider: p }))}
                         disabled={saving}
                       >
@@ -353,11 +405,15 @@ function MediaContentPage() {
                   />
                 </label>
 
-                {(
+                {
                   <div className={styles.field}>
                     <span className={styles.labelText}>Thumbnail manual (opcional)</span>
                     {!form.thumbnailFile && form.thumbnail_url && (
-                      <img className={styles.imagePreview} src={form.thumbnail_url} alt="Thumbnail actual" />
+                      <img
+                        className={styles.imagePreview}
+                        src={form.thumbnail_url}
+                        alt="Thumbnail actual"
+                      />
                     )}
                     <label className={styles.fileButton}>
                       {form.thumbnailFile || form.thumbnail_url ? 'Cambiar imagen' : 'Subir imagen'}
@@ -367,20 +423,23 @@ function MediaContentPage() {
                         accept="image/*"
                         onChange={(event) => {
                           const file = event.target.files?.[0]
-                          if (file && file.type.startsWith('image/')) setForm((current) => ({ ...current, thumbnailFile: file }))
+                          if (file && file.type.startsWith('image/'))
+                            setForm((current) => ({ ...current, thumbnailFile: file }))
                           else if (file) setError('El archivo debe ser una imagen.')
                         }}
                         disabled={saving}
                       />
                     </label>
-                    {form.thumbnailFile && <span className={styles.hint}>{form.thumbnailFile.name}</span>}
+                    {form.thumbnailFile && (
+                      <span className={styles.hint}>{form.thumbnailFile.name}</span>
+                    )}
                     <span className={styles.hint}>
                       {form.provider === 'tiktok'
                         ? 'TikTok ya no entrega la miniatura automáticamente: subí una captura del video. Se redimensiona a 800px y se comprime a menos de 45KB.'
                         : 'Se redimensiona a 800px y se comprime a menos de 45KB.'}
                     </span>
                   </div>
-                )}
+                }
 
                 <label className={styles.toggleRow}>
                   <span>
@@ -391,7 +450,9 @@ function MediaContentPage() {
                     type="checkbox"
                     className={styles.switch}
                     checked={form.is_active}
-                    onChange={(event) => setForm((current) => ({ ...current, is_active: event.target.checked }))}
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, is_active: event.target.checked }))
+                    }
                     disabled={saving}
                   />
                 </label>
@@ -418,7 +479,12 @@ function MediaContentPage() {
                   </button>
                 )}
                 <span className={styles.footerSpacer} />
-                <button type="button" className={styles.cancelButton} onClick={reset} disabled={saving}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={reset}
+                  disabled={saving}
+                >
                   Cancelar
                 </button>
                 <button type="submit" className={styles.saveButton} disabled={saving}>
@@ -430,12 +496,20 @@ function MediaContentPage() {
           document.body
         )}
 
-      {toast && <div className={styles.toast} role="status">{toast}</div>}
+      {toast && (
+        <div className={styles.toast} role="status">
+          {toast}
+        </div>
+      )}
 
       {deleting && (
         <ConfirmModal
           title="Eliminar contenido"
-          message={'¿Eliminar este contenido de ' + label(deleting.provider) + '? Esta acción no se puede deshacer.'}
+          message={
+            '¿Eliminar este contenido de ' +
+            label(deleting.provider) +
+            '? Esta acción no se puede deshacer.'
+          }
           confirmLabel="Eliminar"
           isDanger
           onConfirm={confirmDelete}

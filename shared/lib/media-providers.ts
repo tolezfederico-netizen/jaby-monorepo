@@ -68,7 +68,7 @@ export function getEmbedUrl(url: string, provider: MediaProvider): string | null
 export async function fetchAutoThumbnail(
   url: string,
   provider: MediaProvider,
-  externalId?: string,
+  externalId?: string
 ): Promise<string | null> {
   if (provider !== 'tiktok') return null
 
@@ -80,16 +80,31 @@ export async function fetchAutoThumbnail(
       body: { url, provider },
     })
     if (error) {
-      console.error('[fetchAutoThumbnail] La Edge Function devolvio un error.', { url, normalizedUrl, videoId, error })
+      console.error('[fetchAutoThumbnail] La Edge Function devolvio un error.', {
+        url,
+        normalizedUrl,
+        videoId,
+        error,
+      })
       return null
     }
     if (!data?.thumbnail_url || typeof data.thumbnail_url !== 'string') {
-      console.error('[fetchAutoThumbnail] La Edge Function no devolvio thumbnail_url.', { url, normalizedUrl, videoId, data })
+      console.error('[fetchAutoThumbnail] La Edge Function no devolvio thumbnail_url.', {
+        url,
+        normalizedUrl,
+        videoId,
+        data,
+      })
       return null
     }
     return data.thumbnail_url
   } catch (error) {
-    console.error('[fetchAutoThumbnail] Error inesperado para TikTok.', { url, normalizedUrl, videoId, error })
+    console.error('[fetchAutoThumbnail] Error inesperado para TikTok.', {
+      url,
+      normalizedUrl,
+      videoId,
+      error,
+    })
     return null
   }
 }

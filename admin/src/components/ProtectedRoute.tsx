@@ -14,7 +14,9 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
       setIsAuthenticated(!!session)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session)
     })
 

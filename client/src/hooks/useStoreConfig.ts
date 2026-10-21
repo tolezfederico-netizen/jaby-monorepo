@@ -4,10 +4,7 @@ import { supabase } from '../lib/supabase'
 import { StoreConfigSchema } from '@jaby/shared'
 
 async function fetchStoreConfig() {
-  const { data, error } = await supabase
-    .from('store_config')
-    .select('*')
-    .single()
+  const { data, error } = await supabase.from('store_config').select('*').single()
 
   if (error) throw new Error(error.message)
 
@@ -21,13 +18,9 @@ export function useStoreConfig() {
     const channelName = `db-store-config-${crypto.randomUUID()}`
     const channel = supabase
       .channel(channelName)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'store_config' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['store_config'] })
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_config' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['store_config'] })
+      })
       .subscribe()
 
     return () => {

@@ -36,7 +36,9 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
 
   if (!lastOrder) return null
 
-  const findCurrentProduct = (item: LastOrderSnapshot['items'][number]): ProductType | undefined => {
+  const findCurrentProduct = (
+    item: LastOrderSnapshot['items'][number]
+  ): ProductType | undefined => {
     if (item.product_id) {
       return products?.find((product) => product.id === item.product_id)
     }
@@ -69,7 +71,9 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
     }
 
     if (unavailable.length > 0) {
-      setRepeatError(`No se pudo repetir el pedido:\n${unavailable.map((item) => `• ${item}`).join('\n')}`)
+      setRepeatError(
+        `No se pudo repetir el pedido:\n${unavailable.map((item) => `• ${item}`).join('\n')}`
+      )
       return
     }
 
@@ -99,69 +103,92 @@ function LastOrderSummary({ onRepeatSuccess }: LastOrderSummaryProps) {
 
   return (
     <>
-      <button type="button" className={styles.trigger} onClick={() => { setRepeatError(null); setIsOpen(true) }}>
-        <span className={styles.triggerIcon} aria-hidden="true">↺</span>
+      <button
+        type="button"
+        className={styles.trigger}
+        onClick={() => {
+          setRepeatError(null)
+          setIsOpen(true)
+        }}
+      >
+        <span className={styles.triggerIcon} aria-hidden="true">
+          ↺
+        </span>
         <span>Ver mi último pedido</span>
       </button>
 
-      {isOpen && createPortal(
-        <div className={styles.overlay} role="presentation" onClick={() => setIsOpen(false)}>
-          <section
-            className={styles.modal}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="last-order-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <div className={styles.headerMain}>
-                <span className={styles.headerIcon} aria-hidden="true">↺</span>
-                <div>
-                  <h2 id="last-order-title">Tu último pedido</h2>
-                  <p className={styles.subtitle}>{modality} · {confirmedAt}</p>
+      {isOpen &&
+        createPortal(
+          <div className={styles.overlay} role="presentation" onClick={() => setIsOpen(false)}>
+            <section
+              className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="last-order-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <div className={styles.headerMain}>
+                  <span className={styles.headerIcon} aria-hidden="true">
+                    ↺
+                  </span>
+                  <div>
+                    <h2 id="last-order-title">Tu último pedido</h2>
+                    <p className={styles.subtitle}>
+                      {modality} · {confirmedAt}
+                    </p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  className={styles.closeButton}
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
               </div>
-              <button type="button" className={styles.closeButton} onClick={() => setIsOpen(false)} aria-label="Cerrar">
-                ×
-              </button>
-            </div>
 
-            <ul className={styles.items}>
-              {lastOrder.items.map((item, index) => (
-                <li key={`${item.name}-${index}`} className={styles.item}>
-                  <span className={styles.qty}>{item.quantity}×</span>
-                  <span className={styles.itemInfo}>
-                    <span className={styles.itemName}>{item.name}</span>
-                    {findCurrentProduct(item)?.description?.trim() && (
-                      <span className={styles.itemDescription}>
-                        {findCurrentProduct(item)?.description}
+              <ul className={styles.items}>
+                {lastOrder.items.map((item, index) => (
+                  <li key={`${item.name}-${index}`} className={styles.item}>
+                    <span className={styles.qty}>{item.quantity}×</span>
+                    <span className={styles.itemInfo}>
+                      <span className={styles.itemName}>{item.name}</span>
+                      {findCurrentProduct(item)?.description?.trim() && (
+                        <span className={styles.itemDescription}>
+                          {findCurrentProduct(item)?.description}
+                        </span>
+                      )}
+                    </span>
+                    {item.price != null && (
+                      <span className={styles.itemPrice}>
+                        {formatPrice(item.price * item.quantity)}
                       </span>
                     )}
-                  </span>
-                  {item.price != null && (
-                    <span className={styles.itemPrice}>{formatPrice(item.price * item.quantity)}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
 
-            <div className={styles.total}>
-              <span>Total</span>
-              <strong>{formatPrice(lastOrder.total)}</strong>
-            </div>
-            <p className={styles.note}>Al repetirlo se usan los precios actuales del catálogo.</p>
+              <div className={styles.total}>
+                <span>Total</span>
+                <strong>{formatPrice(lastOrder.total)}</strong>
+              </div>
+              <p className={styles.note}>Al repetirlo se usan los precios actuales del catálogo.</p>
 
-            {repeatError && (
-              <p className={styles.repeatError} role="alert">{repeatError}</p>
-            )}
+              {repeatError && (
+                <p className={styles.repeatError} role="alert">
+                  {repeatError}
+                </p>
+              )}
 
-            <button type="button" className={styles.repeatButton} onClick={repeatOrder}>
-              Repetir pedido
-            </button>
-          </section>
-        </div>,
-        document.body
-      )}
+              <button type="button" className={styles.repeatButton} onClick={repeatOrder}>
+                Repetir pedido
+              </button>
+            </section>
+          </div>,
+          document.body
+        )}
     </>
   )
 }

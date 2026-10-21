@@ -80,14 +80,20 @@ function exportToExcel(customers: CustomerType[], fileName: string) {
     c.address_history.join(' / '),
     c.first_seen_at
       ? new Date(c.first_seen_at).toLocaleString('es-AR', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         })
       : '',
     c.last_seen_at
       ? new Date(c.last_seen_at).toLocaleString('es-AR', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         })
       : '',
     c.marketing_consent ? 'Sí' : 'No',
@@ -144,11 +150,7 @@ function exportToExcel(customers: CustomerType[], fileName: string) {
     for (let C = 0; C < totalCols; C++) {
       const cellRef = XLSX.utils.encode_cell({ r: R, c: C })
       if (!ws[cellRef]) ws[cellRef] = { v: '', t: 's' }
-      ws[cellRef].s = R === 0
-        ? headerStyle
-        : R % 2 === 0
-          ? rowStyleEven
-          : rowStyleOdd
+      ws[cellRef].s = R === 0 ? headerStyle : R % 2 === 0 ? rowStyleEven : rowStyleOdd
     }
   }
 
@@ -175,7 +177,9 @@ function CustomerCard({ customer, onClick }: CustomerCardProps) {
     <div className={styles.card} onClick={onClick}>
       <span className={styles.avatar}>{initials(customer.name)}</span>
       <div className={styles.cardInfo}>
-        <span className={styles.customerName} title={customer.name}>{customer.name}</span>
+        <span className={styles.customerName} title={customer.name}>
+          {customer.name}
+        </span>
         <span className={styles.phone}>{customer.phone}</span>
         <span className={styles.cardMeta}>
           {modality && (
@@ -243,7 +247,9 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
                   <ModalityIcon modality={customer.last_modality} />
                   {customer.last_modality === 'pickup' ? 'Retiro en local' : modality}
                 </span>
-              ) : '—'}
+              ) : (
+                '—'
+              )}
             </span>
           </div>
 
@@ -269,7 +275,9 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
               <span className={styles.label}>Historial de direcciones</span>
               <ul className={styles.addressList}>
                 {customer.address_history.map((addr, i) => (
-                  <li key={i} className={styles.addressItem}>{addr}</li>
+                  <li key={i} className={styles.addressItem}>
+                    {addr}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -305,7 +313,9 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
             Eliminar cliente
           </button>
           <span className={styles.footerSpacer} />
-          <button className={styles.closeAction} onClick={onClose}>Cerrar</button>
+          <button className={styles.closeAction} onClick={onClose}>
+            Cerrar
+          </button>
         </div>
       </div>
     </>,
