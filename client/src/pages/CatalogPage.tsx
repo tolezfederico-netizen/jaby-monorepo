@@ -533,7 +533,7 @@ function CatalogLoadingState() {
     <div className={styles.loadingScreen}>
       <div className={styles.loadingContent}>
         <div className={styles.loadingHeader} />
-        <ProductSkeletonGrid count={6} />
+        <ProductSkeletonGrid count={12} />
       </div>
     </div>
   )

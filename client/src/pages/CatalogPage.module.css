@@ -41,6 +41,29 @@
   animation: catalogShimmer 1.5s ease-in-out infinite;
 }
 
+/* En desktop la carga inicial ocupa el mismo ancho que el catálogo (.page) */
+@media (min-width: 768px) {
+  .loadingScreen {
+    align-items: flex-start;
+    padding: 6rem 2rem 2rem;
+  }
+
+  .loadingContent {
+    width: min(100%, 1280px);
+    gap: 1.25rem;
+  }
+
+  .loadingHeader {
+    width: 180px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .loadingContent {
+    width: min(100%, 1600px);
+  }
+}
+
 /* Banner */
 .banner {
   background: linear-gradient(135deg, #e91e8c 0%, #1a1a2e 100%);

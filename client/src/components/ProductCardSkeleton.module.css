@@ -79,12 +79,38 @@
   }
 }
 
+/* Desde 768px la card real es vertical (imagen arriba de 120px, ver CatalogPage.module.css) */
 @media (min-width: 768px) {
   .card {
-    padding: 1rem;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
   }
   .image {
-    width: 104px;
-    min-height: 104px;
+    width: 100%;
+    height: 120px;
+    min-height: 120px;
+    border-radius: 0;
+  }
+  .content {
+    gap: 0.5rem;
+    padding: 0.625rem 0.625rem 0.625rem;
+  }
+  .title {
+    width: 65%;
+  }
+  .description {
+    width: 45%;
+  }
+  .price {
+    width: 40%;
+  }
+  .button {
+    width: 32px;
+    height: 32px;
   }
 }
