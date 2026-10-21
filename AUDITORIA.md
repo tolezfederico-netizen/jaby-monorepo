@@ -16,8 +16,11 @@ Decidido sin cambios: **E2** — los pausados siguen visibles como "No disponibl
 
 Pendiente:
 
-- **S1** — Dashboard de Supabase: desactivar el registro de usuarios y revisar políticas RLS / tablas con RLS.
-  Ya resuelto: `next_order_number` solo ejecutable por `service_role` (migración `20261021000000`, aplicada).
+- **S1** ✅ Cerrado (21/10/2026): registro de usuarios desactivado (verificado por API), RLS activo en las 8
+  tablas, `customers`/`orders`/`order_items` sin acceso público. Migraciones aplicadas: `20261021000000`
+  (`next_order_number` solo `service_role`) y `20261021010000` (políticas del bucket `Productos`, que
+  impedían subir imágenes, y baja de las políticas viejas de `tiktok-thumbnails`).
+  Pendiente menor: 5 productos con la imagen embebida en la base (data URI); volver a subirlas.
 - **R4** (`config.toml`/esquema base), **R6** (Node 20 local), **R5 client** (confirmar con Garel la config de Vercel del client).
 - **S5** — quedan `vite`/`esbuild` (solo dev server; requiere versión mayor).
 - **E1** — falta paginar Clientes (mismo límite de 1000 filas).
