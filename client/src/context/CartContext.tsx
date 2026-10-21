@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react'
-import type { ProductType } from '@jaby/shared'
+import { MAX_ITEM_QUANTITY, type ProductType } from '@jaby/shared'
+import { useProducts } from '../hooks/useProducts'
 
 const CART_STORAGE_KEY = 'antojos-express-cart'
 
@@ -17,12 +18,14 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; productId: string }
   | { type: 'UPDATE_QUANTITY'; productId: string; quantity: number }
   | { type: 'CLEAR_CART' }
+  | { type: 'SYNC_PRODUCTS'; products: ProductType[] }
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existing = state.items.find(i => i.product.id === action.product.id)
       if (existing) {
+        if (existing.quantity >= MAX_ITEM_QUANTITY) return state
         return {
           items: state.items.map(i =>
             i.product.id === action.product.id
@@ -42,12 +45,25 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         items: state.items.map(i =>
           i.product.id === action.productId
-            ? { ...i, quantity: action.quantity }
+            ? { ...i, quantity: Math.min(action.quantity, MAX_ITEM_QUANTITY) }
             : i
         ),
       }
     case 'CLEAR_CART':
       return { items: [] }
+    case 'SYNC_PRODUCTS': {
+      // El carrito guardado puede tener precios viejos: se reemplaza cada producto por su versión
+      // actual del catálogo. Si ya no existe se deja como está y el servidor lo rechaza al confirmar.
+      const byId = new Map(action.products.map((product) => [product.id, product]))
+      let changed = false
+      const items = state.items.map((item) => {
+        const current = byId.get(item.product.id)
+        if (!current || current === item.product) return item
+        changed = true
+        return { ...item, product: current }
+      })
+      return changed ? { items } : state
+    }
     default:
       return state
   }
@@ -96,6 +112,11 @@ const CartContext = createContext<CartContextValue | null>(null)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, undefined, getInitialCartState)
+  const { data: products } = useProducts()
+
+  useEffect(() => {
+    if (products) dispatch({ type: 'SYNC_PRODUCTS', products })
+  }, [products])
 
   useEffect(() => {
     try {

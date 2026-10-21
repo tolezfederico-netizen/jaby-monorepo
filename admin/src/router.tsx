@@ -1,15 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
-import CategoriesPage from './pages/CategoriesPage'
-import ProductsPage from './pages/ProductsPage'
-import OrdersPage from './pages/OrdersPage'
-import CustomersPage from './pages/CustomersPage'
-import SettingsPage from './pages/SettingsPage'
-import MediaContentPage from './pages/MediaContentPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './components/AdminLayout'
+
+// Cada sección se carga recién al entrar, para no bajar todo el admin (y xlsx) de una
+const page = (load: () => Promise<{ default: React.ComponentType }>) => async () => ({
+  Component: (await load()).default,
+})
 
 export const router = createBrowserRouter([
   {
@@ -26,31 +24,31 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <DashboardPage />,
+        lazy: page(() => import('./pages/DashboardPage')),
       },
       {
         path: 'orders',
-        element: <OrdersPage />,
+        lazy: page(() => import('./pages/OrdersPage')),
       },
       {
         path: 'categories',
-        element: <CategoriesPage />,
+        lazy: page(() => import('./pages/CategoriesPage')),
       },
       {
         path: 'products',
-        element: <ProductsPage />,
+        lazy: page(() => import('./pages/ProductsPage')),
       },
       {
         path: 'customers',
-        element: <CustomersPage />,
+        lazy: page(() => import('./pages/CustomersPage')),
       },
       {
         path: 'settings',
-        element: <SettingsPage />,
+        lazy: page(() => import('./pages/SettingsPage')),
       },
       {
         path: 'contenido-multimedia',
-        element: <MediaContentPage />,
+        lazy: page(() => import('./pages/MediaContentPage')),
       },
     ],
   },

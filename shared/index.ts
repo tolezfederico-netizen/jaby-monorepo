@@ -1,6 +1,7 @@
 export * from './schemas/index.js'
 export * from './types/index.js'
 export { formatPrice } from './utils/formatPrice'
+export { toWhatsAppNumber } from './utils/whatsapp'
 export {
   getMediaContent,
   createMediaContent,

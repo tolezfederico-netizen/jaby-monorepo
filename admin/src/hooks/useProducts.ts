@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { ProductSchema, ProductCreateSchema, ProductUpdateSchema } from '@jaby/shared'
 import type { ProductCreateType, ProductUpdateType } from '@jaby/shared'
+import { compressImage } from '../lib/compressImage'
 
 const PRODUCTS_QUERY_KEY = ['admin', 'products']
 
@@ -109,60 +110,13 @@ export function useDeleteProduct() {
   })
 }
 
-async function compressImage(
-  file: File,
-  options: { maxSizeKb: number; quality: number }
-): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-
-      const MAX_WIDTH = 800
-      let { width, height } = img
-      if (width > MAX_WIDTH) {
-        height = Math.round((height * MAX_WIDTH) / width)
-        width = MAX_WIDTH
-      }
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return reject(new Error('Canvas no disponible'))
-      ctx.drawImage(img, 0, 0, width, height)
-
-      let quality = options.quality
-      const attempt = () => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) return reject(new Error('Error al comprimir imagen'))
-            if (blob.size <= options.maxSizeKb * 1024 || quality <= 0.1) {
-              resolve(new File([blob], file.name, { type: 'image/jpeg' }))
-            } else {
-              quality -= 0.1
-              attempt()
-            }
-          },
-          'image/jpeg',
-          quality
-        )
-      }
-      attempt()
-    }
-    img.onerror = () => reject(new Error('Error al cargar imagen'))
-    img.src = url
-  })
-}
-
 export function useUploadProductImage() {
   return useMutation({
     mutationFn: async (file: File): Promise<string> => {
       const compressed = await compressImage(file, { maxSizeKb: 45, quality: 0.7 })
 
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      // compressImage siempre devuelve JPEG
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
 
       const { error } = await supabase.storage
         .from('Productos')

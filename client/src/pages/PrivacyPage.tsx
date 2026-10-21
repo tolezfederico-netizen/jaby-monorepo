@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { toWhatsAppNumber } from '@jaby/shared'
 import { useStoreConfig } from '../hooks/useStoreConfig'
 import Footer from '../components/Footer'
 import styles from './PrivacyPage.module.css'
@@ -7,8 +8,8 @@ function PrivacyPage() {
   const navigate = useNavigate()
   const { data: config } = useStoreConfig()
   const storeName = config?.store_name || 'Antojos Ya'
-  const whatsapp = config?.whatsapp_number
-  const contactUrl = whatsapp ? `https://wa.me/54${whatsapp}` : null
+  const whatsapp = toWhatsAppNumber(config?.whatsapp_number)
+  const contactUrl = whatsapp ? `https://wa.me/${whatsapp}` : null
 
   return (
     <>

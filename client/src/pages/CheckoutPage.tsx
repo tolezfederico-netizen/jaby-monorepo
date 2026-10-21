@@ -4,7 +4,7 @@ import { useAppStatus } from '../hooks/useAppStatus'
 import { useCart } from '../context/CartContext'
 import { useCreateOrder } from '../hooks/useCreateOrder'
 import Footer from '../components/Footer'
-import { formatPrice } from '@jaby/shared'
+import { formatPrice, MAX_ORDER_ITEMS, toWhatsAppNumber } from '@jaby/shared'
 import type { OrderModalityType } from '@jaby/shared'
 import { saveLastOrder } from '../lib/orderStorage'
 import styles from './CheckoutPage.module.css'
@@ -239,6 +239,15 @@ function CheckoutPage() {
       setError('Ingresá tu dirección para el delivery.')
       return
     }
+    const deliveryMinimum = config?.delivery_minimum_order ?? 0
+    if (modality === 'delivery' && deliveryMinimum > 0 && totalPrice < deliveryMinimum) {
+      setError(`El pedido mínimo para delivery es de ${formatPrice(deliveryMinimum)}.`)
+      return
+    }
+    if (items.length > MAX_ORDER_ITEMS) {
+      setError(`Podés pedir hasta ${MAX_ORDER_ITEMS} productos distintos por pedido.`)
+      return
+    }
 
     const cleanPhone = customerPhone.replace(/\D/g, '')
 
@@ -271,24 +280,37 @@ function CheckoutPage() {
         marketing_consent: marketingConsent || undefined,
       })
 
+      // Se usan los precios verificados por el servidor; si la función no los devuelve
+      // (versión anterior desplegada), se cae a los del carrito
+      const verifiedDeliveryCost = result.delivery_cost ?? finalDeliveryCost
+      const verifiedItemsTotal = result.total != null ? result.total - verifiedDeliveryCost : total
+      const messageItems = result.items
+        ? result.items.map((i) => ({
+            name: i.product_name,
+            quantity: i.quantity,
+            price: undefined,
+            subtotal: i.subtotal,
+          }))
+        : items.map((i) => ({
+            name: i.product.name,
+            quantity: i.quantity,
+            price: i.product.price ?? undefined,
+            subtotal: (i.product.price ?? 0) * i.quantity,
+          }))
+
       const message = buildWhatsAppMessage(
         result.order_number,
         modality,
         customerName.trim(),
         address.trim(),
         notes.trim(),
-        items.map((i) => ({
-          name: i.product.name,
-          quantity: i.quantity,
-          price: i.product.price ?? undefined,
-          subtotal: (i.product.price ?? 0) * i.quantity,
-        })),
-        total,
-        finalDeliveryCost,
+        messageItems,
+        verifiedItemsTotal,
+        verifiedDeliveryCost,
         showPrices
       )
 
-      const waUrl = `https://wa.me/54${whatsappNumber}?text=${encodeURIComponent(message)}`
+      const waUrl = `https://wa.me/${toWhatsAppNumber(whatsappNumber)}?text=${encodeURIComponent(message)}`
 
       saveLastOrder({
         items: items.map((item) => ({
@@ -297,7 +319,7 @@ function CheckoutPage() {
           quantity: item.quantity,
           price: item.product.price ?? null,
         })),
-        total,
+        total: verifiedItemsTotal,
         modality,
         confirmedAt: new Date().toISOString(),
       })

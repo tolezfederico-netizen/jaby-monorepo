@@ -44,7 +44,7 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="admin@antojosexpres.com"
+              placeholder="admin@antojosya.com"
               autoComplete="email"
               required
               disabled={isLoading}

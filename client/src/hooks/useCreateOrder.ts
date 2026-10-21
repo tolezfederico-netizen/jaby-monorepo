@@ -6,6 +6,10 @@ import type { OrderCreateType } from '@jaby/shared'
 interface CreateOrderResult {
   order_id: string
   order_number: number
+  // Valores verificados por el servidor (opcionales por compatibilidad con versiones previas de la función)
+  total?: number
+  delivery_cost?: number
+  items?: Array<{ product_id: string; product_name: string; quantity: number; subtotal: number }>
 }
 
 async function createOrder(payload: OrderCreateType): Promise<CreateOrderResult> {

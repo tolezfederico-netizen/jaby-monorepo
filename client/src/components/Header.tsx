@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ProductType } from '@jaby/shared'
-import { formatPrice } from '@jaby/shared'
+import { formatPrice, toWhatsAppNumber } from '@jaby/shared'
 import { useStoreConfig } from '../hooks/useStoreConfig'
 import WhatsAppIcon from './WhatsAppIcon'
 import styles from './Header.module.css'
@@ -122,9 +122,9 @@ function Header({
   }
 
   const contactWhatsappNumber = storeConfig?.whatsapp_number || whatsappNumber || ''
-  const contactWhatsappDigits = contactWhatsappNumber.replace(/\D/g, '')
+  const contactWhatsappDigits = toWhatsAppNumber(contactWhatsappNumber)
   const contactWhatsappUrl = contactWhatsappDigits
-    ? `https://wa.me/${contactWhatsappDigits.startsWith('54') ? contactWhatsappDigits : `54${contactWhatsappDigits}`}?text=${encodeURIComponent(`Hola! Quer\u00eda consultar sobre productos de ${storeName}`)}`
+    ? `https://wa.me/${contactWhatsappDigits}?text=${encodeURIComponent(`Hola! Quer\u00eda consultar sobre productos de ${storeName}`)}`
     : null
   const instagramUrl = storeConfig?.instagram_url?.trim() || null
   const mapsQuery = [storeConfig?.address, storeConfig?.neighborhood, storeConfig?.municipality]

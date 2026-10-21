@@ -7,25 +7,72 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Límites del pedido: mantener sincronizados con shared/schemas/order.ts
+const MAX_ITEM_QUANTITY = 99
+const MAX_ORDER_ITEMS = 50
+
 const OrderItemPayloadSchema = z.object({
   product_id: z.string().uuid(),
-  product_name: z.string().min(1),
-  quantity: z.number().int().positive(),
+  product_name: z.string().min(1).max(200),
+  quantity: z.number().int().positive().max(MAX_ITEM_QUANTITY),
   unit_price: z.number().nonnegative(),
   subtotal: z.number().nonnegative(),
 })
 
-const OrderPayloadSchema = z.object({
-  modality: z.enum(['pickup', 'delivery']),
-  customer_name: z.string().min(1).max(100, 'El nombre es demasiado largo'),
-  customer_phone: z.string().min(7).nullable().optional(),
-  customer_address: z.string().max(200, 'La dirección es demasiado larga').optional(),
-  notes: z.string().max(300, 'Las notas son demasiado largas').optional(),
-  items: z.array(OrderItemPayloadSchema).min(1),
-  total: z.number().nonnegative(),
-  delivery_cost: z.number().nonnegative().optional(),
-  marketing_consent: z.boolean().optional(),
-})
+const OrderPayloadSchema = z
+  .object({
+    modality: z.enum(['pickup', 'delivery']),
+    customer_name: z.string().trim().min(1).max(100, 'El nombre es demasiado largo'),
+    customer_phone: z
+      .string()
+      .regex(/^\d{10,15}$/, 'El número de WhatsApp no es válido')
+      .nullable()
+      .optional(),
+    customer_address: z.string().trim().max(200, 'La dirección es demasiado larga').optional(),
+    notes: z.string().trim().max(300, 'Las notas son demasiado largas').optional(),
+    items: z.array(OrderItemPayloadSchema).min(1).max(MAX_ORDER_ITEMS),
+    total: z.number().nonnegative(),
+    delivery_cost: z.number().nonnegative().optional(),
+    marketing_consent: z.boolean().optional(),
+  })
+  .refine((order) => order.modality !== 'delivery' || !!order.customer_address, {
+    message: 'La dirección es obligatoria para el delivery',
+    path: ['customer_address'],
+  })
+
+// Los horarios del local están en hora argentina, sin importar dónde corra la función
+function getArgentinaMinutes(): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date())
+  const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? 0) % 24
+  const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? 0)
+  return hour * 60 + minute
+}
+
+// Misma lógica que client/src/hooks/useAppStatus.ts (soporta horarios que cruzan la medianoche)
+function isWithinHours(open: string, close: string): boolean {
+  const current = getArgentinaMinutes()
+  const [openH, openM] = open.split(':').map(Number)
+  const [closeH, closeM] = close.split(':').map(Number)
+  const openMinutes = openH * 60 + openM
+  const closeMinutes = closeH * 60 + closeM
+
+  if (closeMinutes <= openMinutes) {
+    return current >= openMinutes || current < closeMinutes
+  }
+  return current >= openMinutes && current < closeMinutes
+}
+
+function badRequest(error: string) {
+  return new Response(JSON.stringify({ error }), {
+    status: 400,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -43,14 +90,36 @@ serve(async (req) => {
 
     if (!parsed.success) {
       return new Response(
-        JSON.stringify({ error: 'Payload inválido', details: parsed.error.flatten() }),
+        JSON.stringify({
+          error: parsed.error.issues[0]?.message ?? 'Payload inválido',
+          details: parsed.error.flatten(),
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     const payload = parsed.data
 
-    // --- VALIDACIÓN SERVER-SIDE: recalcular precios contra la base, nunca confiar en el payload ---
+    // --- VALIDACIÓN SERVER-SIDE: estado del local, horarios y precios, nunca confiar en el payload ---
+
+    // 0. El local tiene que estar activo y abierto (lo mismo que exige el checkout)
+    const { data: storeConfig, error: storeConfigError } = await supabase
+      .from('store_config')
+      .select(
+        'is_app_active, business_hours_open, business_hours_close, delivery_enabled, delivery_hours_open, delivery_hours_close, delivery_cost, delivery_minimum_order'
+      )
+      .single()
+
+    if (storeConfigError || !storeConfig) {
+      throw new Error('No se pudo verificar la configuración del local')
+    }
+
+    if (
+      !storeConfig.is_app_active ||
+      !isWithinHours(storeConfig.business_hours_open, storeConfig.business_hours_close)
+    ) {
+      return badRequest('El local no está recibiendo pedidos en este momento')
+    }
 
     // 1. Traer los productos reales involucrados en el pedido
     const productIds = [...new Set(payload.items.map((item) => item.product_id))]
@@ -117,22 +186,21 @@ serve(async (req) => {
 
     // 4. Recalcular delivery_cost desde store_config si la modalidad es delivery
     //    (se ignora el delivery_cost que vino del cliente)
+    const itemsTotal = verifiedItems.reduce((sum, item) => sum + item.subtotal, 0)
     let verifiedDeliveryCost = 0
 
     if (payload.modality === 'delivery') {
-      const { data: storeConfig, error: storeConfigError } = await supabase
-        .from('store_config')
-        .select('delivery_enabled, delivery_cost')
-        .single()
-
-      if (storeConfigError || !storeConfig) {
-        throw new Error('No se pudo verificar la configuración de delivery')
+      if (
+        !storeConfig.delivery_enabled ||
+        !isWithinHours(storeConfig.delivery_hours_open, storeConfig.delivery_hours_close)
+      ) {
+        return badRequest('El delivery no está disponible en este momento')
       }
 
-      if (!storeConfig.delivery_enabled) {
-        return new Response(
-          JSON.stringify({ error: 'El delivery no está disponible en este momento' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      const minimum = storeConfig.delivery_minimum_order ?? 0
+      if (minimum > 0 && itemsTotal < minimum) {
+        return badRequest(
+          `El pedido mínimo para delivery es de $${minimum.toLocaleString('es-AR')}`
         )
       }
 
@@ -140,7 +208,6 @@ serve(async (req) => {
     }
 
     // 5. Recalcular el total real a partir de los subtotales verificados + delivery verificado
-    const itemsTotal = verifiedItems.reduce((sum, item) => sum + item.subtotal, 0)
     const verifiedTotal = Math.round((itemsTotal + verifiedDeliveryCost) * 100) / 100
 
     // --- FIN VALIDACIÓN SERVER-SIDE ---
@@ -191,6 +258,11 @@ serve(async (req) => {
       .insert(items)
 
     if (itemsError) {
+      // Sin transacción: deshacer el pedido para no dejarlo huérfano, sin ítems
+      const { error: rollbackError } = await supabase.from('orders').delete().eq('id', order.id)
+      if (rollbackError) {
+        console.error('Error al deshacer el pedido sin ítems:', order.id, rollbackError.message)
+      }
       throw new Error('No se pudieron guardar los items del pedido')
     }
 
@@ -266,6 +338,15 @@ serve(async (req) => {
       JSON.stringify({
         order_id: order.id,
         order_number: order.order_number,
+        // Valores verificados, para que el mensaje de WhatsApp no use precios viejos del carrito
+        total: verifiedTotal,
+        delivery_cost: verifiedDeliveryCost,
+        items: verifiedItems.map((item) => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          subtotal: item.subtotal,
+        })),
       }),
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

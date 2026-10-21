@@ -1,8 +1,21 @@
 import { useStoreConfig } from './useStoreConfig';
 
+// Los horarios del local están en hora argentina, aunque el dispositivo tenga otra zona horaria.
+// Misma lógica que supabase/functions/create-order/index.ts.
+function getArgentinaMinutes(): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = Number(parts.find((part) => part.type === 'hour')?.value ?? 0) % 24;
+  const minute = Number(parts.find((part) => part.type === 'minute')?.value ?? 0);
+  return hour * 60 + minute;
+}
+
 function isWithinHours(open: string, close: string): boolean {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const currentMinutes = getArgentinaMinutes();
 
   const [openH, openM] = open.split(':').map(Number);
   const [closeH, closeM] = close.split(':').map(Number);

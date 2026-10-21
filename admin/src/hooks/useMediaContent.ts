@@ -9,6 +9,7 @@ import {
 import type { CreateMediaContentPayload, UpdateMediaContentPayload } from '@jaby/shared/lib/media-content'
 import type { MediaProvider } from '@jaby/shared'
 import { supabase } from '../lib/supabase'
+import { compressImage } from '../lib/compressImage'
 
 const QUERY_KEY = ['media_content']
 
@@ -81,52 +82,6 @@ export function useDeleteMediaContent() {
   })
 }
 
-async function compressImage(file: File): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    const objectUrl = URL.createObjectURL(file)
-
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl)
-      const maxWidth = 800
-      let { width, height } = image
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width)
-        width = maxWidth
-      }
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const context = canvas.getContext('2d')
-      if (!context) {
-        reject(new Error('Canvas no disponible'))
-        return
-      }
-      context.drawImage(image, 0, 0, width, height)
-
-      let quality = 0.7
-      const attempt = () => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error('Error al comprimir imagen'))
-            return
-          }
-          if (blob.size <= 45 * 1024 || quality <= 0.1) {
-            resolve(new File([blob], file.name, { type: 'image/jpeg' }))
-            return
-          }
-          quality -= 0.1
-          attempt()
-        }, 'image/jpeg', quality)
-      }
-      attempt()
-    }
-    image.onerror = () => reject(new Error('Error al cargar imagen'))
-    image.src = objectUrl
-  })
-}
-
 export function useUploadMediaThumbnail() {
   return useMutation({
     mutationFn: async ({ file, provider, externalId }: {
@@ -143,7 +98,8 @@ export function useUploadMediaThumbnail() {
       if (error) throw new Error(error.message)
 
       const { data } = supabase.storage.from('media-thumbnails').getPublicUrl(fileName)
-      return data.publicUrl
+      // Mismo nombre al resubir (upsert): ?v= evita que el navegador/CDN muestre la imagen anterior
+      return `${data.publicUrl}?v=${Date.now()}`
     },
   })
 }

@@ -51,6 +51,18 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   if (req.method !== 'POST') return jsonResponse({ error: 'Metodo no permitido' }, 405)
 
+  // Solo usuarios logueados del admin: la funcion escribe en Storage con la service role
+  const authHeader = req.headers.get('Authorization') ?? ''
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+  const authClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authHeader } },
+  })
+  const { data: userData, error: userError } = await authClient.auth.getUser()
+  if (userError || !userData?.user) {
+    return jsonResponse({ error: 'No autorizado' }, 401)
+  }
+
   try {
     let body: { url?: unknown; provider?: unknown }
     try {
@@ -130,7 +142,6 @@ serve(async (req) => {
     }
 
     const imageBlob = await imageResponse.blob()
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     if (!supabaseUrl || !serviceRoleKey) {
       console.error('[fetch-media-thumbnail] Faltan variables de Supabase')
@@ -138,7 +149,8 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey)
-    const path = `${normalized.videoId}.jpg`
+    // Mismo nombre que usa la carga manual del admin, para que el borrado lo encuentre
+    const path = `tiktok-${normalized.videoId}.jpg`
     const { error: uploadError } = await supabase.storage
       .from('media-thumbnails')
       .upload(path, imageBlob, { upsert: true, contentType: 'image/jpeg' })
@@ -153,7 +165,8 @@ serve(async (req) => {
       return jsonResponse({ error: 'No se pudo obtener la URL publica del thumbnail' }, 500)
     }
 
-    return jsonResponse({ thumbnail_url: publicData.publicUrl }, 200)
+    // ?v= evita que el navegador/CDN siga mostrando una version anterior del mismo archivo
+    return jsonResponse({ thumbnail_url: `${publicData.publicUrl}?v=${Date.now()}` }, 200)
   } catch (error) {
     console.error('[fetch-media-thumbnail] Error inesperado', { error })
     return jsonResponse({ error: 'Error inesperado al obtener el thumbnail' }, 500)

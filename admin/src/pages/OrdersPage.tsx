@@ -21,7 +21,7 @@ import {
   TrashIcon,
   WhatsAppIcon,
 } from "../components/icons";
-import { formatPrice } from "@jaby/shared";
+import { formatPrice, toWhatsAppNumber } from "@jaby/shared";
 import styles from "./OrdersPage.module.css";
 
 const STATUS_LABELS: Record<OrderStatusType, string> = {
@@ -90,7 +90,7 @@ function getWaUrl(
     }
   }
   if (!text) return null
-  return `https://wa.me/54${phone}?text=${encodeURIComponent(text)}`
+  return `https://wa.me/${toWhatsAppNumber(phone)}?text=${encodeURIComponent(text)}`
 }
 
 type FilterStatus = OrderStatusType | "all" | "archived";
@@ -429,7 +429,7 @@ function OrderDetailPanel({
                 </span>
                 <a
                   className={styles.waLink}
-                  href={`https://wa.me/54${order.customer_phone}`}
+                  href={`https://wa.me/${toWhatsAppNumber(order.customer_phone)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

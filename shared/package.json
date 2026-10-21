@@ -30,6 +30,10 @@
       "import": "./utils/formatPrice.ts",
       "types": "./utils/formatPrice.ts"
     },
+    "./utils/whatsapp": {
+      "import": "./utils/whatsapp.ts",
+      "types": "./utils/whatsapp.ts"
+    },
     "./hooks/useBanner": {
       "import": "./hooks/useBanner.ts",
       "types": "./hooks/useBanner.ts"

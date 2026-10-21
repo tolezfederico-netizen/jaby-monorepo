@@ -70,7 +70,8 @@ function StoreInfoSection() {
     const payload = {
       store_name: form.store_name.trim(),
       address: form.address.trim(),
-      whatsapp_number: form.whatsapp_number.trim(),
+      // Solo dígitos: los links de wa.me se arman con toWhatsAppNumber
+      whatsapp_number: form.whatsapp_number.replace(/\D/g, ''),
       business_hours_open: form.business_hours_open,
       business_hours_close: form.business_hours_close,
       show_prices: form.show_prices,

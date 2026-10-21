@@ -13,6 +13,7 @@ import {
   TrashIcon,
   WhatsAppIcon,
 } from '../components/icons'
+import { toWhatsAppNumber } from '@jaby/shared'
 import styles from './CustomersPage.module.css'
 
 type SortKey = 'recent' | 'orders' | 'name'
@@ -225,7 +226,7 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
               <span className={styles.value}>{customer.phone}</span>
               <a
                 className={styles.waLink}
-                href={`https://wa.me/54${customer.phone}`}
+                href={`https://wa.me/${toWhatsAppNumber(customer.phone)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
