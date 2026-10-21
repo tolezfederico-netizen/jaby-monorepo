@@ -239,6 +239,10 @@ function CheckoutPage() {
       setError('Ingresá tu dirección para el delivery.')
       return
     }
+    if (modality === 'delivery' && !/\d/.test(address)) {
+      setError('Ingresá la dirección con la altura (ej: Av. Corrientes 1234).')
+      return
+    }
     const deliveryMinimum = config?.delivery_minimum_order ?? 0
     if (modality === 'delivery' && deliveryMinimum > 0 && totalPrice < deliveryMinimum) {
       setError(`El pedido mínimo para delivery es de ${formatPrice(deliveryMinimum)}.`)

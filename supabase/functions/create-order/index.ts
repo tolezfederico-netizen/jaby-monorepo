@@ -39,6 +39,10 @@ const OrderPayloadSchema = z
     message: 'La dirección es obligatoria para el delivery',
     path: ['customer_address'],
   })
+  .refine((order) => order.modality !== 'delivery' || /\d/.test(order.customer_address ?? ''), {
+    message: 'Ingresá la dirección con la altura (ej: Av. Corrientes 1234)',
+    path: ['customer_address'],
+  })
 
 // Los horarios del local están en hora argentina, sin importar dónde corra la función
 function getArgentinaMinutes(): number {
