@@ -294,8 +294,9 @@ serve(async (req) => {
             ? [...existing.address_history, address]
             : existing.address_history
 
+        // No se pisa el nombre: el teléfono no prueba que quien pide sea el titular.
+        // La dirección nueva se suma al historial y queda como última usada.
         const updatePayload: Record<string, unknown> = {
-          name,
           last_seen_at: now,
           last_modality: modality,
           total_orders: existing.total_orders + 1,

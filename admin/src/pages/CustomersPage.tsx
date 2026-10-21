@@ -278,7 +278,9 @@ function CustomerDialog({ customer, onClose, onDelete }: CustomerDialogProps) {
           <div className={styles.section}>
             <span className={styles.label}>Promociones por WhatsApp</span>
             <span className={styles.value}>
-              {customer.marketing_consent ? 'Aceptó recibir novedades y promociones' : 'No aceptó (solo contactar por sus pedidos)'}
+              {customer.marketing_consent
+                ? 'Aceptó recibir novedades y promociones (confirmalo por WhatsApp antes del primer envío)'
+                : 'No aceptó (solo contactar por sus pedidos)'}
             </span>
           </div>
 
